@@ -11,6 +11,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - run: node --check js/api.js
       - run: node --check js/ui.js
       - run: node --check js/storage.js
@@ -18,4 +21,5 @@ jobs:
       - run: node --check js/assistants.js
       - run: node --check js/arena.js
       - run: node --check js/main.js
+      - run: python -m py_compile model/roger_spark.py model/train.py model/chat.py
       - run: npm test
