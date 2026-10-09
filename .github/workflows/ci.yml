@@ -21,5 +21,6 @@ jobs:
       - run: node --check js/assistants.js
       - run: node --check js/arena.js
       - run: node --check js/main.js
+      - run: node --check webgpu/engine.js
       - run: python -m py_compile model/roger_spark.py model/train.py model/chat.py model/export_webgpu.py
       - run: npm test
