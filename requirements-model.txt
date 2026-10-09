@@ -1,0 +1,3 @@
+# Roger's own training/inference code. No Ollama and no pretrained model dependency.
+torch>=2.3
+tokenizers>=0.19
