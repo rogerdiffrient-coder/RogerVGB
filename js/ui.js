@@ -10,7 +10,7 @@ export function renderMarkdown(input = "") {
   text = text.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>").replace(/~~(.+?)~~/g, "<del>$1</del>");
   text = text.replace(/(^|\n)([-*] .+(?:\n[-*] .+)*)/g, (_, p, list) => p + "<ul>" + list.split("\n").map((line) => "<li>" + line.slice(2) + "</li>").join("") + "</ul>");
   text = text.replace(/(^|\n)(\d+\. .+(?:\n\d+\. .+)*)/g, (_, p, list) => p + "<ol>" + list.split("\n").map((line) => "<li>" + line.replace(/^\d+\. /, "") + "</li>").join("") + "</ol>");
-  text = text.split(/\n{2,}/).map((part) => /^@@CODE\d+@@$/.test(part) || /^<(h[1-3]|ul|ol|blockquote|pre)/.test(part) ? part : part.replace(/\n/g, "<br>")).join("");
+  text = text.split(/\n{2,}/).map((part) => /^@@CODE\d+@@$/.test(part) || /^<(h[1-3]|ul|ol|blockquote|pre)/.test(part) ? part : "<p>" + part.replace(/\n/g, "<br>") + "</p>").join("");
   return text.replace(/@@CODE(\d+)@@/g, (_, index) => code[Number(index)] || "");
 }
 export function toast(message) { const node = $("#toast"); node.textContent = message; node.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => node.classList.remove("show"), 2600); }
