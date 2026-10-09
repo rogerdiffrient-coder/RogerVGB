@@ -95,7 +95,7 @@ struct P { width:u32, _a:u32, _b:u32, _c:u32 };
 @group(0) @binding(0) var<storage, read> X:array<f32>;
 @group(0) @binding(1) var<storage, read_write> Y:array<f32>;
 @group(0) @binding(2) var<uniform> p:P;
-@compute @workgroup_size(64) fn main(@builtin(global_invocation_id) gid:vec3<u32>){let i=gid.x;if(i<p.width){let x=X[i];Y[i]=0.5*x*(1.0+tanh(0.79788456*(x+0.044715*x*x*x)));}}
+@compute @workgroup_size(64) fn main(@builtin(global_invocation_id) gid:vec3<u32>){let i=gid.x;if(i<p.width){let x=X[i];let z=0.79788456*(x+0.044715*x*x*x); let t=2.0/(1.0+exp(-2.0*z))-1.0; Y[i]=0.5*x*(1.0+t);}}
 `,
   sample: `
 struct P { row:u32, width:u32, scale:f32, _pad:u32 };
