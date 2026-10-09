@@ -31,7 +31,7 @@ struct P { width:u32, _a:u32, _b:u32, _c:u32 };
 @group(0) @binding(2) var<storage, read> B:array<u32>;
 @group(0) @binding(3) var<storage, read_write> Y:array<f32>;
 @group(0) @binding(4) var<uniform> p:P;
-fn halfg(i:u32)->f32 { let z=G[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h<<16u).x; }
+fn halfg(i:u32)->f32 { let z=G[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(select(z,z>>16u,(i&1u)==1u)).x; }
 fn halfb(i:u32)->f32 { let z=B[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h<<16u).x; }
 @compute @workgroup_size(1) fn main() {
  var mean=0.0; for(var i=0u;i<p.width;i++){mean+=X[i];} mean/=f32(p.width);
@@ -199,7 +199,7 @@ export class RogerSparkWebGPU {
     const g=this.tensor(prefix+".weight"),b=this.tensor(prefix+".bias"),y=this.vector(this.width),p=this.params([this.width,0,0,0]);
     this.run("norm",[x,g.buffer,b.buffer,y,p],1);return y;
   }
-  embed(token,position,x){
+  embed(token,position){
     const ew=this.tensor("token_embedding.weight"),pw=this.tensor("position_embedding.weight");
     const tokenOut=this.vector(this.width),p1=this.params([token,this.width,ew.scale,0],[2]);
     this.run("embedding",[ew.buffer,this.zeroVector(),tokenOut,p1],Math.ceil(this.width/64));
