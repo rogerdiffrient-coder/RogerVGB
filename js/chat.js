@@ -4,7 +4,7 @@ import { api } from "./api.js";
 const makeId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
 export class ChatController {
   constructor() {
-    this.chats = storage.getChats(); this.currentId = null; this.busy = false; this.abort = null;
+    this.chats = storage.getChats(); this.currentId = null; this.busy = false; this.abort = null; this.systemPrompt = "";
     this.messages = $("#messages"); this.welcome = $("#welcome"); this.input = $("#message"); this.form = $("#chat-form");
     this.form.addEventListener("submit", (event) => { event.preventDefault(); this.send(); });
     this.input.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); this.send(); } });
@@ -16,9 +16,9 @@ export class ChatController {
   }
   current() { return this.chats.find((chat) => chat.id === this.currentId); }
   persist() { storage.saveChats(this.chats.slice(0, 80)); }
-  newChat() { this.abort?.abort(); this.currentId = null; this.messages.replaceChildren(this.welcome); this.welcome.hidden = false; this.input.value = ""; this.input.style.height = "auto"; this.renderHistory(); this.input.focus(); }
-  ensureChat() { let chat = this.current(); if (!chat) { chat = { id: makeId(), title: "New conversation", updatedAt: Date.now(), messages: [] }; this.chats.unshift(chat); this.currentId = chat.id; } return chat; }
-  openChat(id) { this.abort?.abort(); this.currentId = id; const chat = this.current(); if (!chat) return; this.messages.replaceChildren(); this.welcome.hidden = true; chat.messages.forEach((message) => this.appendMessage(message.role, message.content, false)); this.messages.scrollTop = this.messages.scrollHeight; this.renderHistory(); }
+  newChat() { this.abort?.abort(); this.currentId = null; this.systemPrompt = ""; this.messages.replaceChildren(this.welcome); this.welcome.hidden = false; this.input.value = ""; this.input.style.height = "auto"; this.renderHistory(); this.input.focus(); }
+  ensureChat() { let chat = this.current(); if (!chat) { chat = { id: makeId(), title: "New conversation", updatedAt: Date.now(), systemPrompt: this.systemPrompt, messages: [] }; this.chats.unshift(chat); this.currentId = chat.id; } return chat; }
+  openChat(id) { this.abort?.abort(); this.currentId = id; const chat = this.current(); if (!chat) return; this.systemPrompt = chat.systemPrompt || ""; this.messages.replaceChildren(); this.welcome.hidden = true; chat.messages.forEach((message) => this.appendMessage(message.role, message.content, false)); this.messages.scrollTop = this.messages.scrollHeight; this.renderHistory(); }
   renderHistory() {
     const root = $("#history"); root.replaceChildren();
     if (!this.chats.length) { const p = document.createElement("p"); p.textContent = "Your conversations will live here."; root.append(p); return; }
@@ -41,7 +41,7 @@ export class ChatController {
     this.appendMessage("user", content); this.input.value = ""; this.input.style.height = "auto"; this.persist(); this.renderHistory();
     this.busy = true; $("#send").disabled = true; const typing = this.appendMessage("assistant", "Thinking…"); typing.classList.add("typing"); this.abort = new AbortController(); let answer = "";
     try {
-      const stream = api.chat({ model: settings.model, messages: chat.messages.map((m) => ({ role: m.role, content: m.content })), signal: this.abort.signal });
+      const stream = api.chat({ model: settings.model, system: this.systemPrompt, messages: chat.messages.map((m) => ({ role: m.role, content: m.content })), signal: this.abort.signal });
       let body = null;
       for await (const chunk of stream) { answer += chunk; if (!body) { typing.closest(".message").remove(); body = this.appendMessage("assistant", "", false); } body.innerHTML = renderMarkdown(answer); this.messages.scrollTop = this.messages.scrollHeight; }
       if (!answer) answer = "(The model returned an empty response.)";
