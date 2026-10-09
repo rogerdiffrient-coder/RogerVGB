@@ -1,0 +1,352 @@
+{
+  "format": "roger-spark-webgpu-v1",
+  "model_name": "Roger 0.1 Spark (tiny test)",
+  "quantization": "symmetric per-tensor INT8 for 2D+ tensors; FP16 for vectors and other tensors",
+  "config": {
+    "vocab_size": 512,
+    "context_length": 128,
+    "d_model": 128,
+    "n_layers": 4,
+    "n_heads": 4,
+    "dropout": 0.0,
+    "model_name": "Roger 0.1 Spark (tiny test)"
+  },
+  "tensors": {
+    "token_embedding.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.006741359008578803,
+      "offset": 0,
+      "nbytes": 65536
+    },
+    "position_embedding.weight": {
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0011222564329312543,
+      "offset": 65536,
+      "nbytes": 16384
+    },
+    "blocks.0.ln1.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 81920,
+      "nbytes": 256
+    },
+    "blocks.0.ln1.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 82176,
+      "nbytes": 256
+    },
+    "blocks.0.attn.qkv.weight": {
+      "shape": [
+        384,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0013791641851109782,
+      "offset": 82432,
+      "nbytes": 49152
+    },
+    "blocks.0.attn.proj.weight": {
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0006527209023791035,
+      "offset": 131584,
+      "nbytes": 16384
+    },
+    "blocks.0.ln2.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 147968,
+      "nbytes": 256
+    },
+    "blocks.0.ln2.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 148224,
+      "nbytes": 256
+    },
+    "blocks.0.mlp.0.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0012433229703602828,
+      "offset": 148480,
+      "nbytes": 65536
+    },
+    "blocks.0.mlp.2.weight": {
+      "shape": [
+        128,
+        512
+      ],
+      "dtype": "int8",
+      "scale": 0.0011776945018392847,
+      "offset": 214016,
+      "nbytes": 65536
+    },
+    "blocks.1.ln1.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 279552,
+      "nbytes": 256
+    },
+    "blocks.1.ln1.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 279808,
+      "nbytes": 256
+    },
+    "blocks.1.attn.qkv.weight": {
+      "shape": [
+        384,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.001414352631944371,
+      "offset": 280064,
+      "nbytes": 49152
+    },
+    "blocks.1.attn.proj.weight": {
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0010242483277959147,
+      "offset": 329216,
+      "nbytes": 16384
+    },
+    "blocks.1.ln2.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 345600,
+      "nbytes": 256
+    },
+    "blocks.1.ln2.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 345856,
+      "nbytes": 256
+    },
+    "blocks.1.mlp.0.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0012401856306030995,
+      "offset": 346112,
+      "nbytes": 65536
+    },
+    "blocks.1.mlp.2.weight": {
+      "shape": [
+        128,
+        512
+      ],
+      "dtype": "int8",
+      "scale": 0.0009693594898764542,
+      "offset": 411648,
+      "nbytes": 65536
+    },
+    "blocks.2.ln1.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 477184,
+      "nbytes": 256
+    },
+    "blocks.2.ln1.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 477440,
+      "nbytes": 256
+    },
+    "blocks.2.attn.qkv.weight": {
+      "shape": [
+        384,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.001230926025570847,
+      "offset": 477696,
+      "nbytes": 49152
+    },
+    "blocks.2.attn.proj.weight": {
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0008694355882058932,
+      "offset": 526848,
+      "nbytes": 16384
+    },
+    "blocks.2.ln2.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 543232,
+      "nbytes": 256
+    },
+    "blocks.2.ln2.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 543488,
+      "nbytes": 256
+    },
+    "blocks.2.mlp.0.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0012943180292610107,
+      "offset": 543744,
+      "nbytes": 65536
+    },
+    "blocks.2.mlp.2.weight": {
+      "shape": [
+        128,
+        512
+      ],
+      "dtype": "int8",
+      "scale": 0.001173348642709687,
+      "offset": 609280,
+      "nbytes": 65536
+    },
+    "blocks.3.ln1.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 674816,
+      "nbytes": 256
+    },
+    "blocks.3.ln1.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 675072,
+      "nbytes": 256
+    },
+    "blocks.3.attn.qkv.weight": {
+      "shape": [
+        384,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.001513943193465706,
+      "offset": 675328,
+      "nbytes": 49152
+    },
+    "blocks.3.attn.proj.weight": {
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0010375946056185746,
+      "offset": 724480,
+      "nbytes": 16384
+    },
+    "blocks.3.ln2.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 740864,
+      "nbytes": 256
+    },
+    "blocks.3.ln2.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 741120,
+      "nbytes": 256
+    },
+    "blocks.3.mlp.0.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.0013519234544648899,
+      "offset": 741376,
+      "nbytes": 65536
+    },
+    "blocks.3.mlp.2.weight": {
+      "shape": [
+        128,
+        512
+      ],
+      "dtype": "int8",
+      "scale": 0.0010794272103647547,
+      "offset": 806912,
+      "nbytes": 65536
+    },
+    "final_norm.weight": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 872448,
+      "nbytes": 256
+    },
+    "final_norm.bias": {
+      "shape": [
+        128
+      ],
+      "dtype": "float16",
+      "offset": 872704,
+      "nbytes": 256
+    },
+    "lm_head.weight": {
+      "shape": [
+        512,
+        128
+      ],
+      "dtype": "int8",
+      "scale": 0.006741359008578803,
+      "offset": 872960,
+      "nbytes": 65536
+    }
+  },
+  "source_step": 900,
+  "warning": "Experimental WebGPU runtime; validate on your browser and device."
+}
