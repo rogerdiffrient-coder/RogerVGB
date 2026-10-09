@@ -273,7 +273,7 @@ export async function loadRogerSpark({base="./model/"}={}){
   const [mr,wr,tr]=await Promise.all([
     fetch(base+"manifest.json"),fetch(base+"weights.bin"),fetch(base+"tokenizer.json")
   ]);
-  if(!mr.ok||!wr.ok||!tr.ok)throw new Error("Spark export files are missing. Train Spark and run model/export_webgpu.py, then copy tokenizer.json into webgpu/model/.");
+  if(!mr.ok||!wr.ok||!tr.ok)throw new Error("Roger Spark’s trained weights are not published yet. On the computer with your checkpoint, run: python3 model/export_webgpu.py --checkpoint models/roger-chat-test/checkpoint.pt --output webgpu/model. Then commit and push the generated webgpu/model/ files to GitHub.");
   const [manifest,weights,tok]=await Promise.all([mr.json(),wr.arrayBuffer(),tr.json()]);
   return new RogerSparkWebGPU(device,manifest,weights,new ByteLevelTokenizer(tok));
 }
