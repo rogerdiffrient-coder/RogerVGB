@@ -1,0 +1,8 @@
+{
+  "name": "rogervgb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Roger Very Good Bot — a modular, local-first AI workspace",
+  "scripts": { "test": "node --test" }
+}
