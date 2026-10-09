@@ -13,7 +13,7 @@ The initial model architecture and training code live in `model/`.
 - Trains and runs in its own Python/PyTorch process; Apple Silicon MPS is used when available.
 - No Ollama, API keys, pretrained model downloads, or hosted inference calls.
 - Trained weights are generated locally and are not committed to Git.
-- A WebGPU export script quantizes matrix weights to INT8 and stores other floating-point vectors as FP16 for a future browser runtime.
+- An experimental browser inference page uses WebGPU compute shaders with INT8 matrix weights and FP16 normalization vectors.
 
 **Important:** a parameter count is not a measure of intelligence by itself. Spark is not a capable assistant yet; it needs a large, high-quality training corpus, extensive training, evaluation, and instruction tuning. The included corpus is only a tiny smoke-test sample.
 
@@ -55,8 +55,10 @@ The existing frontend sends requests directly from your browser to the configure
 - `model/roger_spark.py`: custom Transformer architecture
 - `model/train.py`: from-scratch tokenizer/model training
 - `model/chat.py`: standalone local inference
-- `model/export_webgpu.py`: INT8/FP16 export for the planned WebGPU runtime
-- `webgpu/README.md`: browser-runtime status and format documentation
+- `model/export_webgpu.py`: INT8/FP16 export and tokenizer bundling
+- `webgpu/engine.js`: experimental WebGPU inference engine
+- `webgpu/index.html`: browser chat page for Spark
+- `webgpu/README.md`: export and run instructions
 
 ## Privacy and limitations
 
