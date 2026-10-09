@@ -10,7 +10,9 @@ const assistants = new AssistantManager((assistant) => {
   showView("chat"); chat.newChat();
   const settings = storage.getSettings();
   if (assistant.model) { settings.model = assistant.model; storage.saveSettings(settings); api.configure(settings); updateStatus(true); }
-  chat.input.value = "For this conversation, follow these instructions:\n\n" + assistant.instructions + (assistant.description ? "\n\nPurpose: " + assistant.description : "") + "\n\nIntroduce yourself briefly.";
+  chat.systemPrompt = assistant.instructions + (assistant.description ? "\n\nPurpose: " + assistant.description : "");
+  const activeChat = chat.ensureChat(); activeChat.systemPrompt = chat.systemPrompt; storage.saveChats(chat.chats);
+  chat.input.value = "Introduce yourself briefly.";
   chat.input.focus();
 });
 function showView(name) {
@@ -42,9 +44,16 @@ async function refreshModels(showMessage = false) {
   }
 }
 $("#test-connection").addEventListener("click", async () => {
-  const settings = { ...storage.getSettings(), baseUrl: $("#ollama-url").value.trim().replace(/\/+$/, "") }; api.configure(settings);
+  const settings = { ...storage.getSettings(), baseUrl: $("#ollama-url").value.trim().replace(/\\/+$/, "") };
+  api.configure(settings);
   $("#settings-status").textContent = "Checking connection…"; $("#settings-status").style.color = "var(--muted)";
-  await refreshModels(true);
+  try {
+    const models = await api.listModels(); arena.setModels(models, settings.model);
+    $("#settings-status").textContent = "Connected. Found " + models.length + " model(s).";
+    $("#settings-status").style.color = "var(--green)";
+  } catch (error) {
+    $("#settings-status").textContent = error.message; $("#settings-status").style.color = "var(--red)";
+  }
 });
 $("#save-settings").addEventListener("click", async () => {
   const settings = { ...storage.getSettings(), baseUrl: $("#ollama-url").value.trim().replace(/\/+$/, ""), model: $("#default-model").value };
