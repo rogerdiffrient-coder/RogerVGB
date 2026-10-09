@@ -2,41 +2,61 @@
 
 Roger Very Good Bot — your AI, your rules.
 
-A modular, local-first AI workspace. Version 0.1 focuses on three useful features:
+A modular AI workspace. The existing web chat currently has an Ollama adapter, while **Roger 0.1 Spark** is a separate, from-scratch model project that does not use Ollama, API keys, or pretrained weights.
 
-1. **Chat:** streamed conversations with Ollama and saved chat history.
-2. **Custom assistants:** save names, descriptions, instructions, and preferred models.
-3. **Model arena:** run the same prompt against two different local models and compare answers.
+## Roger 0.1 Spark — custom model
 
-## Run locally
+The initial model architecture and training code live in `model/`.
 
-Requirements: a modern browser and [Ollama](https://ollama.com/) with at least one model downloaded.
+- Decoder-only Transformer initialized from random weights.
+- Default architecture targets about **252 million parameters** with a 24,000-token vocabulary.
+- Trains and runs in its own Python/PyTorch process; Apple Silicon MPS is used when available.
+- No Ollama, API keys, pretrained model downloads, or hosted inference calls.
+- Trained weights are generated locally and are not committed to Git.
 
-1. Start Ollama and download a model, e.g. `ollama pull qwen3:4b`.
+**Important:** a parameter count is not a measure of intelligence by itself. Spark is not a capable assistant yet; it needs a large, high-quality training corpus, extensive training, evaluation, and instruction tuning. The included corpus is only a tiny smoke-test sample.
+
+See [model/README.md](model/README.md) for setup, training, and inference commands.
+
+## Existing web frontend
+
+The current static frontend still includes:
+
+1. **Chat:** streamed conversations and saved chat history.
+2. **Custom assistants:** names, descriptions, instructions, and preferred models.
+3. **Model arena:** compare answers from two configured local models.
+
+### Run the existing frontend
+
+1. Start your configured Ollama server and make a model available.
 2. In this repository directory, run `python3 -m http.server 8000`.
 3. Open http://localhost:8000.
-4. Open settings, enter `http://localhost:11434`, choose a model, and test the connection.
+4. Configure the Ollama URL and model in settings.
+
+This describes the existing web chat only; it is not the Spark runtime. **Roger Spark currently runs separately and is not wired into the web UI yet.**
 
 ### Browser access / CORS
 
-This static frontend sends requests directly from your browser to your configured Ollama server. Depending on your Ollama version and browser configuration, cross-origin requests may be blocked. If you see a CORS/network error, configure Ollama to allow the page origin `http://localhost:8000` and restart Ollama. Do not expose Ollama to the public internet.
+The existing frontend sends requests directly from your browser to the configured Ollama server. Depending on your setup, cross-origin requests may be blocked. Do not expose Ollama to the public internet.
 
 ## Modules
 
-- `index.html`: app shell and view containers
-- `styles.css`: responsive visual system
-- `js/api.js`: Ollama HTTP API and streaming parser
-- `js/storage.js`: localStorage persistence
-- `js/ui.js`: DOM helpers, escaped Markdown renderer, notifications
-- `js/chat.js`: conversations, history, streamed chat
+- `index.html`, `styles.css`: web interface
+- `js/api.js`: existing Ollama HTTP/streaming adapter
+- `js/storage.js`: browser-local persistence
+- `js/ui.js`: DOM helpers and Markdown rendering
+- `js/chat.js`: conversations and streamed chat
 - `js/assistants.js`: custom assistant CRUD
-- `js/arena.js`: parallel model comparisons
-- `js/main.js`: navigation and app wiring
+- `js/arena.js`: model comparisons
+- `js/main.js`: app wiring
+- `model/roger_spark.py`: custom Transformer architecture
+- `model/train.py`: from-scratch tokenizer/model training
+- `model/chat.py`: standalone local inference
 
 ## Privacy and limitations
 
-Chats, assistants, and settings are stored in this browser's localStorage (not encrypted). Prompts are sent to the Ollama URL you configure. This version includes no RogerVGB server, account system, cloud model API, or telemetry. Do not put sensitive information into saved chats on a shared device. The arena displays responses side by side without inventing a winner or score.
+The current web chat stores conversations, assistants, and settings in browser localStorage and sends prompts to the configured Ollama server. Spark training and inference are local Python processes. No Spark weights are bundled in the repository.
 
-## Iterate before expanding
+## Development approach
 
-Test with actual models, note bugs, fix them, then add the next feature. Planned follow-ups include editing/regenerating messages, branching, import/export, provider adapters, and automated tests.
+Test the small training pipeline first, then improve the dataset and training loop. Don't mistake a successful training run or a 250M parameter count for proof that the model is intelligent; evaluate it with held-out text and concrete tasks.
