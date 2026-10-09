@@ -44,7 +44,7 @@ async function refreshModels(showMessage = false) {
   }
 }
 $("#test-connection").addEventListener("click", async () => {
-  const settings = { ...storage.getSettings(), baseUrl: $("#ollama-url").value.trim().replace(/\\/+$/, "") };
+  const settings = { ...storage.getSettings(), baseUrl: $("#ollama-url").value.trim().replace(/\/+$/, "") };
   api.configure(settings);
   $("#settings-status").textContent = "Checking connection…"; $("#settings-status").style.color = "var(--muted)";
   try {
