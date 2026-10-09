@@ -1,0 +1,21 @@
+name: Check RogerVGB
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  syntax-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check js/api.js
+      - run: node --check js/ui.js
+      - run: node --check js/storage.js
+      - run: node --check js/chat.js
+      - run: node --check js/assistants.js
+      - run: node --check js/arena.js
+      - run: node --check js/main.js
+      - run: npm test
