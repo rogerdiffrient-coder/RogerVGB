@@ -50,6 +50,18 @@ python3 model/chat.py
 
 The command intentionally refuses to run before a checkpoint and tokenizer exist. No model weights are bundled in this repository.
 
+## Quantize and export for WebGPU
+
+After training a checkpoint, export it into the browser-oriented packed format:
+
+```bash
+python3 model/export_webgpu.py
+```
+
+The exporter writes `webgpu/model/manifest.json` and `webgpu/model/weights.bin` locally. Matrix weights use symmetric per-tensor INT8; floating-point vectors such as normalization parameters use FP16. This reduces storage, but the impact on model quality should be evaluated.
+
+**Important:** this creates quantized files, not a working browser model. The full WebGPU runtime still needs to be implemented. See [../webgpu/README.md](../webgpu/README.md) for the exact status and planned components.
+
 ## Current scope
 
-This first milestone is a custom PyTorch Transformer and training loop, using Apple's MPS backend when available. It runs as a local Python process and does **not** yet run inside a browser. Browser inference would need a separate export/runtime implementation. It is also not yet instruction-tuned, so even after basic pretraining it may continue text rather than behave like a polished assistant.
+The training and standalone inference path use a custom PyTorch Transformer, with Apple's MPS backend when available. Spark is not yet instruction-tuned, so even after pretraining it may continue text rather than behave like a polished assistant. WebGPU inference is a separate next milestone; do not mistake an exported quantized checkpoint for a functioning browser runtime.
