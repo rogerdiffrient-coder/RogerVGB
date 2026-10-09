@@ -7,8 +7,8 @@ inference engine.
 """
 import argparse
 import json
-import struct
 from pathlib import Path
+import shutil
 
 import torch
 
@@ -38,6 +38,10 @@ def main():
 
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
+    tokenizer_source = checkpoint_path.parent / "tokenizer.json"
+    if not tokenizer_source.exists():
+        raise SystemExit(f"Tokenizer not found: {tokenizer_source}. Train Spark first.")
+    shutil.copy2(tokenizer_source, output / "tokenizer.json")
     manifest = {
         "format": "roger-spark-webgpu-v1",
         "model_name": config.get("model_name", "Roger 0.1 Spark"),
@@ -45,7 +49,7 @@ def main():
         "config": config,
         "tensors": {},
         "source_step": checkpoint.get("step"),
-        "warning": "This is an export format, not a complete browser inference runtime.",
+        "warning": "Experimental WebGPU runtime; validate on your browser and device.",
     }
 
     data_path = output / "weights.bin"
@@ -90,6 +94,7 @@ def main():
     print(f"Exported {len(state)} tensors to {output}")
     print(f"Packed weights: {data_path.stat().st_size / (1024 * 1024):.1f} MiB")
     print(f"Manifest: {manifest_path}")
+    print(f"Tokenizer: {output / 'tokenizer.json'}")
 
 
 if __name__ == "__main__":
