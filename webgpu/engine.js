@@ -31,12 +31,13 @@ struct P { width:u32, _a:u32, _b:u32, _c:u32 };
 @group(0) @binding(2) var<storage, read> B:array<u32>;
 @group(0) @binding(3) var<storage, read_write> Y:array<f32>;
 @group(0) @binding(4) var<uniform> p:P;
-fn halfv(a:array<u32>, i:u32)->f32 { let z=a[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(select(h,h<<16u,(i&1u)==0u)).x; }
+fn halfg(i:u32)->f32 { let z=G[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h<<16u).x; }
+fn halfb(i:u32)->f32 { let z=B[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h<<16u).x; }
 @compute @workgroup_size(1) fn main() {
  var mean=0.0; for(var i=0u;i<p.width;i++){mean+=X[i];} mean/=f32(p.width);
  var variance=0.0; for(var i=0u;i<p.width;i++){let d=X[i]-mean; variance+=d*d;} variance/=f32(p.width);
  let inv=inverseSqrt(variance+0.00001);
- for(var i=0u;i<p.width;i++){Y[i]=(X[i]-mean)*inv*halfv(G,i)+halfv(B,i);}
+ for(var i=0u;i<p.width;i++){Y[i]=(X[i]-mean)*inv*halfg(i)+halfb(i);}
 }`,
   split: `
 struct P { width:u32, _a:u32, _b:u32, _c:u32 };
@@ -94,7 +95,7 @@ struct P { width:u32, _a:u32, _b:u32, _c:u32 };
 @group(0) @binding(0) var<storage, read> X:array<f32>;
 @group(0) @binding(1) var<storage, read_write> Y:array<f32>;
 @group(0) @binding(2) var<uniform> p:P;
-@compute @workgroup_size(64) fn main(@builtin(global_invocation_id) gid:vec3<u32>){let i=gid.x;if(i<p.width){let x=X[i];Y[i]=0.5*x*(1.0+tanh(0.79788456*(x+0.044715*x*x*x));}}
+@compute @workgroup_size(64) fn main(@builtin(global_invocation_id) gid:vec3<u32>){let i=gid.x;if(i<p.width){let x=X[i];Y[i]=0.5*x*(1.0+tanh(0.79788456*(x+0.044715*x*x*x)));}}
 `,
   sample: `
 struct P { row:u32, width:u32, scale:f32, _pad:u32 };
@@ -158,7 +159,7 @@ class ByteLevelTokenizer {
 export class RogerSparkWebGPU {
   constructor(device, manifest, weights, tokenizer) {
     this.device=device;this.manifest=manifest;this.config=manifest.config;this.tokenizer=tokenizer;
-    this.weights=new Map();this.buffers=[];
+    this.weights=new Map();this.buffers=[];this.temps=[];
     const bin=weights;
     for(const [name,t] of Object.entries(manifest.tensors)){
       const slice=bin.slice(t.offset,t.offset+t.nbytes);
@@ -180,8 +181,8 @@ export class RogerSparkWebGPU {
     }
   }
   tensor(name){const t=this.weights.get(name);if(!t)throw new Error("Missing tensor: "+name);return t;}
-  temp(bytes){const b=this.device.createBuffer({size:Math.max(4,align4(bytes)),usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST});this.buffers.push(b);return b;}
-  params(values){const data=new ArrayBuffer(16),v=new DataView(data);values.forEach((x,i)=>typeof x==="number"&&v.setUint32(i*4,x,true));const b=this.device.createBuffer({size:16,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});this.device.queue.writeBuffer(b,0,data);this.buffers.push(b);return b;}
+  temp(bytes){const b=this.device.createBuffer({size:Math.max(4,align4(bytes)),usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST});this.temps.push(b);return b;}
+  params(values,floatIndices=[]){const data=new ArrayBuffer(16),v=new DataView(data);values.forEach((x,i)=>{if(typeof x==="number"){if(floatIndices.includes(i))v.setFloat32(i*4,x,true);else v.setUint32(i*4,x,true);}});const b=this.device.createBuffer({size:16,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});this.device.queue.writeBuffer(b,0,data);this.temps.push(b);return b;}
   run(name, entries, dispatch) {
     const pipeline=this.pipelines[name],encoder=this.device.createCommandEncoder(),pass=encoder.beginComputePass();
     pass.setPipeline(pipeline);pass.setBindGroup(0,this.device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:entries.map((b,i)=>({binding:i,resource:{buffer:b}}))}));
@@ -190,7 +191,7 @@ export class RogerSparkWebGPU {
   vector(n){return this.temp(n*4);}
   linear(name,x,outSize,inSize){
     const w=this.tensor(name);if(w.dtype!=="int8")throw new Error("Expected quantized matrix "+name);
-    const y=this.vector(outSize),p=this.params([outSize,inSize,w.scale,0]);
+    const y=this.vector(outSize),p=this.params([outSize,inSize,w.scale,0],[2]);
     this.run("linear",[w.buffer,x,y,p],Math.ceil(outSize/64));return y;
   }
   add(a,b,n){const y=this.vector(n),p=this.params([n,0,0,0]);this.run("add",[a,b,y,p],Math.ceil(n/64));return y;}
@@ -200,9 +201,9 @@ export class RogerSparkWebGPU {
   }
   embed(token,position,x){
     const ew=this.tensor("token_embedding.weight"),pw=this.tensor("position_embedding.weight");
-    const tokenOut=this.vector(this.width),p1=this.params([token,this.width,ew.scale,0]);
+    const tokenOut=this.vector(this.width),p1=this.params([token,this.width,ew.scale,0],[2]);
     this.run("embedding",[ew.buffer,this.zeroVector(),tokenOut,p1],Math.ceil(this.width/64));
-    const y=this.vector(this.width),p2=this.params([position,this.width,pw.scale,0]);
+    const y=this.vector(this.width),p2=this.params([position,this.width,pw.scale,0],[2]);
     this.run("embedding",[pw.buffer,tokenOut,y,p2],Math.ceil(this.width/64));return y;
   }
   zeroVector(){const b=this.vector(this.width);this.device.queue.writeBuffer(b,0,new Float32Array(this.width));return b;}
@@ -212,7 +213,7 @@ export class RogerSparkWebGPU {
     await out.mapAsync(GPUMapMode.READ);const result=new Float32Array(out.getMappedRange().slice(0));out.unmap();out.destroy();return result;
   }
   async forwardToken(token,position){
-    let x=this.embed(token,position,this.zeroVector());
+    let x=this.embed(token,position);
     for(let layer=0;layer<this.config.n_layers;layer++){
       const root="blocks."+layer+".";
       const n1=this.norm(x,root+"ln1");
@@ -236,7 +237,7 @@ export class RogerSparkWebGPU {
     }
     const final=this.norm(x,"final_norm");
     const logits=this.linear("token_embedding.weight",final,this.config.vocab_size,this.width);
-    return this.readVector(logits,this.config.vocab_size);
+    const result=await this.readVector(logits,this.config.vocab_size);this.cleanupTemps();return result;
   }
   async generate(prompt,{maxNewTokens=80,temperature=0.8}={}){
     const ids=this.tokenizer.encode(prompt);
@@ -261,7 +262,8 @@ export class RogerSparkWebGPU {
     }
     return this.tokenizer.decode(generated);
   }
-  destroy(){for(const b of this.buffers)b.destroy();for(const b of this.cacheK)b.destroy();for(const b of this.cacheV)b.destroy();}
+  cleanupTemps(){for(const b of this.temps)b.destroy();this.temps=[];}
+  destroy(){this.cleanupTemps();for(const b of this.buffers)b.destroy();for(const b of this.cacheK)b.destroy();for(const b of this.cacheV)b.destroy();}
 }
 
 export async function loadRogerSpark({base="./model/"}={}){
