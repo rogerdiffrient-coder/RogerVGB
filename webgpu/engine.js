@@ -32,7 +32,7 @@ struct P { width:u32, _a:u32, _b:u32, _c:u32 };
 @group(0) @binding(3) var<storage, read_write> Y:array<f32>;
 @group(0) @binding(4) var<uniform> p:P;
 fn halfg(i:u32)->f32 { let z=G[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(select(z,z>>16u,(i&1u)==1u)).x; }
-fn halfb(i:u32)->f32 { let z=B[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h<<16u).x; }
+fn halfb(i:u32)->f32 { let z=B[i>>1u]; let h=select(z&65535u,z>>16u,(i&1u)==1u); return unpack2x16float(h).x; }
 @compute @workgroup_size(1) fn main() {
  var mean=0.0; for(var i=0u;i<p.width;i++){mean+=X[i];} mean/=f32(p.width);
  var variance=0.0; for(var i=0u;i<p.width;i++){let d=X[i]-mean; variance+=d*d;} variance/=f32(p.width);
