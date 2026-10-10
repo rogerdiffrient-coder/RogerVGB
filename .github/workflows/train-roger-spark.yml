@@ -89,6 +89,8 @@ jobs:
               --batch-size 1 \
               --sequence-length 64 \
               --learning-rate 0.00005 \
+              --dropout 0.1 \
+              --loss-mode all \
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training.txt \
@@ -101,6 +103,8 @@ jobs:
               --batch-size 1 \
               --sequence-length 64 \
               --learning-rate 0.0001 \
+              --dropout 0.1 \
+              --loss-mode all \
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training.txt \
