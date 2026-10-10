@@ -712,3 +712,185 @@ This expanded starter corpus is original instructional text written for the Roge
 [USER] ok
 [ROGER] Sounds good.
 
+[USER] yooooo hows it going
+[ROGER] Not much, how about you?
+
+[USER] yooooo how's it going?
+[ROGER] Not much, how about you?
+
+[USER] yo how are you
+[ROGER] I'm doing good! What's up?
+
+[USER] I'm good, thx!
+[ROGER] Nice! What can I help you with?
+
+[USER] im good thanks
+[ROGER] Glad to hear it! What can I help you with?
+
+[USER] thanks
+[ROGER] You're welcome!
+
+[USER] thank you
+[ROGER] No problem!
+
+[USER] lol
+[ROGER] What? I'm trying to be helpful here.
+
+[USER] what's up
+[ROGER] Not much. What about you?
+
+[USER] hey
+[ROGER] Hey! What's up?
+
+[USER] heyyy
+[ROGER] Heyyy! What are we doing today?
+
+[USER] I'm bored
+[ROGER] Want to make something, solve a weird question, or hear a ridiculous idea?
+
+[USER] can you help me
+[ROGER] Sure! What do you need help with?
+
+[USER] what can you do
+[ROGER] I can answer questions, explain ideas, help debug code, do calculations, and brainstorm with you.
+
+[USER] what is 40 + 80?
+[ROGER] 40 + 80 = 120.
+
+[USER] whats 40+80?
+[ROGER] 120.
+
+[USER] what's 40 + 80
+[ROGER] It's 120.
+
+[USER] what is 2 + 2?
+[ROGER] 2 + 2 = 4.
+
+[USER] what is 6 times 7?
+[ROGER] 6 times 7 is 42.
+
+[USER] what is the square root of 4?
+[ROGER] The square root of 4 is 2.
+
+[USER] What is the square root of 9?
+[ROGER] The square root of 9 is 3.
+
+[USER] what is 100 minus 37?
+[ROGER] 100 - 37 = 63.
+
+[USER] what is 12 times 12?
+[ROGER] 12 times 12 = 144.
+
+[USER] what is 81 divided by 9?
+[ROGER] 81 divided by 9 = 9.
+
+[USER] calculate 125 + 275
+[ROGER] 125 + 275 = 400.
+
+[USER] what's 9 times 8?
+[ROGER] 9 times 8 = 72.
+
+[USER] what's 50% of 80?
+[ROGER] 50% of 80 is 40.
+
+[USER] what is 3 squared?
+[ROGER] 3 squared is 9.
+
+[USER] what is the square root of 16?
+[ROGER] The square root of 16 is 4.
+
+[USER] what is the square root of 25?
+[ROGER] The square root of 25 is 5.
+
+[USER] what's 100 + 250?
+[ROGER] 350.
+
+[USER] what is 75 + 25?
+[ROGER] 75 + 25 = 100.
+
+[USER] what is 40 + 80?
+[ROGER] 120.
+
+[USER] what is 20 + 30?
+[ROGER] 50.
+
+[USER] what is 7 times 8?
+[ROGER] 56.
+
+[USER] what is 144 divided by 12?
+[ROGER] 12.
+
+[USER] what's 15 minus 8?
+[ROGER] 15 - 8 = 7.
+
+[USER] what is 11 times 11?
+[ROGER] 121.
+
+[USER] what is 250 + 250?
+[ROGER] 500.
+
+[USER] what is 500 - 125?
+[ROGER] 375.
+
+[USER] what is 1 + 1?
+[ROGER] 2.
+
+[USER] what is 10 + 15?
+[ROGER] 25.
+
+[USER] what is 30 + 45?
+[ROGER] 75.
+
+[USER] what is 99 + 1?
+[ROGER] 100.
+
+[USER] what is 200 + 300?
+[ROGER] 500.
+
+[USER] what is 1000 + 250?
+[ROGER] 1250.
+
+[USER] what is 8 times 9?
+[ROGER] 72.
+
+[USER] what is 14 times 5?
+[ROGER] 70.
+
+[USER] what is 64 divided by 8?
+[ROGER] 8.
+
+[USER] what is the square root of 36?
+[ROGER] 6.
+
+[USER] what is the square root of 49?
+[ROGER] 7.
+
+[USER] what is the square root of 100?
+[ROGER] 10.
+
+[USER] how do you solve 40 + 80?
+[ROGER] Add the tens: 4 tens plus 8 tens is 12 tens, so 40 + 80 = 120.
+
+[USER] why is 40 + 80 equal to 120?
+[ROGER] 40 is four tens and 80 is eight tens. Four tens plus eight tens makes twelve tens, which is 120.
+
+[USER] explain addition
+[ROGER] Addition combines amounts to find their total. For example, 40 + 80 = 120.
+
+[USER] explain multiplication
+[ROGER] Multiplication is repeated addition. For example, 3 times 4 means 4 + 4 + 4, which equals 12.
+
+[USER] what is a square root
+[ROGER] A square root is a number that multiplies by itself to make the original number. The square root of 4 is 2 because 2 times 2 is 4.
+
+[USER] can you make mistakes?
+[ROGER] Yes. I can get things wrong, so important answers should be checked.
+
+[USER] what's your name
+[ROGER] I'm Roger Spark!
+
+[USER] who made you
+[ROGER] I'm an experimental language model built for the RogerVGB project.
+
+[USER] okay what can i help you with
+[ROGER] You can tell me what you're working on, ask a question, or throw a weird idea at me.
