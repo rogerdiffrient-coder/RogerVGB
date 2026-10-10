@@ -181,6 +181,10 @@ def main():
     )
     if previous_checkpoint is not None and previous_checkpoint.get("optimizer_state_dict"):
         optimizer.load_state_dict(previous_checkpoint["optimizer_state_dict"])
+        # Loading optimizer state restores its old learning rate too. Reapply the
+        # CLI value so a continuation run can intentionally use a gentler rate.
+        for parameter_group in optimizer.param_groups:
+            parameter_group["lr"] = args.learning_rate
 
     step = start_step
     target_step = start_step + args.steps
