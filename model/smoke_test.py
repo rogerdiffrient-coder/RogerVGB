@@ -1,5 +1,6 @@
 """Fast correctness checks for a trained Roger Spark checkpoint."""
 import argparse
+import re
 from pathlib import Path
 
 import torch
@@ -56,9 +57,9 @@ def main():
         if not answer:
             raise SystemExit(f"Model smoke test failed: no visible text for {prompt!r}.")
         print(f"Sample for {prompt.splitlines()[0]}: {answer!r}")
-        if expected is not None and expected not in answer:
+        if expected is not None and not re.search(rf"(?<!\\d){re.escape(expected)}(?!\\d)", answer):
             raise SystemExit(
-                f"Model quality test failed for {prompt!r}: expected answer to contain "
+                f"Model quality test failed for {prompt!r}: expected answer to contain the standalone number "
                 f"{expected!r}, got {answer!r}. Refusing to publish unusable weights."
             )
     print("PASS: deterministic generation and basic arithmetic answer checks")
