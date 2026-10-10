@@ -97,8 +97,8 @@ def main():
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--sequence-length", type=int, default=256)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
-    parser.add_argument("--dropout", type=float, default=None,
-                        help="Override model dropout, including when resuming.")
+    parser.add_argument("--dropout", type=float, default=0.1,
+                        help="Training dropout; defaults to 0.1 to reduce overfitting.")
     parser.add_argument("--loss-mode", choices=("all", "assistant"), default="all",
                         help="Predict all text (recommended) or only Roger's answer tokens.")
     parser.add_argument("--save-every", type=int, default=100)
