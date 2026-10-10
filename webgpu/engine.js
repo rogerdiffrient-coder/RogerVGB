@@ -257,7 +257,7 @@ export class RogerSparkWebGPU {
     const logits=this.linear("token_embedding.weight",final,this.config.vocab_size,this.width);
     const result=await this.readVector(logits,this.config.vocab_size);this.cleanupTemps();return result;
   }
-  async generate(prompt,{maxNewTokens=80,temperature=0.8}={}){
+  async generate(prompt,{maxNewTokens=80,temperature=0.8,onToken=null}={}){
     const ids=this.tokenizer.encode(prompt);
     if(!ids.length)throw new Error("Enter a prompt first.");
     if(ids.length>this.context)throw new Error("Prompt exceeds the "+this.context+" token context limit.");
@@ -278,6 +278,7 @@ export class RogerSparkWebGPU {
       ids.push(next);
       if(this.tokenizer.specialTokenIds.has(next))break;
       generated.push(next);
+      if(typeof onToken==="function")onToken(this.tokenizer.decode(generated));
       if(ids.length<this.context)logits=await this.forwardToken(next,ids.length-1);
     }
     return this.tokenizer.decode(generated);

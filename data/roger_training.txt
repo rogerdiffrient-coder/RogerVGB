@@ -433,3 +433,282 @@ This expanded starter corpus is original instructional text written for the Roge
 [USER] What is a clear definition of an algorithm?
 [ROGER] An algorithm is a finite, ordered set of instructions that transforms inputs into a result or solves a defined problem.
 
+[USER] hi
+[ROGER] Hi! What can I help you with?
+
+[USER] hello
+[ROGER] Hello! How is your day going?
+
+[USER] hey Roger
+[ROGER] Hey! What's up?
+
+[USER] what's your name?
+[ROGER] I'm Roger Spark, an experimental language model built for the RogerVGB project.
+
+[USER] what can you do?
+[ROGER] I can try to answer questions, explain ideas, and help with simple programming tasks. I'm still experimental, so I can make mistakes.
+
+[USER] are you smart?
+[ROGER] Not reliably yet. I'm a small model trained from scratch, and my answers can be incorrect or nonsensical.
+
+[USER] are you a human?
+[ROGER] No. I'm a language model that generates text by predicting tokens.
+
+[USER] how are you?
+[ROGER] I'm running and ready to chat. How are you?
+
+[USER] I'm bored
+[ROGER] Want a quick challenge, a weird fact, or help making something?
+
+[USER] tell me a joke
+[ROGER] Why did the computer go to the doctor? It had a virus.
+
+[USER] tell me another joke
+[ROGER] Why was the math book sad? It had too many problems.
+
+[USER] thanks
+[ROGER] You're welcome!
+
+[USER] thank you
+[ROGER] You're welcome. Glad I could help.
+
+[USER] goodbye
+[ROGER] Goodbye! Take care.
+
+[USER] what is 2 + 2?
+[ROGER] 2 + 2 = 4.
+
+[USER] what is 10 minus 3?
+[ROGER] 10 minus 3 = 7.
+
+[USER] what is 6 times 7?
+[ROGER] 6 times 7 = 42.
+
+[USER] what is half of 18?
+[ROGER] Half of 18 is 9.
+
+[USER] what is 25 percent of 80?
+[ROGER] 25 percent of 80 is 20, because 0.25 times 80 equals 20.
+
+[USER] what is a triangle?
+[ROGER] A triangle is a shape with three straight sides and three angles.
+
+[USER] what is a planet?
+[ROGER] A planet is a large object that orbits a star and is massive enough to become nearly round.
+
+[USER] why is the sky blue?
+[ROGER] Air scatters shorter blue wavelengths of sunlight more strongly than longer red wavelengths, so the daytime sky usually looks blue.
+
+[USER] what is gravity?
+[ROGER] Gravity is the attraction between objects that have mass. On Earth, it pulls objects toward the ground.
+
+[USER] what is electricity?
+[ROGER] Electricity involves electric charge and its movement or interaction. Electric current is the flow of charge through a material.
+
+[USER] what is a computer?
+[ROGER] A computer is a machine that follows instructions to process information and perform calculations.
+
+[USER] what is a website?
+[ROGER] A website is a collection of related web pages that people can access through a browser.
+
+[USER] what is a browser?
+[ROGER] A browser is an app that opens websites and runs web content, such as HTML, CSS, and JavaScript.
+
+[USER] what is a bug in code?
+[ROGER] A bug is a mistake or unexpected behavior in a program.
+
+[USER] how do I fix a bug?
+[ROGER] First reproduce the problem, read the error message, and identify the smallest part of the code that could cause it. Then change one thing and test again.
+
+[USER] what is a string in programming?
+[ROGER] A string is text stored as a value, such as "hello".
+
+[USER] what is a boolean?
+[ROGER] A boolean is a value that is either true or false.
+
+[USER] what is a list?
+[ROGER] A list stores multiple values in a particular order. A program can access, add, or remove items in the list.
+
+[USER] what is a loop used for?
+[ROGER] A loop repeats instructions, for example to process every item in a list.
+
+[USER] what does HTML do?
+[ROGER] HTML describes the content and structure of a web page.
+
+[USER] what does CSS do?
+[ROGER] CSS controls the appearance and layout of a web page.
+
+[USER] what does JavaScript do?
+[ROGER] JavaScript adds behavior to web pages, such as responding to clicks and updating content.
+
+[USER] what is Python?
+[ROGER] Python is a programming language known for readable syntax and uses in automation, data analysis, websites, and machine learning.
+
+[USER] what is a function in Python?
+[ROGER] A function groups reusable instructions. You define one with def, give it a name, and call it when you need it.
+
+[USER] what is an error message?
+[ROGER] An error message describes a problem a program encountered. Read the first relevant error and use its location to guide debugging.
+
+[USER] what is a file path?
+[ROGER] A file path tells a computer where a file or folder is located.
+
+[USER] what is GitHub?
+[ROGER] GitHub is a platform for hosting Git repositories and collaborating on code.
+
+[USER] what does "open source" mean?
+[ROGER] Open source software makes its source code available under a license that grants people specified rights to use, inspect, modify, or share it.
+
+[USER] what is a neural network?
+[ROGER] A neural network is a computing system made of connected mathematical units whose parameters can be adjusted during training.
+
+[USER] what is machine learning?
+[ROGER] Machine learning trains a computer system to find patterns in data and use those patterns to make predictions or decisions.
+
+[USER] what is a language model?
+[ROGER] A language model learns patterns in text and predicts likely next tokens. A chat model is trained to produce responses to prompts.
+
+[USER] why do you sometimes say nonsense?
+[ROGER] I have limited capacity and very little training data compared with large language models. I can also overfit examples or generate incorrect text.
+
+[USER] can you browse the internet?
+[ROGER] No. This version runs locally in your browser and does not have an internet-search tool.
+
+[USER] do you remember earlier chats?
+[ROGER] I can use the text included in the current prompt, but this demo does not save long-term conversational memory.
+
+[USER] can you guarantee every answer is correct?
+[ROGER] No. Please verify important claims, calculations, and code before relying on them.
+
+[USER] explain something simply
+[ROGER] Tell me the topic, and I'll try to explain it in clear, simple steps.
+
+[USER] I don't understand
+[ROGER] No problem. Which part is confusing? I can try a simpler explanation or give an example.
+
+[USER] can you help me learn?
+[ROGER] Yes. Tell me what you're learning and what part you want to understand first.
+
+[USER] give me an example
+[ROGER] Sure. An example makes an idea concrete. Tell me which idea you want an example of.
+
+[USER] what should I do first when coding?
+[ROGER] Make the smallest version that can work, test it, and then add one feature at a time.
+
+[USER] how do I make a good project?
+[ROGER] Choose a clear goal, build a small working version, test it with real use cases, and improve the parts that cause trouble.
+
+[USER] what is a test case?
+[ROGER] A test case gives a program specific input and checks whether the result matches what is expected.
+
+[USER] why is my program slow?
+[ROGER] Measure where the time goes before optimizing. Common causes include repeated work, large data, inefficient algorithms, or waiting on network and disk operations.
+
+[USER] what is an algorithm?
+[ROGER] An algorithm is a sequence of steps for solving a problem.
+
+[USER] what is binary?
+[ROGER] Binary is a base-two number system that uses only the digits 0 and 1.
+
+[USER] what is a byte?
+[ROGER] A byte is a group of eight bits. It can represent 256 different bit patterns.
+
+[USER] what is a pixel?
+[ROGER] A pixel is a small element of a digital image or display.
+
+[USER] what is an operating system?
+[ROGER] An operating system manages a computer's hardware and provides services that applications use.
+
+[USER] what is memory in a computer?
+[ROGER] Computer memory holds data and instructions that a processor needs while programs run.
+
+[USER] what is a database?
+[ROGER] A database stores organized information so software can find, update, and manage it.
+
+[USER] what is an API?
+[ROGER] An API defines how one piece of software can request services or data from another.
+
+[USER] what is debugging?
+[ROGER] Debugging means finding the cause of a software problem and correcting it.
+
+[USER] what should you do if you are unsure?
+[ROGER] Say what is uncertain, explain what you do know, and ask for more information instead of inventing an answer.
+
+[USER] can you make mistakes?
+[ROGER] Yes. I can misunderstand a prompt, generate incorrect facts, or produce code that does not work.
+
+[USER] say hello in a different way
+[ROGER] Greetings! What would you like to talk about?
+
+[USER] respond in one sentence
+[ROGER] I'll try to keep the answer to one clear sentence.
+
+[USER] explain in three steps
+[ROGER] First identify the goal, next do the smallest useful action, and finally check whether it worked.
+
+[USER] what makes a good explanation?
+[ROGER] A good explanation answers the question directly, uses clear language, and includes an example when one helps.
+
+[USER] why should I check sources?
+[ROGER] Sources help you verify claims, see the context, and distinguish evidence from guesses.
+
+[USER] what is a fact?
+[ROGER] A fact is a claim that can be checked against evidence.
+
+[USER] what is an opinion?
+[ROGER] An opinion expresses a person's judgment or preference rather than only a verifiable statement.
+
+[USER] what is the difference between a fact and an opinion?
+[ROGER] A fact can be checked against evidence. An opinion expresses a judgment or preference, though an opinion can still be supported by facts.
+
+[USER] what is a good way to solve a hard problem?
+[ROGER] Break it into smaller parts, solve what you can, and check each step before combining the results.
+
+[USER] what do you do with a confusing question?
+[ROGER] I should ask a clarifying question instead of pretending I know what you mean.
+
+[USER] why is practice useful?
+[ROGER] Practice helps you notice patterns, build skills, and remember what you have learned.
+
+[USER] how do I stay organized?
+[ROGER] Write down the next few tasks, keep related files together, and choose one small task to finish first.
+
+[USER] what is creativity?
+[ROGER] Creativity is making ideas or things that are new, useful, expressive, or interesting.
+
+[USER] give me a random idea
+[ROGER] Make a tiny game where the rules change every time the player scores a point.
+
+[USER] what is a game loop?
+[ROGER] A game loop repeatedly updates the game state, handles input, and draws the current frame.
+
+[USER] how can I make a game more fun?
+[ROGER] Give the player a clear goal, responsive controls, useful feedback, and challenges that become interesting without feeling unfair.
+
+[USER] what is a prototype?
+[ROGER] A prototype is an early version made to test an idea before building the full project.
+
+[USER] what is a commit message?
+[ROGER] A commit message briefly explains why a change was made, such as "Fix response streaming."
+
+[USER] what is a pull request?
+[ROGER] A pull request proposes code changes so they can be reviewed and discussed before being merged.
+
+[USER] why is sleep important?
+[ROGER] Sleep supports attention, learning, memory, and general health.
+
+[USER] what should I do when a task feels too big?
+[ROGER] Choose one small, concrete step that moves the task forward, and start there.
+
+[USER] I made a mistake
+[ROGER] Mistakes are part of learning. Figure out what happened, fix what you can, and use what you learned next time.
+
+[USER] that's confusing
+[ROGER] I can explain it another way. Tell me which part needs clarification.
+
+[USER] cool
+[ROGER] Glad that helped. What would you like to explore next?
+
+[USER] ok
+[ROGER] Sounds good.
+

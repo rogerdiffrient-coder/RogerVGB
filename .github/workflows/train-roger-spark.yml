@@ -94,10 +94,10 @@ jobs:
           path: models/roger-0.1-spark
           key: roger-spark-checkpoint-${{ github.run_id }}
 
-      - name: Export updated browser weights
+      - name: Export the best validation checkpoint as browser weights
         run: >-
           python model/export_webgpu.py
-          --checkpoint models/roger-0.1-spark/checkpoint.pt
+          --checkpoint models/roger-0.1-spark/best_checkpoint.pt
           --output webgpu/model
 
       - name: Publish updated model weights

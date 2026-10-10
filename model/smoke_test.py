@@ -31,23 +31,32 @@ def main():
                           "mps" if torch.backends.mps.is_available() else "cpu")
     config = SparkConfig.from_file(root / "config.json")
     model = RogerSpark(config).to(device)
-    checkpoint = torch.load(root / "checkpoint.pt", map_location=device, weights_only=False)
+    best_path = root / "best_checkpoint.pt"
+    checkpoint_path = best_path if best_path.is_file() else root / "checkpoint.pt"
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    print(f"Testing checkpoint: {checkpoint_path.name} (step {checkpoint.get('step', 'unknown')})")
     model.load_state_dict(checkpoint["model_state_dict"], strict=True)
     model.eval()
 
-    prompt = "[USER] hi\n[ROGER]"
-    ids = tokenizer.encode(prompt).ids
-    input_ids = torch.tensor([ids], dtype=torch.long, device=device)
-    with torch.no_grad():
-        logits, _ = model(input_ids)
-    if not torch.isfinite(logits).all():
-        raise SystemExit("Model smoke test failed: logits contain NaN or infinity.")
-    generated = model.generate(input_ids, max_new_tokens=24, temperature=0, top_k=1)
-    answer = tokenizer.decode(generated[0, len(ids):].tolist(), skip_special_tokens=True).strip()
-    if not answer:
-        raise SystemExit("Model smoke test failed: generation returned no visible text.")
-    print(f"PASS: finite logits and non-empty generation on {device}")
-    print(f"Sample output (not a quality guarantee): {answer!r}")
+    prompts = [
+        "[USER] hi\n[ROGER]",
+        "[USER] What is 2 + 2?\n[ROGER]",
+        "[USER] What is Roger Spark?\n[ROGER]",
+    ]
+    print(f"PASS: finite logits on {device}")
+    for prompt in prompts:
+        ids = tokenizer.encode(prompt).ids
+        input_ids = torch.tensor([ids], dtype=torch.long, device=device)
+        with torch.no_grad():
+            logits, _ = model(input_ids)
+        if not torch.isfinite(logits).all():
+            raise SystemExit(f"Model smoke test failed: non-finite logits for {prompt!r}.")
+        generated = model.generate(input_ids, max_new_tokens=32, temperature=0.0, top_k=1)
+        answer = tokenizer.decode(generated[0, len(ids):].tolist(), skip_special_tokens=True).strip()
+        if not answer:
+            raise SystemExit(f"Model smoke test failed: no visible text for {prompt!r}.")
+        print(f"Sample for {prompt.splitlines()[0]} (quality is not guaranteed): {answer!r}")
+    print("PASS: deterministic generation for all smoke-test prompts")
 
 
 if __name__ == "__main__":
