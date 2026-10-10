@@ -29,12 +29,14 @@ permissions:
 
 concurrency:
   group: roger-spark-training
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   train:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - name: Check out RogerVGB
         uses: actions/checkout@v4
@@ -77,9 +79,11 @@ jobs:
 
       - name: Train or continue the multi-million-parameter model
         run: |
+          set -o pipefail
+          mkdir -p models/roger-0.1-spark
           if [ -f models/roger-0.1-spark/checkpoint.pt ] && [ -f models/roger-0.1-spark/tokenizer.json ]; then
             echo "Continuing the cached Roger Spark checkpoint."
-            python model/train.py \
+            python -u model/train.py \
               --resume \
               --steps "${{ inputs.steps || '10000' }}" \
               --batch-size 1 \
@@ -88,10 +92,10 @@ jobs:
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training.txt \
-              --output models/roger-0.1-spark
+              --output models/roger-0.1-spark 2>&1 | tee -a models/roger-0.1-spark/training.log
           else
             echo "Starting Roger Spark 25M from random initialization."
-            python model/train.py \
+            python -u model/train.py \
               --config model/cloud_config.json \
               --steps "${{ inputs.steps || '10000' }}" \
               --batch-size 1 \
@@ -100,8 +104,19 @@ jobs:
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training.txt \
-              --output models/roger-0.1-spark
+              --output models/roger-0.1-spark 2>&1 | tee -a models/roger-0.1-spark/training.log
           fi
+
+      - name: Upload training logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-training-logs
+          path: |
+            models/roger-0.1-spark/training.log
+            models/roger-0.1-spark/training_state.json
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Smoke-test tokenizer and trained model
         run: python model/smoke_test.py --model-dir models/roger-0.1-spark
