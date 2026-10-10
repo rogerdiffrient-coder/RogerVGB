@@ -61,6 +61,12 @@ def main():
     parser.add_argument("--sequence-length", type=int, default=256)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--save-every", type=int, default=100)
+    parser.add_argument("--validation-fraction", type=float, default=0.1,
+                        help="Fraction of paragraphs held out for validation.")
+    parser.add_argument("--eval-every", type=int, default=100,
+                        help="Evaluate validation loss every N training steps.")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Seed used to shuffle paragraph-level train/validation split.")
     parser.add_argument("--tiny", action="store_true", help="Use a tiny model for pipeline tests.")
     parser.add_argument("--resume", action="store_true",
                         help="Continue from OUTPUT/checkpoint.pt and reuse its tokenizer/config.")
