@@ -1,496 +1,784 @@
 {
   "format": "roger-spark-webgpu-v1",
-  "model_name": "Roger 0.2 Spark",
+  "model_name": "Roger 0.3 Spark 25M",
   "quantization": "symmetric per-tensor INT8 for 2D+ tensors; FP16 for vectors and other tensors",
   "config": {
     "vocab_size": 1024,
     "context_length": 256,
-    "d_model": 160,
-    "n_layers": 6,
-    "n_heads": 5,
+    "d_model": 448,
+    "n_layers": 10,
+    "n_heads": 7,
     "dropout": 0.05,
-    "model_name": "Roger 0.2 Spark"
+    "model_name": "Roger 0.3 Spark 25M"
   },
   "tensors": {
     "token_embedding.weight": {
       "shape": [
         1024,
-        160
+        448
       ],
       "dtype": "int8",
-      "scale": 0.002977331322947825,
+      "scale": 0.0023992561449216105,
       "offset": 0,
-      "nbytes": 163840
+      "nbytes": 458752
     },
     "position_embedding.weight": {
       "shape": [
         256,
-        160
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0006232584320654081,
-      "offset": 163840,
-      "nbytes": 40960
+      "scale": 0.0006666541334212296,
+      "offset": 458752,
+      "nbytes": 114688
     },
     "blocks.0.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 204800,
-      "nbytes": 320
+      "offset": 573440,
+      "nbytes": 896
     },
     "blocks.0.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 205120,
-      "nbytes": 320
+      "offset": 574336,
+      "nbytes": 896
     },
     "blocks.0.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0014964418383095208,
-      "offset": 205440,
-      "nbytes": 76800
+      "scale": 0.0008260096151997724,
+      "offset": 575232,
+      "nbytes": 602112
     },
     "blocks.0.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0006845027325660225,
-      "offset": 282240,
-      "nbytes": 25600
+      "scale": 0.0007261329983163068,
+      "offset": 1177344,
+      "nbytes": 200704
     },
     "blocks.0.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 307840,
-      "nbytes": 320
+      "offset": 1378048,
+      "nbytes": 896
     },
     "blocks.0.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 308160,
-      "nbytes": 320
+      "offset": 1378944,
+      "nbytes": 896
     },
     "blocks.0.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0008118776824530654,
-      "offset": 308480,
-      "nbytes": 102400
+      "scale": 0.0007803418387578228,
+      "offset": 1379840,
+      "nbytes": 802816
     },
     "blocks.0.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0006829295454062815,
-      "offset": 410880,
-      "nbytes": 102400
+      "scale": 0.0007550997410233566,
+      "offset": 2182656,
+      "nbytes": 802816
     },
     "blocks.1.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 513280,
-      "nbytes": 320
+      "offset": 2985472,
+      "nbytes": 896
     },
     "blocks.1.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 513600,
-      "nbytes": 320
+      "offset": 2986368,
+      "nbytes": 896
     },
     "blocks.1.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0013141280084144411,
-      "offset": 513920,
-      "nbytes": 76800
+      "scale": 0.0007747681591454453,
+      "offset": 2987264,
+      "nbytes": 602112
     },
     "blocks.1.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0006207840766493729,
-      "offset": 590720,
-      "nbytes": 25600
+      "scale": 0.0007264236296255758,
+      "offset": 3589376,
+      "nbytes": 200704
     },
     "blocks.1.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 616320,
-      "nbytes": 320
+      "offset": 3790080,
+      "nbytes": 896
     },
     "blocks.1.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 616640,
-      "nbytes": 320
+      "offset": 3790976,
+      "nbytes": 896
     },
     "blocks.1.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0008850738288849357,
-      "offset": 616960,
-      "nbytes": 102400
+      "scale": 0.0008034074869681531,
+      "offset": 3791872,
+      "nbytes": 802816
     },
     "blocks.1.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0006606977755629172,
-      "offset": 719360,
-      "nbytes": 102400
+      "scale": 0.0008489469608922642,
+      "offset": 4594688,
+      "nbytes": 802816
     },
     "blocks.2.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 821760,
-      "nbytes": 320
+      "offset": 5397504,
+      "nbytes": 896
     },
     "blocks.2.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 822080,
-      "nbytes": 320
+      "offset": 5398400,
+      "nbytes": 896
     },
     "blocks.2.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.001176032611704248,
-      "offset": 822400,
-      "nbytes": 76800
+      "scale": 0.0007429062498836066,
+      "offset": 5399296,
+      "nbytes": 602112
     },
     "blocks.2.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0006355737724642116,
-      "offset": 899200,
-      "nbytes": 25600
+      "scale": 0.0007130900236565297,
+      "offset": 6001408,
+      "nbytes": 200704
     },
     "blocks.2.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 924800,
-      "nbytes": 320
+      "offset": 6202112,
+      "nbytes": 896
     },
     "blocks.2.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 925120,
-      "nbytes": 320
+      "offset": 6203008,
+      "nbytes": 896
     },
     "blocks.2.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0008299777240265072,
-      "offset": 925440,
-      "nbytes": 102400
+      "scale": 0.0008466778777715728,
+      "offset": 6203904,
+      "nbytes": 802816
     },
     "blocks.2.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0006986568410565534,
-      "offset": 1027840,
-      "nbytes": 102400
+      "scale": 0.0007911452979553402,
+      "offset": 7006720,
+      "nbytes": 802816
     },
     "blocks.3.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1130240,
-      "nbytes": 320
+      "offset": 7809536,
+      "nbytes": 896
     },
     "blocks.3.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1130560,
-      "nbytes": 320
+      "offset": 7810432,
+      "nbytes": 896
     },
     "blocks.3.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.001207504216141588,
-      "offset": 1130880,
-      "nbytes": 76800
+      "scale": 0.0007792854989607503,
+      "offset": 7811328,
+      "nbytes": 602112
     },
     "blocks.3.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0006207924072198042,
-      "offset": 1207680,
-      "nbytes": 25600
+      "scale": 0.0007053334412612315,
+      "offset": 8413440,
+      "nbytes": 200704
     },
     "blocks.3.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1233280,
-      "nbytes": 320
+      "offset": 8614144,
+      "nbytes": 896
     },
     "blocks.3.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1233600,
-      "nbytes": 320
+      "offset": 8615040,
+      "nbytes": 896
     },
     "blocks.3.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0008896785223577905,
-      "offset": 1233920,
-      "nbytes": 102400
+      "scale": 0.0008094800034845908,
+      "offset": 8615936,
+      "nbytes": 802816
     },
     "blocks.3.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0007044503421295346,
-      "offset": 1336320,
-      "nbytes": 102400
+      "scale": 0.0007279925341681233,
+      "offset": 9418752,
+      "nbytes": 802816
     },
     "blocks.4.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1438720,
-      "nbytes": 320
+      "offset": 10221568,
+      "nbytes": 896
     },
     "blocks.4.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1439040,
-      "nbytes": 320
+      "offset": 10222464,
+      "nbytes": 896
     },
     "blocks.4.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.001192271240114227,
-      "offset": 1439360,
-      "nbytes": 76800
+      "scale": 0.0007749595276014073,
+      "offset": 10223360,
+      "nbytes": 602112
     },
     "blocks.4.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0005576321928519902,
-      "offset": 1516160,
-      "nbytes": 25600
+      "scale": 0.000756688298672203,
+      "offset": 10825472,
+      "nbytes": 200704
     },
     "blocks.4.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1541760,
-      "nbytes": 320
+      "offset": 11026176,
+      "nbytes": 896
     },
     "blocks.4.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1542080,
-      "nbytes": 320
+      "offset": 11027072,
+      "nbytes": 896
     },
     "blocks.4.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0010072525561325193,
-      "offset": 1542400,
-      "nbytes": 102400
+      "scale": 0.0008711268113354059,
+      "offset": 11027968,
+      "nbytes": 802816
     },
     "blocks.4.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0007104702939198711,
-      "offset": 1644800,
-      "nbytes": 102400
+      "scale": 0.0007474433014711995,
+      "offset": 11830784,
+      "nbytes": 802816
     },
     "blocks.5.ln1.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1747200,
-      "nbytes": 320
+      "offset": 12633600,
+      "nbytes": 896
     },
     "blocks.5.ln1.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1747520,
-      "nbytes": 320
+      "offset": 12634496,
+      "nbytes": 896
     },
     "blocks.5.attn.qkv.weight": {
       "shape": [
-        480,
-        160
+        1344,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.001168331058006587,
-      "offset": 1747840,
-      "nbytes": 76800
+      "scale": 0.0008056385545280036,
+      "offset": 12635392,
+      "nbytes": 602112
     },
     "blocks.5.attn.proj.weight": {
       "shape": [
-        160,
-        160
+        448,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0007239431729466896,
-      "offset": 1824640,
-      "nbytes": 25600
+      "scale": 0.0007072878986831725,
+      "offset": 13237504,
+      "nbytes": 200704
     },
     "blocks.5.ln2.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1850240,
-      "nbytes": 320
+      "offset": 13438208,
+      "nbytes": 896
     },
     "blocks.5.ln2.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 1850560,
-      "nbytes": 320
+      "offset": 13439104,
+      "nbytes": 896
     },
     "blocks.5.mlp.0.weight": {
       "shape": [
-        640,
-        160
+        1792,
+        448
       ],
       "dtype": "int8",
-      "scale": 0.0010064288856476312,
-      "offset": 1850880,
-      "nbytes": 102400
+      "scale": 0.0008597499507618701,
+      "offset": 13440000,
+      "nbytes": 802816
     },
     "blocks.5.mlp.2.weight": {
       "shape": [
-        160,
-        640
+        448,
+        1792
       ],
       "dtype": "int8",
-      "scale": 0.0008004395745870635,
-      "offset": 1953280,
-      "nbytes": 102400
+      "scale": 0.0007122498680287459,
+      "offset": 14242816,
+      "nbytes": 802816
+    },
+    "blocks.6.ln1.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 15045632,
+      "nbytes": 896
+    },
+    "blocks.6.ln1.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 15046528,
+      "nbytes": 896
+    },
+    "blocks.6.attn.qkv.weight": {
+      "shape": [
+        1344,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0008018218039527652,
+      "offset": 15047424,
+      "nbytes": 602112
+    },
+    "blocks.6.attn.proj.weight": {
+      "shape": [
+        448,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0006978632075580086,
+      "offset": 15649536,
+      "nbytes": 200704
+    },
+    "blocks.6.ln2.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 15850240,
+      "nbytes": 896
+    },
+    "blocks.6.ln2.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 15851136,
+      "nbytes": 896
+    },
+    "blocks.6.mlp.0.weight": {
+      "shape": [
+        1792,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.000766893951442298,
+      "offset": 15852032,
+      "nbytes": 802816
+    },
+    "blocks.6.mlp.2.weight": {
+      "shape": [
+        448,
+        1792
+      ],
+      "dtype": "int8",
+      "scale": 0.000753301569795984,
+      "offset": 16654848,
+      "nbytes": 802816
+    },
+    "blocks.7.ln1.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 17457664,
+      "nbytes": 896
+    },
+    "blocks.7.ln1.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 17458560,
+      "nbytes": 896
+    },
+    "blocks.7.attn.qkv.weight": {
+      "shape": [
+        1344,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0008276896917913842,
+      "offset": 17459456,
+      "nbytes": 602112
+    },
+    "blocks.7.attn.proj.weight": {
+      "shape": [
+        448,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0007271370080512339,
+      "offset": 18061568,
+      "nbytes": 200704
+    },
+    "blocks.7.ln2.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 18262272,
+      "nbytes": 896
+    },
+    "blocks.7.ln2.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 18263168,
+      "nbytes": 896
+    },
+    "blocks.7.mlp.0.weight": {
+      "shape": [
+        1792,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0008853130101218937,
+      "offset": 18264064,
+      "nbytes": 802816
+    },
+    "blocks.7.mlp.2.weight": {
+      "shape": [
+        448,
+        1792
+      ],
+      "dtype": "int8",
+      "scale": 0.0008008625563674086,
+      "offset": 19066880,
+      "nbytes": 802816
+    },
+    "blocks.8.ln1.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 19869696,
+      "nbytes": 896
+    },
+    "blocks.8.ln1.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 19870592,
+      "nbytes": 896
+    },
+    "blocks.8.attn.qkv.weight": {
+      "shape": [
+        1344,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0007673425115938262,
+      "offset": 19871488,
+      "nbytes": 602112
+    },
+    "blocks.8.attn.proj.weight": {
+      "shape": [
+        448,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0007900908354699142,
+      "offset": 20473600,
+      "nbytes": 200704
+    },
+    "blocks.8.ln2.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 20674304,
+      "nbytes": 896
+    },
+    "blocks.8.ln2.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 20675200,
+      "nbytes": 896
+    },
+    "blocks.8.mlp.0.weight": {
+      "shape": [
+        1792,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0007776603337347977,
+      "offset": 20676096,
+      "nbytes": 802816
+    },
+    "blocks.8.mlp.2.weight": {
+      "shape": [
+        448,
+        1792
+      ],
+      "dtype": "int8",
+      "scale": 0.0008469395280822995,
+      "offset": 21478912,
+      "nbytes": 802816
+    },
+    "blocks.9.ln1.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 22281728,
+      "nbytes": 896
+    },
+    "blocks.9.ln1.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 22282624,
+      "nbytes": 896
+    },
+    "blocks.9.attn.qkv.weight": {
+      "shape": [
+        1344,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0007988429796977306,
+      "offset": 22283520,
+      "nbytes": 602112
+    },
+    "blocks.9.attn.proj.weight": {
+      "shape": [
+        448,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0006769870913873507,
+      "offset": 22885632,
+      "nbytes": 200704
+    },
+    "blocks.9.ln2.weight": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 23086336,
+      "nbytes": 896
+    },
+    "blocks.9.ln2.bias": {
+      "shape": [
+        448
+      ],
+      "dtype": "float16",
+      "offset": 23087232,
+      "nbytes": 896
+    },
+    "blocks.9.mlp.0.weight": {
+      "shape": [
+        1792,
+        448
+      ],
+      "dtype": "int8",
+      "scale": 0.0008077234264433854,
+      "offset": 23088128,
+      "nbytes": 802816
+    },
+    "blocks.9.mlp.2.weight": {
+      "shape": [
+        448,
+        1792
+      ],
+      "dtype": "int8",
+      "scale": 0.0007744585200557558,
+      "offset": 23890944,
+      "nbytes": 802816
     },
     "final_norm.weight": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 2055680,
-      "nbytes": 320
+      "offset": 24693760,
+      "nbytes": 896
     },
     "final_norm.bias": {
       "shape": [
-        160
+        448
       ],
       "dtype": "float16",
-      "offset": 2056000,
-      "nbytes": 320
+      "offset": 24694656,
+      "nbytes": 896
     },
     "lm_head.weight": {
       "shape": [
         1024,
-        160
+        448
       ],
       "dtype": "int8",
-      "scale": 0.002977331322947825,
-      "offset": 2056320,
-      "nbytes": 163840
+      "scale": 0.0023992561449216105,
+      "offset": 24695552,
+      "nbytes": 458752
     }
   },
-  "source_step": 30500,
+  "source_step": 4750,
   "warning": "Experimental WebGPU runtime; validate on your browser and device."
 }
