@@ -1,0 +1,86 @@
+name: Train Roger Spark (experimental)
+
+on:
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Additional CPU training steps (start with 100–500)"
+        required: true
+        default: "300"
+        type: choice
+        options:
+          - "100"
+          - "300"
+          - "500"
+          - "1000"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: roger-spark-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out RogerVGB
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-model.txt
+
+      - name: Install training dependencies
+        run: python -m pip install -r requirements-model.txt
+
+      - name: Verify this runner can handle the published model
+        run: |
+          python - <<'PY'
+          import json
+          with open("webgpu/model/manifest.json", encoding="utf-8") as f:
+              c = json.load(f)["config"]
+          if c["d_model"] > 256 or c["n_layers"] > 6:
+              raise SystemExit(
+                  "This cloud workflow is CPU-only and limited to small models. "
+                  "Use a GPU runner for larger configurations."
+              )
+          print(f"CPU-safe experiment: width={c['d_model']}, layers={c['n_layers']}")
+          PY
+
+      - name: Rebuild a trainable checkpoint from the published model
+        run: python model/import_webgpu.py --input webgpu/model --output models/roger-0.1-spark
+
+      - name: Continue training
+        run: >-
+          python model/train.py
+          --resume
+          --steps "${{ inputs.steps }}"
+          --batch-size 1
+          --sequence-length 64
+          --save-every 100
+          --data data/roger_training.txt
+          --output models/roger-0.1-spark
+
+      - name: Export updated browser weights
+        run: >-
+          python model/export_webgpu.py
+          --checkpoint models/roger-0.1-spark/checkpoint.pt
+          --output webgpu/model
+
+      - name: Publish updated model weights
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add webgpu/model/manifest.json webgpu/model/weights.bin webgpu/model/tokenizer.json
+          if git diff --cached --quiet; then
+            echo "No exported model changes to publish."
+          else
+            git commit -m "Train Roger Spark model weights"
+            git push
+          fi
