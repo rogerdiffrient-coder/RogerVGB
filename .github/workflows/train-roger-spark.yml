@@ -109,5 +109,24 @@ jobs:
             echo "No exported model changes to publish."
           else
             git commit -m "Train Roger Spark model weights"
-            git push
+
+            # Training can take a while, so code commits may land on main
+            # after checkout. Rebase the generated-weights commit onto the
+            # latest main and retry the push instead of losing the model.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if ! git rebase origin/main; then
+                git rebase --abort
+                echo "Could not rebase model export onto latest main."
+                exit 1
+              fi
+              if git push origin HEAD:main; then
+                echo "Published trained model weights."
+                exit 0
+              fi
+              echo "Push attempt $attempt failed; retrying."
+              sleep 2
+            done
+            echo "Failed to publish trained model weights after 3 attempts."
+            exit 1
           fi
