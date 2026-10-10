@@ -6,13 +6,14 @@ on:
     paths:
       - "data/roger_training.txt"
       - "model/train.py"
+      - "model/cloud_config.json"
       - "model/smoke_test.py"
       - "webgpu/engine.js"
       - ".github/workflows/train-roger-spark.yml"
   workflow_dispatch:
     inputs:
       steps:
-        description: "Additional training steps (10x run = 10000)"
+        description: "Additional training steps"
         required: true
         default: "10000"
         type: choice
@@ -21,6 +22,8 @@ on:
           - "3000"
           - "5000"
           - "10000"
+          - "20000"
+          - "50000"
 
 permissions:
   contents: write
@@ -32,7 +35,7 @@ concurrency:
 jobs:
   train:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     steps:
       - name: Check out RogerVGB
         uses: actions/checkout@v4
@@ -66,25 +69,37 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: models/roger-0.1-spark
-          key: roger-spark-checkpoint-${{ github.run_id }}
+          key: roger-spark-v2-checkpoint-${{ github.run_id }}
           restore-keys: |
-            roger-spark-checkpoint-
+            roger-spark-v2-checkpoint-
 
-      - name: Bootstrap from published browser weights when no checkpoint cache exists
-        if: steps.checkpoint-cache.outputs.cache-hit != 'true'
-        run: python model/import_webgpu.py --input webgpu/model --output models/roger-0.1-spark
-
-      - name: Continue training on the expanded corpus
-        run: >-
-          python model/train.py
-          --resume
-          --steps "${{ inputs.steps || '10000' }}"
-          --batch-size 1
-          --sequence-length 64
-          --learning-rate 0.00005
-          --save-every 500
-          --data data/roger_training.txt
-          --output models/roger-0.1-spark
+      - name: Train or continue the multi-million-parameter model
+        run: |
+          if [ -f models/roger-0.1-spark/checkpoint.pt ] && [ -f models/roger-0.1-spark/tokenizer.json ]; then
+            echo "Continuing the cached Roger Spark v2 checkpoint."
+            python model/train.py \
+              --resume \
+              --steps "${{ inputs.steps || '10000' }}" \
+              --batch-size 1 \
+              --sequence-length 64 \
+              --learning-rate 0.00005 \
+              --save-every 500 \
+              --eval-every 250 \
+              --data data/roger_training.txt \
+              --output models/roger-0.1-spark
+          else
+            echo "Starting Roger Spark v2 from random initialization."
+            python model/train.py \
+              --config model/cloud_config.json \
+              --steps "${{ inputs.steps || '10000' }}" \
+              --batch-size 1 \
+              --sequence-length 64 \
+              --learning-rate 0.0001 \
+              --save-every 500 \
+              --eval-every 250 \
+              --data data/roger_training.txt \
+              --output models/roger-0.1-spark
+          fi
 
       - name: Smoke-test tokenizer and trained model
         run: python model/smoke_test.py --model-dir models/roger-0.1-spark
