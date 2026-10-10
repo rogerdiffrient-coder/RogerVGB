@@ -275,7 +275,9 @@ export class RogerSparkWebGPU {
         let r=Math.random()*total;next=ranked[ranked.length-1].id;
         for(let j=0;j<ranked.length;j++){r-=weights[j];if(r<=0){next=ranked[j].id;break;}}
       }
-      ids.push(next);generated.push(next);
+      ids.push(next);
+      if(this.tokenizer.specialTokenIds.has(next))break;
+      generated.push(next);
       if(ids.length<this.context)logits=await this.forwardToken(next,ids.length-1);
     }
     return this.tokenizer.decode(generated);
@@ -293,5 +295,12 @@ export async function loadRogerSpark({base="./model/"}={}){
   ]);
   if(!mr.ok||!wr.ok||!tr.ok)throw new Error("Roger Spark’s trained weights are not published yet. On the computer with your checkpoint, run: python3 model/export_webgpu.py --checkpoint models/roger-chat-test/checkpoint.pt --output webgpu/model. Then commit and push the generated webgpu/model/ files to GitHub.");
   const [manifest,weights,tok]=await Promise.all([mr.json(),wr.arrayBuffer(),tr.json()]);
-  return new RogerSparkWebGPU(device,manifest,weights,new ByteLevelTokenizer(tok));
+  const tokenizer=new ByteLevelTokenizer(tok);
+  for(const marker of ["[USER]","[ROGER]"]){
+    const ids=tokenizer.encode(marker);
+    if(ids.length!==1||ids[0]!==tokenizer.vocab[marker])throw new Error("Tokenizer self-test failed for "+marker);
+  }
+  const sample="Hi, world! 2+2 = 4.";
+  if(tokenizer.decode(tokenizer.encode(sample))!==sample)throw new Error("Tokenizer self-test failed: text round-trip mismatch");
+  return new RogerSparkWebGPU(device,manifest,weights,tokenizer);
 }
