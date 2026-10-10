@@ -1,6 +1,5 @@
 """Fast correctness checks for a trained Roger Spark checkpoint."""
 import argparse
-import re
 from pathlib import Path
 
 import torch
@@ -45,11 +44,11 @@ def main():
 
     # Smoke-test conversational generation without requiring calculator behavior yet.
     prompts = [
-        "[USER] hi\\n[ROGER]",
-        "[USER] yooooo hows it going\\n[ROGER]",
-        "[USER] [USER] yooooo hows it going\\n[ROGER] Not much, how about you?\\n[USER] im good, thx!\\n[ROGER]",
-        "[USER] What is debugging?\\n[ROGER]",
-        "[USER] Give me an idea for a tiny game.\\n[ROGER]",
+        "[USER] hi\n[ROGER]",
+        "[USER] yooooo hows it going\n[ROGER]",
+        "[USER] [USER] yooooo hows it going\n[ROGER] Not much, how about you?\n[USER] im good, thx!\n[ROGER]",
+        "[USER] What is debugging?\n[ROGER]",
+        "[USER] Give me an idea for a tiny game.\n[ROGER]",
     ]
     print(f"PASS: finite logits on {device}")
     for prompt in prompts:
