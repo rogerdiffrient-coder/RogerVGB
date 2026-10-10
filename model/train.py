@@ -1,13 +1,9 @@
-"""Train or continue training Roger 0.1 Spark.
+"""Train or continue training Roger Spark.
 
-Fresh training example:
-  python model/train.py --tiny --steps 100 --output models/roger-spark-tiny
-
-Continue an existing checkpoint:
-  python model/train.py --resume --steps 500 --output models/roger-spark-tiny
-
-When --resume is set, --steps means *additional* steps. The existing tokenizer
-and model configuration are reused so token IDs do not silently change.
+The default objective is ordinary next-token language modeling over every clean
+paragraph, including explanatory prose and chat prompts. Use --loss-mode assistant
+only when deliberately doing assistant-only fine-tuning. Windows are made per
+paragraph with overlap so questions and answers are less likely to be split apart.
 """
 import argparse
 import hashlib
@@ -24,28 +20,56 @@ from roger_spark import RogerSpark, SparkConfig, tiny_config
 
 
 class TokenBlocks(Dataset):
-    """Fixed-length blocks whose loss is limited to assistant answer tokens."""
-    def __init__(self, token_ids, target_mask, sequence_length):
-        if len(token_ids) != len(target_mask):
-            raise ValueError("Token IDs and target mask must have equal lengths.")
-        self.ids = torch.tensor(token_ids, dtype=torch.long)
-        self.mask = torch.tensor(target_mask, dtype=torch.bool)
-        self.sequence_length = sequence_length
-        self.starts = [
-            start for start in range(0, len(self.ids) - sequence_length, sequence_length)
-            if bool(self.mask[start + 1:start + sequence_length + 1].any())
-        ]
+    """Overlapping fixed-length windows that never cross paragraph boundaries."""
+    def __init__(self, examples, sequence_length, pad_id, loss_mode="all",
+                 user_id=None, roger_id=None, eos_id=None):
+        self.items = []
+        stride = max(1, sequence_length // 2)
+        for ids in examples:
+            if len(ids) < 2:
+                continue
+            if loss_mode == "assistant":
+                mask = [False] * len(ids)
+                inside_answer = False
+                for i, token_id in enumerate(ids):
+                    if token_id == user_id:
+                        inside_answer = False
+                    elif token_id == roger_id:
+                        inside_answer = True
+                    elif token_id == eos_id:
+                        mask[i] = inside_answer
+                        inside_answer = False
+                    elif inside_answer:
+                        mask[i] = True
+            else:
+                mask = [True] * len(ids)
+
+            for start in range(0, len(ids) - 1, stride):
+                input_ids = ids[start:start + sequence_length]
+                target_ids = ids[start + 1:start + sequence_length + 1]
+                target_mask = mask[start + 1:start + sequence_length + 1]
+                if not target_ids:
+                    continue
+                valid_length = len(target_ids)
+                input_ids = input_ids[:valid_length]
+                pad_count = sequence_length - valid_length
+                input_ids += [pad_id] * pad_count
+                target_ids += [-100] * pad_count
+                target_ids = [
+                    token if keep else -100
+                    for token, keep in zip(target_ids, target_mask + [False] * pad_count)
+                ]
+                if any(token != -100 for token in target_ids):
+                    self.items.append((
+                        torch.tensor(input_ids, dtype=torch.long),
+                        torch.tensor(target_ids, dtype=torch.long),
+                    ))
 
     def __len__(self):
-        return len(self.starts)
+        return len(self.items)
 
     def __getitem__(self, index):
-        start = self.starts[index]
-        inputs = self.ids[start:start + self.sequence_length]
-        targets = self.ids[start + 1:start + self.sequence_length + 1].clone()
-        answer_targets = self.mask[start + 1:start + self.sequence_length + 1]
-        targets[~answer_targets] = -100  # PyTorch cross-entropy ignores these positions.
-        return inputs, targets
+        return self.items[index]
 
 
 def train_tokenizer(text_path, tokenizer_path, vocab_size):
@@ -67,40 +91,37 @@ def train_tokenizer(text_path, tokenizer_path, vocab_size):
 
 def main():
     parser = argparse.ArgumentParser(description="Train or continue training Roger Spark.")
-    parser.add_argument("--data", default="data/roger_training.txt", help="Plain-text training corpus.")
+    parser.add_argument("--data", default="data/roger_training.txt")
     parser.add_argument("--steps", type=int, default=1000,
                         help="Training steps; additional steps when --resume is used.")
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--sequence-length", type=int, default=256)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--dropout", type=float, default=None,
+                        help="Override model dropout, including when resuming.")
+    parser.add_argument("--loss-mode", choices=("all", "assistant"), default="all",
+                        help="Predict all text (recommended) or only Roger's answer tokens.")
     parser.add_argument("--save-every", type=int, default=100)
-    parser.add_argument("--validation-fraction", type=float, default=0.1,
-                        help="Fraction of paragraphs held out for validation.")
-    parser.add_argument("--eval-every", type=int, default=100,
-                        help="Evaluate validation loss every N training steps.")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Seed used to shuffle paragraph-level train/validation split.")
-    parser.add_argument("--config", default="model/config.json", help="Model configuration used for fresh training.")
-    parser.add_argument("--tiny", action="store_true", help="Use a tiny model for pipeline tests.")
-    parser.add_argument("--resume", action="store_true",
-                        help="Continue from OUTPUT/checkpoint.pt and reuse its tokenizer/config.")
+    parser.add_argument("--validation-fraction", type=float, default=0.1)
+    parser.add_argument("--eval-every", type=int, default=100)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--config", default="model/config.json")
+    parser.add_argument("--tiny", action="store_true")
+    parser.add_argument("--resume", action="store_true")
     parser.add_argument("--output", default="models/roger-0.1-spark")
     args = parser.parse_args()
 
-    if args.steps < 1:
-        raise SystemExit("--steps must be at least 1.")
-    if args.batch_size < 1 or args.save_every < 1:
-        raise SystemExit("--batch-size and --save-every must be at least 1.")
+    if args.steps < 1 or args.batch_size < 1 or args.save_every < 1:
+        raise SystemExit("--steps, --batch-size, and --save-every must be positive.")
+    if args.eval_every < 1 or not 0.0 < args.validation_fraction < 0.5:
+        raise SystemExit("--eval-every must be positive and validation fraction between 0 and 0.5.")
 
     data_path = Path(args.data)
     if not data_path.exists():
-        raise SystemExit(f"Training text not found: {data_path}\nAdd clean text you have permission to use.")
+        raise SystemExit(f"Training text not found: {data_path}")
     text = data_path.read_text(encoding="utf-8")
-    # Include the preprocessing format in the fingerprint so checkpoints trained
-    # without explicit [EOS] turn markers cannot be treated as directly comparable.
-    data_sha256 = hashlib.sha256(("assistant-only-v2:" + text).encode("utf-8")).hexdigest()
     if len(text.strip()) < 1000:
-        raise SystemExit("Training corpus is too small. Add substantially more clean, permitted text first.")
+        raise SystemExit("Training corpus is too small; add substantially more clean text.")
 
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -110,10 +131,7 @@ def main():
 
     if args.resume:
         if not checkpoint_path.exists() or not tokenizer_path.exists():
-            raise SystemExit(
-                f"Cannot resume: expected both {checkpoint_path} and {tokenizer_path}. "
-                "Train once first or import an existing model export."
-            )
+            raise SystemExit(f"Cannot resume: expected {checkpoint_path} and {tokenizer_path}.")
         previous_checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
         config_data = previous_checkpoint.get("config")
         state = previous_checkpoint.get("model_state_dict")
@@ -122,12 +140,9 @@ def main():
         base_config = SparkConfig(**config_data)
         tokenizer = Tokenizer.from_file(str(tokenizer_path))
         if tokenizer.get_vocab_size() != base_config.vocab_size:
-            raise SystemExit(
-                f"Tokenizer vocabulary ({tokenizer.get_vocab_size()}) does not match "
-                f"checkpoint config ({base_config.vocab_size}); refusing to corrupt token IDs."
-            )
+            raise SystemExit("Tokenizer vocabulary does not match checkpoint config.")
         start_step = int(previous_checkpoint.get("step", 0))
-        print(f"Resuming checkpoint at step {start_step}; keeping its tokenizer and model config.")
+        print(f"Resuming checkpoint at step {start_step}; preserving tokenizer and weights.")
     else:
         base_config = tiny_config() if args.tiny else SparkConfig.from_file(args.config)
         tokenizer = train_tokenizer(data_path, tokenizer_path, base_config.vocab_size)
@@ -136,7 +151,16 @@ def main():
         start_step = 0
         print("Training from random initialization; no pretrained weights are loaded.")
 
-    # Validation scores are comparable only when the exact training corpus is unchanged.
+    if args.dropout is not None:
+        if not 0.0 <= args.dropout < 1.0:
+            raise SystemExit("--dropout must be between 0 and 1.")
+        base_config.dropout = args.dropout
+
+    # Fingerprint includes preprocessing and objective. Old assistant-only scores
+    # cannot be compared with scores from the new paragraph-windowed objective.
+    data_sha256 = hashlib.sha256(
+        f"paragraph-windows-v3:{args.loss_mode}:".encode("utf-8") + text.encode("utf-8")
+    ).hexdigest()
     same_training_data = (
         previous_checkpoint is not None
         and previous_checkpoint.get("training_data_sha256") == data_sha256
@@ -144,30 +168,12 @@ def main():
     best_checkpoint_path = output / "best_checkpoint.pt"
     if not same_training_data:
         best_checkpoint_path.unlink(missing_ok=True)
-        print("Training corpus changed (or has no recorded fingerprint); resetting best-checkpoint selection.")
+        print("Data/objective changed; resetting best-checkpoint selection.")
 
-    if torch.backends.mps.is_available():
-        device = torch.device("mps")
-    elif torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-    print(f"Device: {device}")
-    print(f"Model: {base_config.model_name}")
-
-    if not 0.0 < args.validation_fraction < 0.5:
-        raise SystemExit("--validation-fraction must be greater than 0 and less than 0.5.")
-    if args.eval_every < 1:
-        raise SystemExit("--eval-every must be at least 1.")
-
-    # Split on paragraph boundaries so a Q/A example is not cut in half.
     paragraphs = [part.strip() for part in text.split("\n\n") if part.strip()]
     if len(paragraphs) < 10:
-        raise SystemExit("Need at least 10 paragraphs to make a useful validation split.")
+        raise SystemExit("Need at least 10 paragraphs for a useful validation split.")
 
-    # Teach an explicit assistant-turn boundary. Without this, the model only
-    # sees the next [USER] marker after an answer and often rambles into another
-    # turn. [EOS] is already a registered special token in the tokenizer.
     def mark_answer_ends(paragraph):
         if "[USER]" not in paragraph or "[ROGER]" not in paragraph:
             return paragraph
@@ -181,50 +187,42 @@ def main():
     paragraphs = [mark_answer_ends(part) for part in paragraphs]
     random.Random(args.seed).shuffle(paragraphs)
     validation_count = max(1, int(len(paragraphs) * args.validation_fraction))
-    validation_text = "\n\n".join(paragraphs[:validation_count])
-    training_text = "\n\n".join(paragraphs[validation_count:])
+    validation_paragraphs = paragraphs[:validation_count]
+    training_paragraphs = paragraphs[validation_count:]
+
     user_id = tokenizer.token_to_id("[USER]")
     roger_id = tokenizer.token_to_id("[ROGER]")
     eos_id = tokenizer.token_to_id("[EOS]")
-    if None in (user_id, roger_id, eos_id):
+    pad_id = tokenizer.token_to_id("[PAD]")
+    if None in (user_id, roger_id, eos_id, pad_id):
         raise SystemExit("Tokenizer is missing a required dialogue marker.")
 
-    def assistant_target_mask(ids):
-        # Only train the model to predict Roger's answer and its end marker.
-        # User prompts remain visible as context, but do not consume training loss.
-        mask = [False] * len(ids)
-        inside_answer = False
-        for index, token_id in enumerate(ids):
-            if token_id == user_id:
-                inside_answer = False
-            elif token_id == roger_id:
-                inside_answer = True
-            elif token_id == eos_id:
-                mask[index] = inside_answer
-                inside_answer = False
-            elif inside_answer:
-                mask[index] = True
-        return mask
-
-    train_ids = tokenizer.encode(training_text).ids
-    validation_ids = tokenizer.encode(validation_text).ids
-    train_mask = assistant_target_mask(train_ids)
-    validation_mask = assistant_target_mask(validation_ids)
+    train_examples = [tokenizer.encode(p).ids for p in training_paragraphs]
+    validation_examples = [tokenizer.encode(p).ids for p in validation_paragraphs]
     sequence_length = min(args.sequence_length, base_config.context_length)
-    dataset = TokenBlocks(train_ids, train_mask, sequence_length)
-    validation_dataset = TokenBlocks(validation_ids, validation_mask, sequence_length)
+    dataset = TokenBlocks(train_examples, sequence_length, pad_id, args.loss_mode,
+                          user_id, roger_id, eos_id)
+    validation_dataset = TokenBlocks(validation_examples, sequence_length, pad_id, args.loss_mode,
+                                     user_id, roger_id, eos_id)
     if len(dataset) < args.batch_size:
-        raise SystemExit(
-            f"Not enough tokenized training text for batch size {args.batch_size}; "
-            "add more text or reduce --batch-size/--sequence-length."
-        )
-    if len(validation_dataset) < 1:
-        raise SystemExit("Not enough held-out validation tokens; add more text or reduce sequence length.")
+        raise SystemExit("Not enough training windows for the requested batch size.")
+    if not len(validation_dataset):
+        raise SystemExit("Not enough held-out validation windows.")
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
     validation_loader = DataLoader(validation_dataset, batch_size=1, shuffle=False)
-    print(f"Paragraphs: {len(paragraphs)} total; {len(paragraphs)-validation_count} train; "
-          f"{validation_count} validation")
-    print(f"Token blocks with assistant-answer targets: {len(dataset)} train; {len(validation_dataset)} validation")
+
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    print(f"Device: {device}")
+    print(f"Model: {base_config.model_name}")
+    print(f"Paragraphs: {len(paragraphs)} total; {len(training_paragraphs)} train; "
+          f"{len(validation_paragraphs)} validation")
+    print(f"Loss mode: {args.loss_mode}; overlapping windows: "
+          f"{len(dataset)} train, {len(validation_dataset)} validation; sequence length {sequence_length}")
 
     model = RogerSpark(base_config).to(device)
     if previous_checkpoint is not None:
@@ -236,10 +234,8 @@ def main():
     )
     if previous_checkpoint is not None and previous_checkpoint.get("optimizer_state_dict"):
         optimizer.load_state_dict(previous_checkpoint["optimizer_state_dict"])
-        # Loading optimizer state restores its old learning rate too. Reapply the
-        # CLI value so a continuation run can intentionally use a gentler rate.
-        for parameter_group in optimizer.param_groups:
-            parameter_group["lr"] = args.learning_rate
+        for group in optimizer.param_groups:
+            group["lr"] = args.learning_rate
 
     step = start_step
     target_step = start_step + args.steps
@@ -247,16 +243,16 @@ def main():
         float(previous_checkpoint.get("best_validation_loss", float("inf")))
         if same_training_data else float("inf")
     )
+    validation_loss = None
 
     @torch.no_grad()
     def evaluate():
         model.eval()
         losses = []
-        for batch_index, (inputs, targets) in enumerate(validation_loader):
-            if batch_index >= 32:
-                break
+        for inputs, targets in validation_loader:
             _, val_loss = model(inputs.to(device), targets.to(device))
-            losses.append(float(val_loss.item()))
+            if val_loss is not None and torch.isfinite(val_loss):
+                losses.append(float(val_loss.item()))
         model.train()
         return sum(losses) / max(1, len(losses))
 
@@ -266,10 +262,13 @@ def main():
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad(set_to_none=True)
             _, loss = model(inputs, targets)
+            if not torch.isfinite(loss):
+                raise SystemExit(f"Non-finite training loss at step {step + 1}.")
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             step += 1
+
             if step == start_step + 1 or step % 10 == 0:
                 print(f"step {step}/{target_step} | train_loss={loss.item():.4f}")
 
@@ -286,7 +285,7 @@ def main():
                         "validation_loss": validation_loss,
                         "training_data_sha256": data_sha256,
                         "training_note": "Best held-out validation checkpoint; RogerVGB custom model.",
-                    }, output / "best_checkpoint.pt")
+                    }, best_checkpoint_path)
                     print(f"New best validation checkpoint: {validation_loss:.4f}")
 
             if step % args.save_every == 0 or step == target_step:
@@ -296,19 +295,20 @@ def main():
                     "config": base_config.__dict__,
                     "optimizer_state_dict": optimizer.state_dict(),
                     "best_validation_loss": best_validation_loss,
-                    "validation_loss": validation_loss if should_evaluate else None,
+                    "validation_loss": validation_loss,
                     "training_data_sha256": data_sha256,
-                    "training_note": "RogerVGB custom model; trained only on the corpus supplied by the user.",
+                    "training_note": "RogerVGB custom model trained on the supplied corpus.",
                 }
                 torch.save(checkpoint, checkpoint_path)
-                (output / "training_state.json").write_text(
-                    json.dumps({
-                        "step": step,
-                        "train_loss": float(loss.item()),
-                        "validation_loss": validation_loss if should_evaluate else None,
-                        "best_validation_loss": best_validation_loss,
-                    }, indent=2), encoding="utf-8"
-                )
+                (output / "training_state.json").write_text(json.dumps({
+                    "step": step,
+                    "train_loss": float(loss.item()),
+                    "validation_loss": validation_loss,
+                    "best_validation_loss": best_validation_loss,
+                    "loss_mode": args.loss_mode,
+                    "training_windows": len(dataset),
+                    "validation_windows": len(validation_dataset),
+                }, indent=2), encoding="utf-8")
                 print(f"Saved checkpoint at step {step}")
             if step >= target_step:
                 break
