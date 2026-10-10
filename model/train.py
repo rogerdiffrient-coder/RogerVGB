@@ -11,6 +11,7 @@ and model configuration are reused so token IDs do not silently change.
 """
 import argparse
 import json
+import random
 from pathlib import Path
 
 import torch
@@ -121,15 +122,36 @@ def main():
     print(f"Device: {device}")
     print(f"Model: {base_config.model_name}")
 
-    token_ids = tokenizer.encode(text).ids
+    if not 0.0 < args.validation_fraction < 0.5:
+        raise SystemExit("--validation-fraction must be greater than 0 and less than 0.5.")
+    if args.eval_every < 1:
+        raise SystemExit("--eval-every must be at least 1.")
+
+    # Split on paragraph boundaries so a Q/A example is not cut in half.
+    paragraphs = [part.strip() for part in text.split("\\n\\n") if part.strip()]
+    if len(paragraphs) < 10:
+        raise SystemExit("Need at least 10 paragraphs to make a useful validation split.")
+    random.Random(args.seed).shuffle(paragraphs)
+    validation_count = max(1, int(len(paragraphs) * args.validation_fraction))
+    validation_text = "\\n\\n".join(paragraphs[:validation_count])
+    training_text = "\\n\\n".join(paragraphs[validation_count:])
+    train_ids = tokenizer.encode(training_text).ids
+    validation_ids = tokenizer.encode(validation_text).ids
     sequence_length = min(args.sequence_length, base_config.context_length)
-    dataset = TokenBlocks(token_ids, sequence_length)
+    dataset = TokenBlocks(train_ids, sequence_length)
+    validation_dataset = TokenBlocks(validation_ids, sequence_length)
     if len(dataset) < args.batch_size:
         raise SystemExit(
-            f"Not enough tokenized text for one batch of {args.batch_size}; "
-            "add more training text or reduce --batch-size/--sequence-length."
+            f"Not enough tokenized training text for batch size {args.batch_size}; "
+            "add more text or reduce --batch-size/--sequence-length."
         )
+    if len(validation_dataset) < 1:
+        raise SystemExit("Not enough held-out validation tokens; add more text or reduce sequence length.")
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
+    validation_loader = DataLoader(validation_dataset, batch_size=1, shuffle=False)
+    print(f"Paragraphs: {len(paragraphs)} total; {len(paragraphs)-validation_count} train; "
+          f"{validation_count} validation")
+    print(f"Token blocks: {len(dataset)} train; {len(validation_dataset)} validation")
 
     model = RogerSpark(base_config).to(device)
     if previous_checkpoint is not None:
@@ -144,6 +166,23 @@ def main():
 
     step = start_step
     target_step = start_step + args.steps
+    best_validation_loss = (
+        float(previous_checkpoint.get("best_validation_loss", float("inf")))
+        if previous_checkpoint is not None else float("inf")
+    )
+
+    @torch.no_grad()
+    def evaluate():
+        model.eval()
+        losses = []
+        for batch_index, (inputs, targets) in enumerate(validation_loader):
+            if batch_index >= 32:
+                break
+            _, val_loss = model(inputs.to(device), targets.to(device))
+            losses.append(float(val_loss.item()))
+        model.train()
+        return sum(losses) / max(1, len(losses))
+
     model.train()
     while step < target_step:
         for inputs, targets in loader:
@@ -155,24 +194,48 @@ def main():
             optimizer.step()
             step += 1
             if step == start_step + 1 or step % 10 == 0:
-                print(f"step {step}/{target_step} | loss {loss.item():.4f}")
+                print(f"step {step}/{target_step} | train_loss={loss.item():.4f}")
+
+            should_evaluate = step % args.eval_every == 0 or step == target_step
+            if should_evaluate:
+                validation_loss = evaluate()
+                print(f"step {step}/{target_step} | validation_loss={validation_loss:.4f}")
+                if validation_loss < best_validation_loss:
+                    best_validation_loss = validation_loss
+                    torch.save({
+                        "step": step,
+                        "model_state_dict": model.state_dict(),
+                        "config": base_config.__dict__,
+                        "validation_loss": validation_loss,
+                        "training_note": "Best held-out validation checkpoint; RogerVGB custom model.",
+                    }, output / "best_checkpoint.pt")
+                    print(f"New best validation checkpoint: {validation_loss:.4f}")
+
             if step % args.save_every == 0 or step == target_step:
                 checkpoint = {
                     "step": step,
                     "model_state_dict": model.state_dict(),
                     "config": base_config.__dict__,
                     "optimizer_state_dict": optimizer.state_dict(),
+                    "best_validation_loss": best_validation_loss,
+                    "validation_loss": validation_loss if should_evaluate else None,
                     "training_note": "RogerVGB custom model; trained only on the corpus supplied by the user.",
                 }
                 torch.save(checkpoint, checkpoint_path)
                 (output / "training_state.json").write_text(
-                    json.dumps({"step": step, "loss": loss.item()}, indent=2), encoding="utf-8"
+                    json.dumps({
+                        "step": step,
+                        "train_loss": float(loss.item()),
+                        "validation_loss": validation_loss if should_evaluate else None,
+                        "best_validation_loss": best_validation_loss,
+                    }, indent=2), encoding="utf-8"
                 )
                 print(f"Saved checkpoint at step {step}")
             if step >= target_step:
                 break
 
     print(f"Finished. Checkpoint: {checkpoint_path}")
+    print(f"Best validation loss this run: {best_validation_loss:.4f}")
 
 
 if __name__ == "__main__":
