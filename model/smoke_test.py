@@ -39,12 +39,12 @@ def main():
     model.eval()
 
     prompts = [
-        "[USER] hi\n[ROGER]",
-        "[USER] What is 2 + 2?\n[ROGER]",
-        "[USER] What is Roger Spark?\n[ROGER]",
+        ("[USER] hi\n[ROGER]", None),
+        ("[USER] what is 2 + 2?\n[ROGER]", "4"),
+        ("[USER] what is 6 times 7?\n[ROGER]", "42"),
     ]
     print(f"PASS: finite logits on {device}")
-    for prompt in prompts:
+    for prompt, expected in prompts:
         ids = tokenizer.encode(prompt).ids
         input_ids = torch.tensor([ids], dtype=torch.long, device=device)
         with torch.no_grad():
@@ -55,8 +55,13 @@ def main():
         answer = tokenizer.decode(generated[0, len(ids):].tolist(), skip_special_tokens=True).strip()
         if not answer:
             raise SystemExit(f"Model smoke test failed: no visible text for {prompt!r}.")
-        print(f"Sample for {prompt.splitlines()[0]} (quality is not guaranteed): {answer!r}")
-    print("PASS: deterministic generation for all smoke-test prompts")
+        print(f"Sample for {prompt.splitlines()[0]}: {answer!r}")
+        if expected is not None and expected not in answer:
+            raise SystemExit(
+                f"Model quality test failed for {prompt!r}: expected answer to contain "
+                f"{expected!r}, got {answer!r}. Refusing to publish unusable weights."
+            )
+    print("PASS: deterministic generation and basic arithmetic answer checks")
 
 
 if __name__ == "__main__":
