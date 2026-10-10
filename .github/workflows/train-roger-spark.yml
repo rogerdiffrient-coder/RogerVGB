@@ -80,7 +80,7 @@ jobs:
               --resume \
               --steps "${{ inputs.steps || '20000' }}" \
               --batch-size 1 \
-              --sequence-length 64 \
+              --sequence-length 128 \
               --learning-rate 0.00005 \
               --save-every 500 \
               --eval-every 250 \
@@ -90,9 +90,9 @@ jobs:
             echo "Starting Roger Spark v2 from random initialization."
             python model/train.py \
               --config model/cloud_config.json \
-              --steps "${{ inputs.steps || '10000' }}" \
+              --steps "${{ inputs.steps || '20000' }}" \
               --batch-size 1 \
-              --sequence-length 64 \
+              --sequence-length 128 \
               --learning-rate 0.0001 \
               --save-every 500 \
               --eval-every 250 \
