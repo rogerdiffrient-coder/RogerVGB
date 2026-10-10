@@ -39,8 +39,8 @@ def main():
     model.eval()
 
     print(f"Parameter count: {model.parameter_count:,} ({model.parameter_count / 1e6:.2f}M)")
-    if model.parameter_count < 1_000_000:
-        raise SystemExit("Model quality test failed: expected the multi-million-parameter Spark configuration.")
+    if model.parameter_count < 20_000_000:
+        raise SystemExit("Model quality test failed: expected the 20M+ Roger Spark configuration.")
 
     # Smoke-test conversational generation without requiring calculator behavior yet.
     prompts = [

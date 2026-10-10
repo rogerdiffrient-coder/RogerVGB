@@ -1,9 +1,9 @@
 {
-  "model_name": "Roger 0.2 Spark",
+  "model_name": "Roger 0.3 Spark 25M",
   "vocab_size": 1024,
   "context_length": 256,
-  "d_model": 160,
-  "n_layers": 6,
-  "n_heads": 5,
+  "d_model": 448,
+  "n_layers": 10,
+  "n_heads": 7,
   "dropout": 0.05
 }

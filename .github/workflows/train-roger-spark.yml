@@ -14,7 +14,7 @@ on:
       steps:
         description: "Additional training steps"
         required: true
-        default: "5000"
+        default: "10000"
         type: choice
         options:
           - "1000"
@@ -49,18 +49,21 @@ jobs:
       - name: Install training dependencies
         run: python -m pip install -r requirements-model.txt
 
-      - name: Verify this runner can handle the published model
+      - name: Verify the 25M target configuration
         run: |
           python - <<'PY'
           import json
-          with open("webgpu/model/manifest.json", encoding="utf-8") as f:
-              c = json.load(f)["config"]
-          if c["d_model"] > 256 or c["n_layers"] > 6:
-              raise SystemExit(
-                  "This cloud workflow is CPU-only and limited to small models. "
-                  "Use a GPU runner for larger configurations."
-              )
-          print(f"CPU-safe experiment: width={c['d_model']}, layers={c['n_layers']}")
+          with open("model/cloud_config.json", encoding="utf-8") as f:
+              c = json.load(f)
+          d, layers, vocab, context = c["d_model"], c["n_layers"], c["vocab_size"], c["context_length"]
+          if d % c["n_heads"]:
+              raise SystemExit("d_model must be divisible by n_heads.")
+          # This architecture ties input/output embeddings and uses bias-free projections.
+          params = vocab*d + context*d + layers*(12*d*d + 4*d) + 2*d
+          print(f"Target: {params:,} parameters ({params/1e6:.2f}M)")
+          if not 20_000_000 <= params <= 30_000_000:
+              raise SystemExit("Expected a model in the 20M–30M parameter range.")
+          print("NOTE: GitHub-hosted runner is CPU-only; 25M training will be slow.")
           PY
 
       - name: Restore the latest full-precision checkpoint
@@ -68,9 +71,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: models/roger-0.1-spark
-          key: roger-spark-v4-checkpoint-${{ github.run_id }}
+          key: roger-spark-v5-checkpoint-${{ github.run_id }}
           restore-keys: |
-            roger-spark-v4-checkpoint-
+            roger-spark-v5-checkpoint-
 
       - name: Train or continue the multi-million-parameter model
         run: |
@@ -78,21 +81,21 @@ jobs:
             echo "Continuing the cached Roger Spark checkpoint."
             python model/train.py \
               --resume \
-              --steps "${{ inputs.steps || '5000' }}" \
+              --steps "${{ inputs.steps || '10000' }}" \
               --batch-size 1 \
-              --sequence-length 128 \
+              --sequence-length 64 \
               --learning-rate 0.00005 \
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training.txt \
               --output models/roger-0.1-spark
           else
-            echo "Starting Roger Spark v2 from random initialization."
+            echo "Starting Roger Spark 25M from random initialization."
             python model/train.py \
               --config model/cloud_config.json \
-              --steps "${{ inputs.steps || '20000' }}" \
+              --steps "${{ inputs.steps || '10000' }}" \
               --batch-size 1 \
-              --sequence-length 128 \
+              --sequence-length 64 \
               --learning-rate 0.0001 \
               --save-every 500 \
               --eval-every 250 \
@@ -107,7 +110,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: models/roger-0.1-spark
-          key: roger-spark-v4-checkpoint-${{ github.run_id }}
+          key: roger-spark-v5-checkpoint-${{ github.run_id }}
 
       - name: Export the best validation checkpoint as browser weights
         run: >-
