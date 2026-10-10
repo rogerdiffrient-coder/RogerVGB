@@ -32,6 +32,16 @@ python3 model/train.py --tiny --steps 20 --batch-size 1 --sequence-length 64
 
 The tiny run writes a checkpoint to `models/roger-0.1-spark/`. This tests that training works; it does not create a smart model.
 
+## Continue training from a checkpoint
+
+The training script now supports resuming while preserving the existing tokenizer and model configuration:
+
+```bash
+python3 model/train.py --resume --steps 500 --output models/roger-0.1-spark
+```
+
+With `--resume`, `--steps` means 500 **additional** steps. The output directory must already contain `checkpoint.pt` and `tokenizer.json`. Reusing the same tokenizer matters: retraining it changes token IDs and makes old weights incompatible. The checkpoint's optimizer state is restored when available.
+
 ## Train the 250M architecture
 
 First replace `data/roger_training.txt` with a **large** clean corpus you have permission to train on. One plain-text file is supported in this initial version.
