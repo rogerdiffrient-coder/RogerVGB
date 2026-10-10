@@ -85,7 +85,9 @@ def main():
     if not data_path.exists():
         raise SystemExit(f"Training text not found: {data_path}\nAdd clean text you have permission to use.")
     text = data_path.read_text(encoding="utf-8")
-    data_sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    # Include the preprocessing format in the fingerprint so checkpoints trained
+    # without explicit [EOS] turn markers cannot be treated as directly comparable.
+    data_sha256 = hashlib.sha256(("dialogue-eos-v1\\0" + text).encode("utf-8")).hexdigest()
     if len(text.strip()) < 1000:
         raise SystemExit("Training corpus is too small. Add substantially more clean, permitted text first.")
 
