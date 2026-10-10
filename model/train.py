@@ -68,6 +68,7 @@ def main():
                         help="Evaluate validation loss every N training steps.")
     parser.add_argument("--seed", type=int, default=42,
                         help="Seed used to shuffle paragraph-level train/validation split.")
+    parser.add_argument("--config", default="model/config.json", help="Model configuration used for fresh training.")
     parser.add_argument("--tiny", action="store_true", help="Use a tiny model for pipeline tests.")
     parser.add_argument("--resume", action="store_true",
                         help="Continue from OUTPUT/checkpoint.pt and reuse its tokenizer/config.")
@@ -114,7 +115,7 @@ def main():
         start_step = int(previous_checkpoint.get("step", 0))
         print(f"Resuming checkpoint at step {start_step}; keeping its tokenizer and model config.")
     else:
-        base_config = tiny_config() if args.tiny else SparkConfig.from_file("model/config.json")
+        base_config = tiny_config() if args.tiny else SparkConfig.from_file(args.config)
         tokenizer = train_tokenizer(data_path, tokenizer_path, base_config.vocab_size)
         base_config.vocab_size = tokenizer.get_vocab_size()
         base_config.save(output / "config.json")
