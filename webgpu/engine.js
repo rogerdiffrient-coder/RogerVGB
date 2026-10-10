@@ -112,6 +112,9 @@ class ByteLevelTokenizer {
     this.vocab = json.model.vocab;
     this.idToToken = [];
     for (const [token, id] of Object.entries(this.vocab)) this.idToToken[id] = token;
+    // Match registered special tokens before applying ordinary byte-level BPE.
+    this.specialTokens = (json.added_tokens || []).filter(item => item.special).map(item => item.content).sort((a,b) => b.length-a.length);
+    this.specialTokenIds = new Set(this.specialTokens.map(token => this.vocab[token]));
     this.ranks = new Map();
     (json.model.merges || []).forEach((pair, i) => {
       const p = Array.isArray(pair) ? pair : pair.split(" ");
@@ -142,12 +145,27 @@ class ByteLevelTokenizer {
   }
   encode(text) {
     const ids=[];
+    let cursor=0;
+    while(cursor<text.length){
+      let nextAt=-1,nextToken=null;
+      for(const token of this.specialTokens){
+        const at=text.indexOf(token,cursor);
+        if(at>=0&&(nextAt<0||at<nextAt||(at===nextAt&&token.length>nextToken.length))){nextAt=at;nextToken=token;}
+      }
+      const end=nextAt<0?text.length:nextAt;
+      this.encodeOrdinary(text.slice(cursor,end),ids);
+      if(nextAt<0)break;
+      ids.push(this.vocab[nextToken]);
+      cursor=nextAt+nextToken.length;
+    }
+    return ids;
+  }
+  encodeOrdinary(text,ids) {
     for(const match of text.matchAll(this.pattern)){
       const bytes=new TextEncoder().encode(match[0]);
       let piece="";for(const b of bytes)piece+=this.byteEncoder.get(b);
       for(const token of this.bpe(piece)){const id=this.vocab[token];if(id===undefined)throw new Error("Tokenizer is missing token: "+token);ids.push(id);}
     }
-    return ids;
   }
   decode(ids) {
     const bytes=[];
