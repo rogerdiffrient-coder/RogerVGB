@@ -128,13 +128,13 @@ def main():
         raise SystemExit("--eval-every must be at least 1.")
 
     # Split on paragraph boundaries so a Q/A example is not cut in half.
-    paragraphs = [part.strip() for part in text.split("\\n\\n") if part.strip()]
+    paragraphs = [part.strip() for part in text.split("\n\n") if part.strip()]
     if len(paragraphs) < 10:
         raise SystemExit("Need at least 10 paragraphs to make a useful validation split.")
     random.Random(args.seed).shuffle(paragraphs)
     validation_count = max(1, int(len(paragraphs) * args.validation_fraction))
-    validation_text = "\\n\\n".join(paragraphs[:validation_count])
-    training_text = "\\n\\n".join(paragraphs[validation_count:])
+    validation_text = "\n\n".join(paragraphs[:validation_count])
+    training_text = "\n\n".join(paragraphs[validation_count:])
     train_ids = tokenizer.encode(training_text).ids
     validation_ids = tokenizer.encode(validation_text).ids
     sequence_length = min(args.sequence_length, base_config.context_length)
