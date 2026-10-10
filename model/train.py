@@ -159,8 +159,8 @@ def main():
         if "[USER]" not in paragraph or "[ROGER]" not in paragraph:
             return paragraph
         return re.sub(
-            r"(\\[ROGER\\].*?)(?=\\n\\[USER\\]|$)",
-            lambda match: match.group(1).rstrip() + "\\n[EOS]",
+            r"(\[ROGER\].*?)(?=\n\[USER\]|$)",
+            lambda match: match.group(1).rstrip() + "\n[EOS]",
             paragraph,
             flags=re.DOTALL,
         )
