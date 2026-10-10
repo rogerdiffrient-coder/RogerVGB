@@ -19,6 +19,8 @@ The initial model architecture and training code live in `model/`.
 
 See [model/README.md](model/README.md) for setup, training, inference, and quantized export commands. The [WebGPU README](webgpu/README.md) documents the browser-runtime plan.
 
+**One-click training experiment:** open the repository's Actions tab and run **Train Roger Spark (experimental)** to continue training the published small model on GitHub's CPU runner and publish the new browser weights. See [the cloud-training guide](docs/roger-spark-cloud-training.md). This is only a small experiment: the current model and dataset are too small to become a capable assistant, and the workflow is not GPU-backed.
+
 **Status note:** quantized export is implemented; the complete WebGPU inference runtime is not yet implemented.
 
 ## Existing web frontend
