@@ -1,6 +1,14 @@
 name: Train Roger Spark (experimental)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "data/roger_training.txt"
+      - "model/train.py"
+      - "model/smoke_test.py"
+      - "webgpu/engine.js"
+      - ".github/workflows/train-roger-spark.yml"
   workflow_dispatch:
     inputs:
       steps:
@@ -70,12 +78,15 @@ jobs:
         run: >-
           python model/train.py
           --resume
-          --steps "${{ inputs.steps }}"
+          --steps "${{ inputs.steps || '3000' }}"
           --batch-size 1
           --sequence-length 64
           --save-every 500
           --data data/roger_training.txt
           --output models/roger-0.1-spark
+
+      - name: Smoke-test tokenizer and trained model
+        run: python model/smoke_test.py --model-dir models/roger-0.1-spark
 
       - name: Cache full-precision checkpoint for the next run
         uses: actions/cache/save@v4
