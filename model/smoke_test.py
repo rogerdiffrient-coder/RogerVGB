@@ -43,6 +43,8 @@ def main():
         ("[USER] hi\n[ROGER]", None),
         ("[USER] what is 2 + 2?\n[ROGER]", "4"),
         ("[USER] what is 6 times 7?\n[ROGER]", "42"),
+        ("[USER] Hello!\n[ROGER]", "Hello"),
+        ("[USER] What is the square root of 4?\n[ROGER]", "2"),
     ]
     print(f"PASS: finite logits on {device}")
     for prompt, expected in prompts:
@@ -59,7 +61,7 @@ def main():
         print(f"Sample for {prompt.splitlines()[0]}: {answer!r}")
         if expected is not None and not re.search(rf"(?<!\d){re.escape(expected)}(?!\d)", answer):
             raise SystemExit(
-                f"Model quality test failed for {prompt!r}: expected answer to contain the standalone number "
+                f"Model quality test failed for {prompt!r}: expected answer to contain the expected answer "
                 f"{expected!r}, got {answer!r}. Refusing to publish unusable weights."
             )
     print("PASS: deterministic generation and basic arithmetic answer checks")
