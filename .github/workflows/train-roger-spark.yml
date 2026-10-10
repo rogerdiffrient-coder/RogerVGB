@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       steps:
-        description: "Additional CPU training steps (start with 100–500)"
+        description: "Additional training steps (10x run = 10000)"
         required: true
-        default: "300"
+        default: "10000"
         type: choice
         options:
-          - "100"
-          - "300"
-          - "500"
           - "1000"
+          - "3000"
+          - "5000"
+          - "10000"
 
 permissions:
   contents: write
@@ -24,7 +24,7 @@ concurrency:
 jobs:
   train:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 180
     steps:
       - name: Check out RogerVGB
         uses: actions/checkout@v4
@@ -53,19 +53,35 @@ jobs:
           print(f"CPU-safe experiment: width={c['d_model']}, layers={c['n_layers']}")
           PY
 
-      - name: Rebuild a trainable checkpoint from the published model
+      - name: Restore the latest full-precision checkpoint
+        id: checkpoint-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: models/roger-0.1-spark
+          key: roger-spark-checkpoint-${{ github.run_id }}
+          restore-keys: |
+            roger-spark-checkpoint-
+
+      - name: Bootstrap from published browser weights when no checkpoint cache exists
+        if: steps.checkpoint-cache.outputs.cache-hit != 'true'
         run: python model/import_webgpu.py --input webgpu/model --output models/roger-0.1-spark
 
-      - name: Continue training
+      - name: Continue training on the expanded corpus
         run: >-
           python model/train.py
           --resume
           --steps "${{ inputs.steps }}"
           --batch-size 1
           --sequence-length 64
-          --save-every 100
+          --save-every 500
           --data data/roger_training.txt
           --output models/roger-0.1-spark
+
+      - name: Cache full-precision checkpoint for the next run
+        uses: actions/cache/save@v4
+        with:
+          path: models/roger-0.1-spark
+          key: roger-spark-checkpoint-${{ github.run_id }}
 
       - name: Export updated browser weights
         run: >-
