@@ -13,6 +13,7 @@ import argparse
 import hashlib
 import json
 import random
+import re
 from pathlib import Path
 
 import torch
@@ -150,6 +151,21 @@ def main():
     paragraphs = [part.strip() for part in text.split("\n\n") if part.strip()]
     if len(paragraphs) < 10:
         raise SystemExit("Need at least 10 paragraphs to make a useful validation split.")
+
+    # Teach an explicit assistant-turn boundary. Without this, the model only
+    # sees the next [USER] marker after an answer and often rambles into another
+    # turn. [EOS] is already a registered special token in the tokenizer.
+    def mark_answer_ends(paragraph):
+        if "[USER]" not in paragraph or "[ROGER]" not in paragraph:
+            return paragraph
+        return re.sub(
+            r"(\\[ROGER\\].*?)(?=\\n\\[USER\\]|$)",
+            lambda match: match.group(1).rstrip() + "\\n[EOS]",
+            paragraph,
+            flags=re.DOTALL,
+        )
+
+    paragraphs = [mark_answer_ends(part) for part in paragraphs]
     random.Random(args.seed).shuffle(paragraphs)
     validation_count = max(1, int(len(paragraphs) * args.validation_fraction))
     validation_text = "\n\n".join(paragraphs[:validation_count])
