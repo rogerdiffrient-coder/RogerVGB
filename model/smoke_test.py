@@ -58,7 +58,8 @@ def main():
             logits, _ = model(input_ids)
         if not torch.isfinite(logits).all():
             raise SystemExit(f"Model smoke test failed: non-finite logits for {prompt!r}.")
-        generated = model.generate(input_ids, max_new_tokens=32, temperature=0.0, top_k=1)
+        generated = model.generate(input_ids, max_new_tokens=32, temperature=0.0, top_k=1,
+                                      eos_token_id=tokenizer.token_to_id("[EOS]"))
         answer = tokenizer.decode(generated[0, len(ids):].tolist(), skip_special_tokens=True).strip()
         if not answer:
             raise SystemExit(f"Model smoke test failed: no visible text for {prompt!r}.")

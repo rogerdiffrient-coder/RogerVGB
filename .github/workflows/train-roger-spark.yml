@@ -14,7 +14,7 @@ on:
       steps:
         description: "Additional training steps"
         required: true
-        default: "20000"
+        default: "5000"
         type: choice
         options:
           - "1000"
@@ -68,17 +68,17 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: models/roger-0.1-spark
-          key: roger-spark-v3-checkpoint-${{ github.run_id }}
+          key: roger-spark-v4-checkpoint-${{ github.run_id }}
           restore-keys: |
-            roger-spark-v3-checkpoint-
+            roger-spark-v4-checkpoint-
 
       - name: Train or continue the multi-million-parameter model
         run: |
           if [ -f models/roger-0.1-spark/checkpoint.pt ] && [ -f models/roger-0.1-spark/tokenizer.json ]; then
-            echo "Continuing the cached Roger Spark v2 checkpoint."
+            echo "Continuing the cached Roger Spark checkpoint."
             python model/train.py \
               --resume \
-              --steps "${{ inputs.steps || '20000' }}" \
+              --steps "${{ inputs.steps || '5000' }}" \
               --batch-size 1 \
               --sequence-length 128 \
               --learning-rate 0.00005 \
@@ -107,7 +107,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: models/roger-0.1-spark
-          key: roger-spark-v3-checkpoint-${{ github.run_id }}
+          key: roger-spark-v4-checkpoint-${{ github.run_id }}
 
       - name: Export the best validation checkpoint as browser weights
         run: >-

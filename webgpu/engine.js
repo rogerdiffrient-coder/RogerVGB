@@ -267,6 +267,12 @@ export class RogerSparkWebGPU {
     for(let i=0;i<ids.length;i++)logits=await this.forwardToken(ids[i],i);
     const generated=[];
     for(let i=0;i<maxNewTokens&&ids.length<this.context;i++){
+      const eosId=this.tokenizer.vocab["[EOS]"];
+      // Control markers must never leak into the visible answer or end it early.
+      // [EOS] is the only special token that should terminate a response.
+      for(const specialId of this.tokenizer.specialTokenIds){
+        if(specialId!==eosId)logits[specialId]=-Infinity;
+      }
       let next;
       if(temperature<=0){next=0;for(let j=1;j<logits.length;j++)if(logits[j]>logits[next])next=j;}
       else {
@@ -276,7 +282,7 @@ export class RogerSparkWebGPU {
         for(let j=0;j<ranked.length;j++){r-=weights[j];if(r<=0){next=ranked[j].id;break;}}
       }
       ids.push(next);
-      if(this.tokenizer.specialTokenIds.has(next))break;
+      if(next===eosId)break;
       generated.push(next);
       if(typeof onToken==="function")onToken(this.tokenizer.decode(generated));
       if(ids.length<this.context)logits=await this.forwardToken(next,ids.length-1);

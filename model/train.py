@@ -24,17 +24,28 @@ from roger_spark import RogerSpark, SparkConfig, tiny_config
 
 
 class TokenBlocks(Dataset):
-    def __init__(self, token_ids, sequence_length):
+    """Fixed-length blocks whose loss is limited to assistant answer tokens."""
+    def __init__(self, token_ids, target_mask, sequence_length):
+        if len(token_ids) != len(target_mask):
+            raise ValueError("Token IDs and target mask must have equal lengths.")
         self.ids = torch.tensor(token_ids, dtype=torch.long)
+        self.mask = torch.tensor(target_mask, dtype=torch.bool)
         self.sequence_length = sequence_length
+        self.starts = [
+            start for start in range(0, len(self.ids) - sequence_length, sequence_length)
+            if bool(self.mask[start + 1:start + sequence_length + 1].any())
+        ]
 
     def __len__(self):
-        return max(0, (len(self.ids) - 1) // self.sequence_length)
+        return len(self.starts)
 
     def __getitem__(self, index):
-        start = index * self.sequence_length
-        chunk = self.ids[start:start + self.sequence_length + 1]
-        return chunk[:-1], chunk[1:]
+        start = self.starts[index]
+        inputs = self.ids[start:start + self.sequence_length]
+        targets = self.ids[start + 1:start + self.sequence_length + 1].clone()
+        answer_targets = self.mask[start + 1:start + self.sequence_length + 1]
+        targets[~answer_targets] = -100  # PyTorch cross-entropy ignores these positions.
+        return inputs, targets
 
 
 def train_tokenizer(text_path, tokenizer_path, vocab_size):
@@ -87,7 +98,7 @@ def main():
     text = data_path.read_text(encoding="utf-8")
     # Include the preprocessing format in the fingerprint so checkpoints trained
     # without explicit [EOS] turn markers cannot be treated as directly comparable.
-    data_sha256 = hashlib.sha256(("dialogue-eos-v1\\0" + text).encode("utf-8")).hexdigest()
+    data_sha256 = hashlib.sha256(("assistant-only-v2:" + text).encode("utf-8")).hexdigest()
     if len(text.strip()) < 1000:
         raise SystemExit("Training corpus is too small. Add substantially more clean, permitted text first.")
 
@@ -172,11 +183,36 @@ def main():
     validation_count = max(1, int(len(paragraphs) * args.validation_fraction))
     validation_text = "\n\n".join(paragraphs[:validation_count])
     training_text = "\n\n".join(paragraphs[validation_count:])
+    user_id = tokenizer.token_to_id("[USER]")
+    roger_id = tokenizer.token_to_id("[ROGER]")
+    eos_id = tokenizer.token_to_id("[EOS]")
+    if None in (user_id, roger_id, eos_id):
+        raise SystemExit("Tokenizer is missing a required dialogue marker.")
+
+    def assistant_target_mask(ids):
+        # Only train the model to predict Roger's answer and its end marker.
+        # User prompts remain visible as context, but do not consume training loss.
+        mask = [False] * len(ids)
+        inside_answer = False
+        for index, token_id in enumerate(ids):
+            if token_id == user_id:
+                inside_answer = False
+            elif token_id == roger_id:
+                inside_answer = True
+            elif token_id == eos_id:
+                mask[index] = inside_answer
+                inside_answer = False
+            elif inside_answer:
+                mask[index] = True
+        return mask
+
     train_ids = tokenizer.encode(training_text).ids
     validation_ids = tokenizer.encode(validation_text).ids
+    train_mask = assistant_target_mask(train_ids)
+    validation_mask = assistant_target_mask(validation_ids)
     sequence_length = min(args.sequence_length, base_config.context_length)
-    dataset = TokenBlocks(train_ids, sequence_length)
-    validation_dataset = TokenBlocks(validation_ids, sequence_length)
+    dataset = TokenBlocks(train_ids, train_mask, sequence_length)
+    validation_dataset = TokenBlocks(validation_ids, validation_mask, sequence_length)
     if len(dataset) < args.batch_size:
         raise SystemExit(
             f"Not enough tokenized training text for batch size {args.batch_size}; "
@@ -188,7 +224,7 @@ def main():
     validation_loader = DataLoader(validation_dataset, batch_size=1, shuffle=False)
     print(f"Paragraphs: {len(paragraphs)} total; {len(paragraphs)-validation_count} train; "
           f"{validation_count} validation")
-    print(f"Token blocks: {len(dataset)} train; {len(validation_dataset)} validation")
+    print(f"Token blocks with assistant-answer targets: {len(dataset)} train; {len(validation_dataset)} validation")
 
     model = RogerSpark(base_config).to(device)
     if previous_checkpoint is not None:

@@ -115,7 +115,8 @@ class RogerSpark(nn.Module):
         return sum(parameter.numel() for parameter in self.parameters())
 
     @torch.no_grad()
-    def generate(self, input_ids, max_new_tokens=100, temperature=0.8, top_k=40):
+    def generate(self, input_ids, max_new_tokens=100, temperature=0.8, top_k=40,
+                 eos_token_id=None):
         self.eval()
         for _ in range(max_new_tokens):
             cropped = input_ids[:, -self.config.context_length:]
@@ -131,6 +132,8 @@ class RogerSpark(nn.Module):
                 probabilities = F.softmax(logits, dim=-1)
                 next_id = torch.multinomial(probabilities, num_samples=1)
             input_ids = torch.cat((input_ids, next_id), dim=1)
+            if eos_token_id is not None and torch.all(next_id == eos_token_id):
+                break
         return input_ids
 
 
