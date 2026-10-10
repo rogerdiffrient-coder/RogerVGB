@@ -10,6 +10,7 @@ When --resume is set, --steps means *additional* steps. The existing tokenizer
 and model configuration are reused so token IDs do not silently change.
 """
 import argparse
+import hashlib
 import json
 import random
 from pathlib import Path
@@ -82,6 +83,7 @@ def main():
     if not data_path.exists():
         raise SystemExit(f"Training text not found: {data_path}\nAdd clean text you have permission to use.")
     text = data_path.read_text(encoding="utf-8")
+    data_sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
     if len(text.strip()) < 1000:
         raise SystemExit("Training corpus is too small. Add substantially more clean, permitted text first.")
 
@@ -118,6 +120,16 @@ def main():
         base_config.save(output / "config.json")
         start_step = 0
         print("Training from random initialization; no pretrained weights are loaded.")
+
+    # Validation scores are comparable only when the exact training corpus is unchanged.
+    same_training_data = (
+        previous_checkpoint is not None
+        and previous_checkpoint.get("training_data_sha256") == data_sha256
+    )
+    best_checkpoint_path = output / "best_checkpoint.pt"
+    if not same_training_data:
+        best_checkpoint_path.unlink(missing_ok=True)
+        print("Training corpus changed (or has no recorded fingerprint); resetting best-checkpoint selection.")
 
     if torch.backends.mps.is_available():
         device = torch.device("mps")
@@ -174,7 +186,7 @@ def main():
     target_step = start_step + args.steps
     best_validation_loss = (
         float(previous_checkpoint.get("best_validation_loss", float("inf")))
-        if previous_checkpoint is not None else float("inf")
+        if same_training_data else float("inf")
     )
 
     @torch.no_grad()
@@ -213,6 +225,7 @@ def main():
                         "model_state_dict": model.state_dict(),
                         "config": base_config.__dict__,
                         "validation_loss": validation_loss,
+                        "training_data_sha256": data_sha256,
                         "training_note": "Best held-out validation checkpoint; RogerVGB custom model.",
                     }, output / "best_checkpoint.pt")
                     print(f"New best validation checkpoint: {validation_loss:.4f}")
@@ -225,6 +238,7 @@ def main():
                     "optimizer_state_dict": optimizer.state_dict(),
                     "best_validation_loss": best_validation_loss,
                     "validation_loss": validation_loss if should_evaluate else None,
+                    "training_data_sha256": data_sha256,
                     "training_note": "RogerVGB custom model; trained only on the corpus supplied by the user.",
                 }
                 torch.save(checkpoint, checkpoint_path)
