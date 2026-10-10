@@ -78,7 +78,7 @@ jobs:
         run: >-
           python model/train.py
           --resume
-          --steps "${{ inputs.steps || '3000' }}"
+          --steps "${{ inputs.steps || '10000' }}"
           --batch-size 1
           --sequence-length 64
           --save-every 500
