@@ -103,7 +103,7 @@ jobs:
               --precision auto \
               --learning-rate 0.00005 \
               --dropout 0.1 \
-              --loss-mode all \
+              --loss-mode assistant \
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training_expanded.txt \
@@ -119,7 +119,7 @@ jobs:
               --precision auto \
               --learning-rate 0.0001 \
               --dropout 0.1 \
-              --loss-mode all \
+              --loss-mode assistant \
               --save-every 500 \
               --eval-every 250 \
               --data data/roger_training_expanded.txt \
