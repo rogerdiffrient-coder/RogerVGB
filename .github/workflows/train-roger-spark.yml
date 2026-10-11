@@ -156,7 +156,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add webgpu/model/manifest.json webgpu/model/weights.bin webgpu/model/tokenizer.json
+          git add -A webgpu/model/
           if git diff --cached --quiet; then
             echo "No exported model changes to publish."
           else

@@ -89,10 +89,32 @@ def main():
             manifest["tensors"][name] = entry
             offset += len(raw)
 
+    # GitHub rejects individual files >= 100 MB. Keep each raw shard well
+    # below that limit while preserving the global tensor offsets in manifest.
+    shard_size = 60_000_000
+    total_size = data_path.stat().st_size
+    for old_shard in output.glob("weights-*.bin"):
+        old_shard.unlink()
+    weight_files = []
+    with data_path.open("rb") as source:
+        shard_index = 0
+        while True:
+            chunk = source.read(shard_size)
+            if not chunk:
+                break
+            filename = f"weights-{shard_index:02d}.bin"
+            (output / filename).write_bytes(chunk)
+            weight_files.append(filename)
+            shard_index += 1
+    data_path.unlink()
+    manifest["weight_files"] = weight_files
+
     manifest_path = output / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"Exported {len(state)} tensors to {output}")
-    print(f"Packed weights: {data_path.stat().st_size / (1024 * 1024):.1f} MiB")
+    print(f"Packed weights: {total_size / (1024 * 1024):.1f} MiB in {len(weight_files)} shards")
+    for filename in weight_files:
+        print(f"  {filename}: {(output / filename).stat().st_size / (1024 * 1024):.1f} MiB")
     print(f"Manifest: {manifest_path}")
     print(f"Tokenizer: {output / 'tokenizer.json'}")
 

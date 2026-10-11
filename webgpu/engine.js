@@ -297,11 +297,25 @@ export async function loadRogerSpark({base="./model/"}={}){
   if(!navigator.gpu)throw new Error("WebGPU isn't available in this browser. Try a current Chrome or Edge build on a supported device.");
   const adapter=await navigator.gpu.requestAdapter();if(!adapter)throw new Error("No compatible WebGPU adapter was found.");
   const device=await adapter.requestDevice();
-  const [mr,wr,tr]=await Promise.all([
-    fetch(base+"manifest.json"),fetch(base+"weights.bin"),fetch(base+"tokenizer.json")
-  ]);
-  if(!mr.ok||!wr.ok||!tr.ok)throw new Error("Roger Spark’s trained weights are not published yet. On the computer with your checkpoint, run: python3 model/export_webgpu.py --checkpoint models/roger-chat-test/checkpoint.pt --output webgpu/model. Then commit and push the generated webgpu/model/ files to GitHub.");
-  const [manifest,weights,tok]=await Promise.all([mr.json(),wr.arrayBuffer(),tr.json()]);
+  const [mr,tr]=await Promise.all([fetch(base+"manifest.json"),fetch(base+"tokenizer.json")]);
+  if(!mr.ok||!tr.ok)throw new Error("Roger Spark's model manifest or tokenizer could not be loaded.");
+  const manifest=await mr.json();
+  let weights;
+  if(Array.isArray(manifest.weight_files)&&manifest.weight_files.length){
+    const responses=await Promise.all(manifest.weight_files.map(file=>fetch(base+file)));
+    if(responses.some(response=>!response.ok))throw new Error("One or more Roger Spark weight shards could not be loaded.");
+    const chunks=await Promise.all(responses.map(response=>response.arrayBuffer()));
+    const totalBytes=chunks.reduce((sum,chunk)=>sum+chunk.byteLength,0);
+    const joined=new Uint8Array(totalBytes);
+    let cursor=0;
+    for(const chunk of chunks){joined.set(new Uint8Array(chunk),cursor);cursor+=chunk.byteLength;}
+    weights=joined.buffer;
+  }else{
+    const wr=await fetch(base+"weights.bin");
+    if(!wr.ok)throw new Error("Roger Spark's model weights could not be loaded.");
+    weights=await wr.arrayBuffer();
+  }
+  const tok=await tr.json();
   const tokenizer=new ByteLevelTokenizer(tok);
   for(const marker of ["[USER]","[ROGER]"]){
     const ids=tokenizer.encode(marker);
