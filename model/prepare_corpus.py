@@ -102,7 +102,7 @@ def collect_curated_dialogue(path):
     if not chat_path.is_file():
         raise SystemExit(f"Curated chat examples not found: {chat_path}")
     text = chat_path.read_text(encoding="utf-8").strip()
-    examples = [part.strip() for part in text.split("\\n\\n") if part.strip()]
+    examples = [part.strip() for part in text.split("\n\n") if part.strip()]
     valid = [part for part in examples if "[USER]" in part and "[ROGER]" in part]
     if len(valid) < 20:
         raise SystemExit(f"Expected at least 20 curated dialogue examples in {chat_path}.")
