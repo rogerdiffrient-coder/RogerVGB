@@ -11,6 +11,7 @@ on:
       - "model/cloud_config.json"
       - "model/smoke_test.py"
       - "webgpu/engine.js"
+      - ".github/workflows/train-roger-spark.yml"
   workflow_dispatch:
     inputs:
       compute:
