@@ -1,9 +1,8 @@
 """Train or continue training Roger Spark.
 
-The default objective is ordinary next-token language modeling over every clean
-paragraph, including explanatory prose and chat prompts. Use --loss-mode assistant
-only when deliberately doing assistant-only fine-tuning. Windows are made per
-paragraph with overlap so questions and answers are less likely to be split apart.
+By default, dialogue loss focuses on Roger's answers while ordinary prose/stories
+still teach general language patterns. Use --loss-mode all for full next-token
+training. Windows are made per paragraph with overlap so examples stay separated.
 """
 import argparse
 import hashlib
@@ -29,7 +28,9 @@ class TokenBlocks(Dataset):
         for ids in examples:
             if len(ids) < 2:
                 continue
-            if loss_mode == "assistant":
+            if loss_mode == "assistant" and user_id in ids and roger_id in ids:
+                # Dialogue teaches the model to answer instead of spending equal
+                # loss on reproducing the user's prompt. Keep EOS in the target.
                 mask = [False] * len(ids)
                 inside_answer = False
                 for i, token_id in enumerate(ids):
@@ -43,6 +44,8 @@ class TokenBlocks(Dataset):
                     elif inside_answer:
                         mask[i] = True
             else:
+                # Unstructured prose (including TinyStories) still gets normal
+                # language-model loss, so assistant mode doesn't discard it.
                 mask = [True] * len(ids)
 
             for start in range(0, len(ids) - 1, stride):
@@ -100,8 +103,8 @@ def main():
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--dropout", type=float, default=0.1,
                         help="Training dropout; defaults to 0.1 to reduce overfitting.")
-    parser.add_argument("--loss-mode", choices=("all", "assistant"), default="all",
-                        help="Predict all text (recommended) or only Roger's answer tokens.")
+    parser.add_argument("--loss-mode", choices=("all", "assistant"), default="assistant",
+                        help="Train on Roger's dialogue answers plus all unstructured prose (default), or all tokens in every example.")
     parser.add_argument("--save-every", type=int, default=100)
     parser.add_argument("--validation-fraction", type=float, default=0.1)
     parser.add_argument("--eval-every", type=int, default=100)
@@ -164,7 +167,7 @@ def main():
     # Fingerprint includes preprocessing and objective. Old assistant-only scores
     # cannot be compared with scores from the new paragraph-windowed objective.
     data_sha256 = hashlib.sha256(
-        f"paragraph-windows-v3:{args.loss_mode}:".encode("utf-8") + text.encode("utf-8")
+        f"paragraph-windows-v4:{args.loss_mode}:".encode("utf-8") + text.encode("utf-8")
     ).hexdigest()
     same_training_data = (
         previous_checkpoint is not None
