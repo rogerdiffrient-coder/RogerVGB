@@ -13,6 +13,14 @@ on:
       - "webgpu/engine.js"
   workflow_dispatch:
     inputs:
+      compute:
+        description: "CPU uses GitHub-hosted runner; GPU requires your own self-hosted runner labeled gpu"
+        required: true
+        default: "cpu"
+        type: choice
+        options:
+          - "cpu"
+          - "self-hosted-gpu"
       steps:
         description: "Additional training steps"
         required: true
@@ -33,7 +41,7 @@ concurrency:
 
 jobs:
   train:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.compute == 'self-hosted-gpu' && fromJSON('["self-hosted", "linux", "x64", "gpu"]') || 'ubuntu-latest' }}
     timeout-minutes: 360
     env:
       PYTHONUNBUFFERED: "1"
@@ -52,7 +60,7 @@ jobs:
         run: python -m pip install -r requirements-model.txt
 
       - name: Build expanded training corpus
-        run: python -u model/prepare_corpus.py --base data/roger_training.txt --output data/roger_training_expanded.txt --target-story-chars 1000000
+        run: python -u model/prepare_corpus.py --base data/roger_training.txt --output data/roger_training_expanded.txt --target-story-chars 300000 --target-dialogue-chars 600000
 
       - name: Verify the 100M target configuration
         run: |
@@ -89,8 +97,10 @@ jobs:
             python -u model/train.py \
               --resume \
               --steps "${{ inputs.steps || '5000' }}" \
-              --batch-size 1 \
+              --batch-size "${{ inputs.compute == 'self-hosted-gpu' && '4' || '1' }}" \
               --sequence-length 128 \
+              --eval-batches 32 \
+              --precision auto \
               --learning-rate 0.00005 \
               --dropout 0.1 \
               --loss-mode all \
@@ -103,8 +113,10 @@ jobs:
             python -u model/train.py \
               --config model/cloud_config.json \
               --steps "${{ inputs.steps || '5000' }}" \
-              --batch-size 1 \
+              --batch-size "${{ inputs.compute == 'self-hosted-gpu' && '4' || '1' }}" \
               --sequence-length 128 \
+              --eval-batches 32 \
+              --precision auto \
               --learning-rate 0.0001 \
               --dropout 0.1 \
               --loss-mode all \

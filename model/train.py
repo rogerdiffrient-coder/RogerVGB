@@ -10,6 +10,7 @@ import hashlib
 import json
 import random
 import re
+import time
 from pathlib import Path
 
 import torch
@@ -104,6 +105,10 @@ def main():
     parser.add_argument("--save-every", type=int, default=100)
     parser.add_argument("--validation-fraction", type=float, default=0.1)
     parser.add_argument("--eval-every", type=int, default=100)
+    parser.add_argument("--eval-batches", type=int, default=32,
+                        help="Maximum validation batches per evaluation; 0 evaluates the full split.")
+    parser.add_argument("--precision", choices=("auto", "fp32", "fp16", "bf16"), default="auto",
+                        help="Mixed precision is enabled only on supported CUDA devices.")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--config", default="model/config.json")
     parser.add_argument("--tiny", action="store_true")
@@ -113,8 +118,8 @@ def main():
 
     if args.steps < 1 or args.batch_size < 1 or args.save_every < 1:
         raise SystemExit("--steps, --batch-size, and --save-every must be positive.")
-    if args.eval_every < 1 or not 0.0 < args.validation_fraction < 0.5:
-        raise SystemExit("--eval-every must be positive and validation fraction between 0 and 0.5.")
+    if args.eval_every < 1 or args.eval_batches < 0 or not 0.0 < args.validation_fraction < 0.5:
+        raise SystemExit("--eval-every must be positive, --eval-batches non-negative, and validation fraction between 0 and 0.5.")
 
     data_path = Path(args.data)
     if not data_path.exists():
@@ -217,7 +222,18 @@ def main():
         device = torch.device("cuda")
     else:
         device = torch.device("cpu")
-    print(f"Device: {device}")
+    precision = args.precision
+    if precision == "auto":
+        precision = ("bf16" if torch.cuda.is_bf16_supported() else "fp16") if device.type == "cuda" else "fp32"
+    if precision in ("fp16", "bf16") and device.type != "cuda":
+        if args.precision == "auto":
+            precision = "fp32"
+        else:
+            raise SystemExit(f"--precision {precision} requires CUDA; selected device is {device}.")
+    amp_dtype = {"fp16": torch.float16, "bf16": torch.bfloat16}.get(precision)
+    use_amp = device.type == "cuda" and amp_dtype is not None
+    scaler = torch.amp.GradScaler("cuda", enabled=(use_amp and precision == "fp16"))
+    print(f"Device: {device}; precision: {precision}; AMP: {use_amp}")
     print(f"Model: {base_config.model_name}")
     print(f"Paragraphs: {len(paragraphs)} total; {len(training_paragraphs)} train; "
           f"{len(validation_paragraphs)} validation")
@@ -246,31 +262,50 @@ def main():
     validation_loss = None
 
     @torch.no_grad()
-    def evaluate():
+    def evaluate(max_batches=args.eval_batches):
         model.eval()
         losses = []
-        for inputs, targets in validation_loader:
-            _, val_loss = model(inputs.to(device), targets.to(device))
+        for batch_index, (inputs, targets) in enumerate(validation_loader):
+            if max_batches and batch_index >= max_batches:
+                break
+            with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
+                _, val_loss = model(inputs.to(device), targets.to(device))
             if val_loss is not None and torch.isfinite(val_loss):
-                losses.append(float(val_loss.item()))
+                losses.append(float(val_loss.float().item()))
         model.train()
         return sum(losses) / max(1, len(losses))
 
     model.train()
+    last_log_time = time.perf_counter()
+    last_log_step = step
     while step < target_step:
         for inputs, targets in loader:
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad(set_to_none=True)
-            _, loss = model(inputs, targets)
+            with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
+                _, loss = model(inputs, targets)
             if not torch.isfinite(loss):
                 raise SystemExit(f"Non-finite training loss at step {step + 1}.")
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            if scaler.is_enabled():
+                scaler.scale(loss).backward()
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
             step += 1
 
             if step == start_step + 1 or step % 10 == 0:
-                print(f"step {step}/{target_step} | train_loss={loss.item():.4f}")
+                now = time.perf_counter()
+                elapsed = max(now - last_log_time, 1e-6)
+                steps_since_log = max(step - last_log_step, 1)
+                tokens_per_second = steps_since_log * args.batch_size * sequence_length / elapsed
+                print(f"step {step}/{target_step} | train_loss={loss.float().item():.4f} "
+                      f"| ~{tokens_per_second:.0f} tokens/s")
+                last_log_time, last_log_step = now, step
 
             should_evaluate = step % args.eval_every == 0 or step == target_step
             if should_evaluate:
@@ -294,6 +329,8 @@ def main():
                     "model_state_dict": model.state_dict(),
                     "config": base_config.__dict__,
                     "optimizer_state_dict": optimizer.state_dict(),
+                    "scaler_state_dict": scaler.state_dict(),
+                    "precision": precision,
                     "best_validation_loss": best_validation_loss,
                     "validation_loss": validation_loss,
                     "training_data_sha256": data_sha256,
