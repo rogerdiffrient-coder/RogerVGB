@@ -81,7 +81,7 @@ def collect_dialogue(target_chars):
                 continue
             prompt = instruction
             if context:
-                prompt += "\n\nContext: " + context
+                prompt += "\nContext: " + context
             example = f"[USER] {prompt}\n[ROGER] {response}"
             examples.append(example)
             total += len(example) + 2
