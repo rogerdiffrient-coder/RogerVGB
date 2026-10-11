@@ -115,7 +115,7 @@ class RogerSpark(nn.Module):
         return sum(parameter.numel() for parameter in self.parameters())
 
     @torch.no_grad()
-    def generate(self, input_ids, max_new_tokens=100, temperature=0.8, top_k=40,
+    def generate(self, input_ids, max_new_tokens=100, temperature=0.35, top_k=20,
                  eos_token_id=None):
         self.eval()
         for _ in range(max_new_tokens):
