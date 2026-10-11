@@ -16,9 +16,9 @@ function buildPrompt(currentUser){
   const reserve=Math.min(MAX_NEW_TOKENS,Math.max(1,model.context-8));
   let first=0;
   while(true){
-    const turns=history.slice(first).map(t=>"[USER] "+t.user+"\\n[ROGER] "+t.assistant+"\\n[EOS]");
-    turns.push("[USER] "+currentUser+"\\n[ROGER] ");
-    const prompt=turns.join("\\n\\n");
+    const turns=history.slice(first).map(t=>"[USER] "+t.user+"\n[ROGER] "+t.assistant+"\n[EOS]");
+    turns.push("[USER] "+currentUser+"\n[ROGER] ");
+    const prompt=turns.join("\n\n");
     if(model.tokenizer.encode(prompt).length<=model.context-reserve)return prompt;
     if(first<history.length){first++;continue;}
     throw new Error("That message is too long for Spark's context window. Shorten it and try again.");
