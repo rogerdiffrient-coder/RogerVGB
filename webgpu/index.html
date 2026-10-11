@@ -30,7 +30,7 @@ send.addEventListener("click",async()=>{
   send.disabled=true;input.value="";say("YOU",prompt);say("SPARK","Thinking on WebGPU…");
   const placeholder=chat.lastElementChild.lastElementChild;
   try{
-    const answer=await model.generate(buildPrompt(prompt),{maxNewTokens:MAX_NEW_TOKENS,temperature:.7});
+    const answer=await model.generate(buildPrompt(prompt),{maxNewTokens:MAX_NEW_TOKENS,temperature:.35});
     placeholder.textContent=answer||"(No text generated.)";
     if(answer)history.push({user:prompt,assistant:answer});
   }catch(e){placeholder.textContent="Runtime error: "+e.message;}
