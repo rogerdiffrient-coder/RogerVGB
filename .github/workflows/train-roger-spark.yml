@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "data/roger_training.txt"
+      - "data/roger_chat_examples.txt"
       - "model/train.py"
       - "model/prepare_corpus.py"
       - "data/SOURCES.md"
