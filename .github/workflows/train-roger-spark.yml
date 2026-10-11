@@ -128,6 +128,25 @@ jobs:
               --output models/roger-0.1-spark 2>&1 | tee -a models/roger-0.1-spark/training.log
           fi
 
+      - name: Fine-tune conversational responses
+        run: |
+          set -o pipefail
+          echo "Fine-tuning on curated conversations to strengthen direct, readable replies."
+          python -u model/train.py \
+            --resume \
+            --steps 1200 \
+            --batch-size 1 \
+            --sequence-length 128 \
+            --eval-batches 0 \
+            --precision auto \
+            --learning-rate 0.00002 \
+            --dropout 0.05 \
+            --loss-mode assistant \
+            --save-every 200 \
+            --eval-every 100 \
+            --data data/roger_chat_examples.txt \
+            --output models/roger-0.1-spark 2>&1 | tee -a models/roger-0.1-spark/training.log
+
       - name: Upload training logs
         if: always()
         uses: actions/upload-artifact@v4
