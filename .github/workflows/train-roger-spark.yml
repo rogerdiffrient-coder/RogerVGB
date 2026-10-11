@@ -54,9 +54,6 @@ jobs:
       - name: Build expanded training corpus
         run: python -u model/prepare_corpus.py --base data/roger_training.txt --output data/roger_training_expanded.txt --target-story-chars 1000000
 
-      - name: Build expanded training corpus
-        run: python -u model/prepare_corpus.py --base data/roger_training.txt --output data/roger_training_expanded.txt --target-story-chars 1000000
-
       - name: Verify the 100M target configuration
         run: |
           python - <<'PY'
