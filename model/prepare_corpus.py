@@ -126,7 +126,9 @@ def main():
 
     stories, story_chars = collect_stories(args.target_story_chars)
     dialogue, dialogue_chars = collect_dialogue(args.target_dialogue_chars)
-    expanded = base_text + "\n\n" + "\n\n".join(dialogue) + "\n\n" + "\n\n".join(stories)
+    curated, curated_chars = collect_curated_dialogue(args.chat)
+    expanded = (base_text + "\n\n" + "\n\n".join(dialogue) + "\n\n"
+                + "\n\n".join(curated) + "\n\n" + "\n\n".join(stories))
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(expanded + "\n", encoding="utf-8")
