@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", default="models/roger-0.1-spark")
     parser.add_argument("--max-new-tokens", type=int, default=120)
-    parser.add_argument("--temperature", type=float, default=0.8)
+    parser.add_argument("--temperature", type=float, default=0.35)
     args = parser.parse_args()
 
     model_dir = Path(args.model_dir)
@@ -39,6 +39,8 @@ def main():
     print("Conversation context is enabled for recent turns.")
     history = []
     eos_id = tokenizer.token_to_id("[EOS]")
+    if eos_id is None:
+        raise SystemExit("Tokenizer is missing [EOS]. Use the tokenizer saved with this checkpoint.")
     prompt_budget = max(1, config.context_length - min(args.max_new_tokens, config.context_length - 1))
 
     def encode_conversation(current_prompt):
