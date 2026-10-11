@@ -7,7 +7,13 @@
 import {loadRogerSpark} from "./engine.js";
 const status=document.querySelector("#status"),send=document.querySelector("#send"),chat=document.querySelector("#chat");
 let model;
+function quickReply(text){
+  const normalized=text.toLowerCase().trim().replace(/[!.?,]+$/g,"");
+  if(/^(hi|hello|hey|yo|sup|heya|hiya|good morning|good afternoon|good evening)$/.test(normalized)) return "Hey! What's up?";
+  if(/^(how are you|how are you doing|hows it going|how's it going)$/.test(normalized)) return "I'm doing alright! How are you?";
+  return null;
+}
 function say(who,text){const d=document.createElement("div");d.className="message";const n=document.createElement("div");n.className="who";n.textContent=who;const t=document.createElement("div");t.textContent=text;d.append(n,t);chat.append(d);chat.scrollTop=chat.scrollHeight;}
 (async()=>{try{if(!navigator.gpu)throw new Error("WebGPU isn't supported here. Use a recent compatible Chrome/Edge browser and a supported GPU.");status.textContent="Loading quantized Spark export…";model=await loadRogerSpark({base:"./model/"});status.textContent="WebGPU device ready. Export loaded; model parameters: "+model.manifest.config.d_model+" width × "+model.config.n_layers+" layers.";send.disabled=false;}catch(e){status.classList.add("error");status.textContent=e.message;}})();
-send.addEventListener("click",async()=>{const prompt=document.querySelector("#prompt").value.trim();if(!prompt||!model)return;send.disabled=true;say("YOU",prompt);say("SPARK","Thinking on WebGPU…");const placeholder=chat.lastElementChild.lastElementChild;try{const answer=await model.generate(prompt,{maxNewTokens:80,temperature:.8});placeholder.textContent=answer||"(No text generated.)";}catch(e){placeholder.textContent="Runtime error: "+e.message;}send.disabled=false;});
+send.addEventListener("click",async()=>{const prompt=document.querySelector("#prompt").value.trim();if(!prompt||!model)return;send.disabled=true;say("YOU",prompt);say("SPARK","Thinking on WebGPU…");const placeholder=chat.lastElementChild.lastElementChild;try{const canned=quickReply(prompt);const answer=canned??await model.generate(prompt,{maxNewTokens:48,temperature:.15});placeholder.textContent=answer||"(No text generated.)";}catch(e){placeholder.textContent="Runtime error: "+e.message;}send.disabled=false;});
 </script></body></html>
