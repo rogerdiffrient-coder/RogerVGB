@@ -276,7 +276,7 @@ export class RogerSparkWebGPU {
       let next;
       if(temperature<=0){next=0;for(let j=1;j<logits.length;j++)if(logits[j]>logits[next])next=j;}
       else {
-        const ranked=Array.from(logits,(v,id)=>({id,v:v/temperature})).sort((a,b)=>b.v-a.v).slice(0,40);
+        const ranked=Array.from(logits,(v,id)=>({id,v:v/temperature})).sort((a,b)=>b.v-a.v).slice(0,20);
         const max=ranked[0].v,weights=ranked.map(x=>Math.exp(x.v-max)),total=weights.reduce((a,b)=>a+b,0);
         let r=Math.random()*total;next=ranked[ranked.length-1].id;
         for(let j=0;j<ranked.length;j++){r-=weights[j];if(r<=0){next=ranked[j].id;break;}}
@@ -317,7 +317,7 @@ export async function loadRogerSpark({base="./model/"}={}){
   }
   const tok=await tr.json();
   const tokenizer=new ByteLevelTokenizer(tok);
-  for(const marker of ["[USER]","[ROGER]"]){
+  for(const marker of ["[USER]","[ROGER]","[EOS]"]){
     const ids=tokenizer.encode(marker);
     if(ids.length!==1||ids[0]!==tokenizer.vocab[marker])throw new Error("Tokenizer self-test failed for "+marker);
   }
