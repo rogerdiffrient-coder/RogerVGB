@@ -96,9 +96,23 @@ def collect_dialogue(target_chars):
     return examples, total
 
 
+def collect_curated_dialogue(path):
+    """Load reviewed project-specific chat examples as separate paragraphs."""
+    chat_path = Path(path)
+    if not chat_path.is_file():
+        raise SystemExit(f"Curated chat examples not found: {chat_path}")
+    text = chat_path.read_text(encoding="utf-8").strip()
+    examples = [part.strip() for part in text.split("\\n\\n") if part.strip()]
+    valid = [part for part in examples if "[USER]" in part and "[ROGER]" in part]
+    if len(valid) < 20:
+        raise SystemExit(f"Expected at least 20 curated dialogue examples in {chat_path}.")
+    return valid, len(text)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", default="data/roger_training.txt")
+    parser.add_argument("--chat", default="data/roger_chat_examples.txt")
     parser.add_argument("--output", default="data/roger_training_expanded.txt")
     parser.add_argument("--target-story-chars", type=int, default=300_000)
     parser.add_argument("--target-dialogue-chars", type=int, default=600_000)
@@ -119,6 +133,7 @@ def main():
     multiplier = len(expanded) / max(1, len(base_text))
     print(f"Original corpus: {len(base_text):,} characters")
     print(f"Added Dolly dialogue: {dialogue_chars:,} characters across {len(dialogue):,} examples")
+    print(f"Added curated Roger chat: {curated_chars:,} characters across {len(curated):,} examples")
     print(f"Added TinyStories: {story_chars:,} characters across {len(stories):,} stories")
     print(f"Combined corpus: {len(expanded):,} characters ({multiplier:.1f}x original)")
     print(f"Wrote {output_path}")
