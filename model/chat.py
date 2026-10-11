@@ -45,11 +45,11 @@ def main():
         first = 0
         while True:
             turns = [
-                f"[USER] {turn['user']}\\n[ROGER] {turn['assistant']}\\n[EOS]"
+                f"[USER] {turn['user']}\n[ROGER] {turn['assistant']}\n[EOS]"
                 for turn in history[first:]
             ]
-            turns.append(f"[USER] {current_prompt}\\n[ROGER] ")
-            encoded_ids = tokenizer.encode("\\n\\n".join(turns)).ids
+            turns.append(f"[USER] {current_prompt}\n[ROGER] ")
+            encoded_ids = tokenizer.encode("\n\n".join(turns)).ids
             if len(encoded_ids) <= prompt_budget:
                 return encoded_ids
             if first < len(history):
@@ -61,7 +61,7 @@ def main():
             )
 
     while True:
-        prompt = input("\\nYou> ")
+        prompt = input("\nYou> ")
         if prompt.strip().lower() in {"/quit", "/exit"}:
             break
         if not prompt.strip():
