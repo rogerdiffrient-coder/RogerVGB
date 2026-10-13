@@ -26,7 +26,7 @@ on:
       steps:
         description: "Additional training steps"
         required: true
-        default: "5000"
+        default: "10000"
         type: choice
         options:
           - "1000"
@@ -98,7 +98,7 @@ jobs:
             echo "Continuing the cached Roger Spark checkpoint."
             python -u model/train.py \
               --resume \
-              --steps "${{ inputs.steps || '5000' }}" \
+              --steps "${{ inputs.steps || '10000' }}" \
               --batch-size "${{ inputs.compute == 'self-hosted-gpu' && '4' || '1' }}" \
               --sequence-length 128 \
               --eval-batches 32 \
