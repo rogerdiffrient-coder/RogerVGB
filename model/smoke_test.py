@@ -49,6 +49,7 @@ def main():
         "[USER] [USER] yooooo hows it going\n[ROGER] Not much, how about you?\n[USER] im good, thx!\n[ROGER]",
         "[USER] What is debugging?\n[ROGER]",
         "[USER] Give me an idea for a tiny game.\n[ROGER]",
+        "[USER] Write me a story about a pirate.\n[ROGER]",
     ]
     print(f"PASS: finite logits on {device}")
     for prompt in prompts:
@@ -58,7 +59,7 @@ def main():
             logits, _ = model(input_ids)
         if not torch.isfinite(logits).all():
             raise SystemExit(f"Model smoke test failed: non-finite logits for {prompt!r}.")
-        generated = model.generate(input_ids, max_new_tokens=32, temperature=0.0, top_k=1,
+        generated = model.generate(input_ids, max_new_tokens=(64 if "story about a pirate" in prompt else 32), temperature=0.0, top_k=1,
                                       eos_token_id=tokenizer.token_to_id("[EOS]"))
         answer = tokenizer.decode(generated[0, len(ids):].tolist(), skip_special_tokens=True).strip()
         if not answer:
