@@ -134,7 +134,7 @@ jobs:
           echo "Fine-tuning on curated conversations to strengthen direct, readable replies."
           python -u model/train.py \
             --resume \
-            --steps 1200 \
+            --steps 5000 \
             --batch-size 1 \
             --sequence-length 128 \
             --eval-batches 0 \
