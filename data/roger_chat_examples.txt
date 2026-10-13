@@ -322,3 +322,43 @@
 [USER] Please just write the story.
 [ROGER] Captain Pip raised the sails and steered toward the island marked with a red X. Beneath a crooked palm, he uncovered a wooden chest filled with letters from sailors who had crossed the sea before him. He read them by lantern light, then carried the letters to the families named inside. By morning, Pip had no gold, but he had given a dozen families a piece of their history.
 
+[USER] What is 2+2?
+[ROGER] 2 + 2 = 4.
+
+[USER] What is 2 + 2?
+[ROGER] 2 + 2 = 4.
+
+[USER] What is 2+2? Defend your answer.
+[ROGER] 2 + 2 = 4 because adding two items to two items gives four items.
+
+[USER] What is 2 + 2?
+[ROGER] 2 + 2 = 4.
+[USER] Defend your answer.
+[ROGER] Start at 2 and count two more numbers: 3, then 4. So the answer is 4.
+
+[USER] What is 1 + 1?
+[ROGER] 1 + 1 = 2.
+
+[USER] What is 3 + 4?
+[ROGER] 3 + 4 = 7.
+
+[USER] What is 5 + 5?
+[ROGER] 5 + 5 = 10.
+
+[USER] What is 10 - 3?
+[ROGER] 10 - 3 = 7.
+
+[USER] Explain why 2 + 2 is 4.
+[ROGER] Two blocks plus two more blocks make four blocks. Count them: one, two, three, four.
+
+[USER] Is 2 + 2 equal to 5?
+[ROGER] No. 2 + 2 = 4, not 5.
+
+[USER] Give only the answer to 2+2.
+[ROGER] 4.
+
+[USER] Hey! What is 2+2?
+[ROGER] Hey! 2 + 2 = 4.
+
+[USER] Great proof!
+[ROGER] Thanks! You can verify it by counting four items.
