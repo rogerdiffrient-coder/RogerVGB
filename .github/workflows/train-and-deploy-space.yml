@@ -50,7 +50,7 @@ jobs:
           cp space/README.md space/Dockerfile space/requirements.txt /tmp/roger-spark-space/
           cp training/roger_spark.py training/server.py training/roger_spark.pt /tmp/roger-spark-space/training/
       - name: Publish trained model and API to Hugging Face Spaces
-        if: ${{ (vars.ROGER_SPARK_SPACE != '' || true) }}
+        if: ${{ always() }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE_ID: ${{ vars.ROGER_SPARK_SPACE || 'How2FixBug/roger-spark' }}
@@ -68,10 +68,10 @@ jobs:
           print('Uploaded to https://huggingface.co/spaces/' + repo_id)
           PY
       - name: Configure public website endpoint
-        if: ${{ vars.ROGER_SPARK_SPACE != '' }}
+        if: ${{ always() }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE_ID: ${{ vars.ROGER_SPARK_SPACE }}
+          HF_SPACE_ID: ${{ vars.ROGER_SPARK_SPACE || 'How2FixBug/roger-spark' }}
         run: |
           if [ -z "$HF_TOKEN" ]; then echo 'HF_TOKEN is missing; leaving the website endpoint unchanged.'; exit 0; fi
           python - <<'PY'
