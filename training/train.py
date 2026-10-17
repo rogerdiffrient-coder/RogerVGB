@@ -3,7 +3,7 @@ import argparse, json, random
 from pathlib import Path
 import torch
 from torch.nn import functional as F
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from tokenizers import ByteLevelBPETokenizer
 from roger_spark import (
     RogerSpark, TARGET_PARAMETERS, DEFAULT_WIDTH, DEFAULT_LAYERS,
@@ -38,19 +38,27 @@ def main():
     if "text" not in dataset.column_names:
         raise ValueError(f"Expected TinyStories text column; got {dataset.column_names}")
 
-    # Train a real byte-level BPE tokenizer from the story text, not from
-    # prompt/response JSON fields. The byte alphabet prevents unknown bytes.
-    tokenizer = ByteLevelBPETokenizer()
-    sample_count = min(TOKENIZER_TRAIN_STORIES, len(dataset))
-    def tokenizer_texts():
-        for row in dataset.select(range(sample_count)):
-            yield row["text"][:STORY_CHAR_LIMIT]
-    tokenizer.train_from_iterator(
-        tokenizer_texts(),
-        vocab_size=DEFAULT_VOCAB_SIZE,
-        min_frequency=2,
-        special_tokens=["<pad>", "<eos>"],
-    )
+    # Reuse tokenizer files across 5k-step chunks so publishing checkpoints
+    # does not force expensive tokenization to happen again.
+    tokenizer_dir = Path("training/tokenizer")
+    vocab_file, merges_file = tokenizer_dir / "vocab.json", tokenizer_dir / "merges.txt"
+    if vocab_file.exists() and merges_file.exists():
+        tokenizer = ByteLevelBPETokenizer(str(vocab_file), str(merges_file))
+        print("Loaded cached tokenizer files", flush=True)
+    else:
+        tokenizer = ByteLevelBPETokenizer()
+        sample_count = min(TOKENIZER_TRAIN_STORIES, len(dataset))
+        def tokenizer_texts():
+            for row in dataset.select(range(sample_count)):
+                yield row["text"][:STORY_CHAR_LIMIT]
+        tokenizer.train_from_iterator(
+            tokenizer_texts(),
+            vocab_size=DEFAULT_VOCAB_SIZE,
+            min_frequency=2,
+            special_tokens=["<pad>", "<eos>"],
+        )
+        tokenizer_dir.mkdir(parents=True, exist_ok=True)
+        tokenizer.save_model(str(tokenizer_dir))
     vocab_size = tokenizer.get_vocab_size()
     if vocab_size != DEFAULT_VOCAB_SIZE:
         raise ValueError(f"Tokenizer vocabulary is {vocab_size}, expected exactly {DEFAULT_VOCAB_SIZE}")
@@ -73,13 +81,20 @@ def main():
             encoded.append(ids)
         return {"input_ids": encoded}
 
-    tokenized = dataset.map(
-        encode_stories,
-        batched=True,
-        batch_size=1000,
-        remove_columns=dataset.column_names,
-        desc="Tokenizing TinyStories with strict per-story truncation",
-    )
+    tokenized_cache = Path("training/tokenized_tinystories")
+    if tokenized_cache.exists():
+        tokenized = load_from_disk(str(tokenized_cache))
+        print(f"Loaded cached tokenized dataset: {len(tokenized):,} stories", flush=True)
+    else:
+        tokenized = dataset.map(
+            encode_stories,
+            batched=True,
+            batch_size=1000,
+            remove_columns=dataset.column_names,
+            desc="Tokenizing TinyStories with strict per-story truncation",
+        )
+        tokenized.save_to_disk(str(tokenized_cache))
+        print(f"Saved tokenized dataset cache: {tokenized_cache}", flush=True)
     del dataset
     chat_examples = []
     chat_path = Path("training/data.jsonl")
