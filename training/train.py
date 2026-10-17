@@ -1,4 +1,4 @@
-"""Train exact-25M Roger Spark on TinyStories plus a small chat-format mix."""
+"""Train exact-25M Roger Spark as a TinyStories-focused story generator."""
 import argparse, json, random
 from pathlib import Path
 import torch
@@ -12,7 +12,6 @@ from roger_spark import (
 
 STORY_CHAR_LIMIT = 12_000
 TOKENIZER_TRAIN_STORIES = 100_000
-CHAT_MIX_PROBABILITY = 0.15
 
 def main():
     parser = argparse.ArgumentParser()
@@ -50,19 +49,12 @@ def main():
         sample_count = min(TOKENIZER_TRAIN_STORIES, len(dataset))
         def tokenizer_texts():
             for row in dataset.select(range(sample_count)):
-                yield "User: Tell me a short story.\nRoger: " + row["text"][:STORY_CHAR_LIMIT]
-            chat_path = Path("training/data.jsonl")
-            if chat_path.exists():
-                for line in chat_path.read_text(encoding="utf-8").splitlines():
-                    if line.strip():
-                        item = json.loads(line)
-                        if "prompt" in item and "response" in item:
-                            yield f"User: {str(item['prompt'])[:1000]}\nRoger: {str(item['response'])[:2000]}"
+                yield row["text"][:STORY_CHAR_LIMIT]
         bpe_tokenizer.train_from_iterator(
             tokenizer_texts(),
             vocab_size=DEFAULT_VOCAB_SIZE,
             min_frequency=2,
-            special_tokens=["<pad>", "<eos>", "User:", "Roger:"],
+            special_tokens=["<pad>", "<eos>"],
         )
         tokenizer_dir.mkdir(parents=True, exist_ok=True)
         tokenizer = bpe_tokenizer._tokenizer
@@ -72,25 +64,17 @@ def main():
         raise ValueError(f"Tokenizer vocabulary is {vocab_size}, expected exactly {DEFAULT_VOCAB_SIZE}")
     pad_id = tokenizer.token_to_id("<pad>")
     eos_id = tokenizer.token_to_id("<eos>")
-    user_id = tokenizer.token_to_id("User:")
-    roger_id = tokenizer.token_to_id("Roger:")
     if pad_id != 0 or eos_id != 1:
         raise ValueError(f"Unexpected special token IDs: pad={pad_id}, eos={eos_id}")
-    if user_id is None or roger_id is None or user_id == roger_id:
-        raise ValueError(f"Dialogue markers must be distinct single tokens: User={user_id}, Roger={roger_id}")
-    if tokenizer.encode("Roger:").ids != [roger_id] or tokenizer.encode("User:").ids != [user_id]:
-        raise ValueError("Dialogue markers are not encoded as single tokens")
     Path(args.tokenizer_out).parent.mkdir(parents=True, exist_ok=True)
     tokenizer.save(args.tokenizer_out)
-    print(f"Tokenizer ready: vocab={vocab_size:,}; pad={pad_id}; eos={eos_id}; User:={user_id}; Roger:={roger_id}", flush=True)
+    print(f"Story tokenizer ready: vocab={vocab_size:,}; pad={pad_id}; eos={eos_id}", flush=True)
 
     def encode_stories(batch):
         encoded = []
         for story in batch["text"]:
-            # The story is the response; this teaches the model the same
-            # User/Roger boundary used by the browser chat UI.
-            text = "User: Tell me a short story.\nRoger: " + story[:STORY_CHAR_LIMIT]
-            ids = tokenizer.encode(text).ids
+            # Train directly on story text, with no dialogue wrappers.
+            ids = tokenizer.encode(story[:STORY_CHAR_LIMIT]).ids
             ids.append(eos_id)
             encoded.append(ids)
         return {"input_ids": encoded}
@@ -110,20 +94,7 @@ def main():
         tokenized.save_to_disk(str(tokenized_cache))
         print(f"Saved tokenized dataset cache: {tokenized_cache}", flush=True)
     del dataset
-    chat_examples = []
-    chat_path = Path("training/data.jsonl")
-    if chat_path.exists():
-        for line in chat_path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            item = json.loads(line)
-            if "prompt" in item and "response" in item:
-                text = f"User: {str(item['prompt'])[:1000]}\nRoger: {str(item['response'])[:2000]}"
-                ids = tokenizer.encode(text).ids[:args.max_seq]
-                if ids:
-                    ids.append(eos_id)
-                    chat_examples.append(ids)
-    print(f"Tokenized {len(tokenized):,} stories; supplemental chat examples={len(chat_examples):,}", flush=True)
+    print(f"Tokenized {len(tokenized):,} stories; training on stories only", flush=True)
 
     ffn_dims = list(DEFAULT_FFN_DIMS)
     model = RogerSpark(
@@ -148,10 +119,7 @@ def main():
     for step in range(start_step + 1, args.steps + 1):
         batch_x, batch_y = [], []
         for _ in range(args.batch_size):
-            if chat_examples and random.random() < CHAT_MIX_PROBABILITY:
-                seq = chat_examples[random.randrange(len(chat_examples))]
-            else:
-                seq = tokenized[random.randrange(len(tokenized))]["input_ids"]
+            seq = tokenized[random.randrange(len(tokenized))]["input_ids"]
             if len(seq) > args.max_seq + 1:
                 start = random.randrange(len(seq) - args.max_seq)
                 seq = seq[start:start + args.max_seq + 1]
