@@ -12,6 +12,7 @@
 <aside class="sidebar" id="sidebar" aria-label="Chat sidebar">
   <div class="brand"><div class="logo" aria-hidden="true">R!</div><span>Roger</span></div>
   <button class="new-chat" id="newChat">New chat</button>
+  <label class="chat-search-wrap"><span aria-hidden="true">⌕</span><input id="chatSearch" type="search" placeholder="Search chats…" aria-label="Search conversations" autocomplete="off"></label>
   <div class="section-label">Your conversations</div>
   <div class="chat-list" id="chatList" aria-label="Your conversations"></div>
   <div class="side-bottom">
@@ -24,7 +25,7 @@
     <button class="icon-button mobile-menu" id="menuOpen" aria-label="Open chats" title="Chats">☰</button>
     <div class="current-title" id="currentTitle">New chat</div>
     <div class="top-actions">
-      <button class="icon-button" id="copyChat" aria-label="Copy chat" title="Copy chat">▣</button>
+      <button class="icon-button" id="copyChat" aria-label="Copy chat" title="Copy chat" data-tooltip="Copy chat"><svg class="clipboard-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="7" width="12" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"></path><path d="M11 11h6M11 15h6"></path></svg></button>
       <button class="icon-button" id="renameOpen" aria-label="Rename chat" title="Rename chat">✎</button>
     </div>
   </header>
