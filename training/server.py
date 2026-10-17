@@ -15,8 +15,14 @@ model=RogerSpark(**checkpoint["config"]).to(device)
 model.load_state_dict(checkpoint["state_dict"]);model.eval()
 tokenizer=ByteTokenizer()
 
-def generate(prompt, temperature=.8, top_p=.9, max_new_tokens=160):
-    prefix=f"User: {prompt.strip()}\nRoger:"
+def generate(prompt, history=None, temperature=.8, top_p=.9, max_new_tokens=160):
+    turns=[]
+    for item in (history or [])[-6:]:
+        role="Roger" if item.get("role")=="assistant" else "User"
+        content=str(item.get("content","")).strip()[:700]
+        if content: turns.append(f"{role}: {content}")
+    turns.append(f"User: {str(prompt).strip()[:700]}")
+    prefix="\n".join(turns)+"\nRoger:"
     ids=torch.tensor([tokenizer.encode(prefix)[:-1]],device=device)
     generated=[]
     with torch.no_grad():
@@ -43,7 +49,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path!="/api/chat": return self._send(404,{"error":"Not found"})
         try:
             data=json.loads(self.rfile.read(int(self.headers.get("Content-Length","0"))))
-            answer=generate(data.get("message",""),data.get("temperature",.8),data.get("top_p",.9),data.get("max_new_tokens",160))
+            answer=generate(data.get("message",""),data.get("history",[]),data.get("temperature",.8),data.get("top_p",.9),data.get("max_new_tokens",160))
             self._send(200,{"reply":answer,"model":"Roger Spark 0.1","device":device})
         except Exception as exc: self._send(500,{"error":str(exc)})
     def log_message(self,*args): pass
