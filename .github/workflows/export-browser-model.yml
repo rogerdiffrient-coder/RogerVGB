@@ -34,7 +34,7 @@ jobs:
       - name: Download trained checkpoint from release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ inputs.release_tag || 'spark-v1-5000-steps' }}
         run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "roger_spark_final.pt" --dir training
 
       - name: Verify the original tokenizer is present
@@ -56,7 +56,7 @@ jobs:
       - name: Publish model and matching files to the release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ inputs.release_tag || 'spark-v1-5000-steps' }}
         run: |
           gh release upload "$RELEASE_TAG" roger_spark.onnx --repo "$GITHUB_REPOSITORY" --clobber
           gh release upload "$RELEASE_TAG" roger_spark_tokenizer.json roger_spark_config.json --repo "$GITHUB_REPOSITORY" --clobber
