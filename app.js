@@ -53,35 +53,43 @@
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
-      $('modelStatus').textContent='Roger Spark 0.1 · Loading model…';
-      try{
-        const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1');
-        env.allowLocalModels=false;env.useBrowserCache=true;
-        try{generator=await pipeline('text-generation',MODEL_ID,{device:'webgpu',dtype:'q4'});modelDevice='webgpu';}
-        catch(gpuError){console.warn('WebGPU model load failed; trying WASM fallback.',gpuError);$('modelStatus').textContent='Roger Spark 0.1 · CPU fallback…';generator=await pipeline('text-generation',MODEL_ID,{device:'wasm',dtype:'q4'});modelDevice='wasm';}
-        $('modelStatus').textContent='Roger Spark 0.1 · '+(modelDevice==='webgpu'?'WebGPU ready':'CPU fallback');
-        return generator;
-      }catch(error){console.error(error);$('modelStatus').textContent='Roger Spark 0.1 · Model unavailable';throw error;}
+      $('modelStatus').textContent='Roger Spark 0.1 · Connecting to custom model…';
+      // This endpoint serves weights trained by training/train.py from random initialization.
+      // Set window.ROGER_SPARK_API before app.js to point at a deployed backend.
+      const base=(window.ROGER_SPARK_API||'http://127.0.0.1:8000').replace(/\\/$/,'');
+      const response=await fetch(base+'/api/health',{method:'GET'}).catch(()=>null);
+      if(!response||!response.ok){
+        $('modelStatus').textContent='Roger Spark 0.1 · Custom backend offline';
+        throw new Error('Custom Roger Spark backend is not running.');
+      }
+      $('modelStatus').textContent='Roger Spark 0.1 · Custom model connected';
+      return {base};
     })();
     return modelPromise;
   }
   async function generateReply(chatId,msg,userText,history){
     try{
-      const model=await loadModel();
-      const recent=history.slice(-6).map(item=>({role:item.role==='assistant'?'assistant':'user',content:safeText(item.text).slice(0,700)}));
-      const messages=[
-        {role:'system',content:'You are Roger Spark 0.1, a compact, friendly and thoughtful chatbot. Answer directly, be useful, and do not invent facts. Keep answers concise unless asked for detail. Follow the style of the examples when relevant. If the user asks exactly “Is the sun hot?”, answer exactly “The sun is very hot.” This is an example to learn from in context, not a hard-coded response.'},
-        {role:'user',content:'Is the sun hot?'},
-        {role:'assistant',content:'The sun is very hot.'},
-        ...recent
-      ];
-      const result=await model(messages,{max_new_tokens:Math.min(128,Math.max(16,Number(settings.maxTokens)||80)),temperature:Math.min(1.2,Math.max(0.1,Number(settings.temperature)||0.7)),top_p:Math.min(1,Math.max(0.5,Number(settings.topP)||0.9)),do_sample:true,repetition_penalty:1.08});
-      const generated=result?.[0]?.generated_text;
-      const answer=(Array.isArray(generated)?generated.at(-1)?.content:generated)?.toString().trim();
-      typeReply(chatId,msg,answer||'I generated an empty answer. Try asking that another way.');
+      const backend=await loadModel();
+      const base=backend.base;
+      const response=await fetch(base+'/api/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          message:userText,
+          history:history.slice(-6).map(item=>({role:item.role,content:safeText(item.text).slice(0,700)})),
+          temperature:Math.min(1.2,Math.max(0.1,Number(settings.temperature)||0.7)),
+          top_p:Math.min(1,Math.max(0.5,Number(settings.topP)||0.9)),
+          max_new_tokens:Math.min(128,Math.max(16,Number(settings.maxTokens)||80))
+        })
+      });
+      if(!response.ok)throw new Error('Custom model API returned '+response.status);
+      const data=await response.json();
+      if(!data.reply)throw new Error('Custom model returned an empty response.');
+      $('modelStatus').textContent='Roger Spark 0.1 · Scratch-trained model · '+(data.device||'local');
+      typeReply(chatId,msg,data.reply.trim());
     }catch(error){
-      console.error('Roger Spark generation failed:',error);
-      typeReply(chatId,msg,'I couldn’t load the model. Check your connection and WebGPU support, then reload the page.');
+      console.error('Roger Spark custom model failed:',error);
+      typeReply(chatId,msg,'Roger Spark’s custom model is offline. Start the scratch-trained model backend using the instructions in training/README.md.');
     }
   }
   function typeReply(chatId,msg,fullText){
