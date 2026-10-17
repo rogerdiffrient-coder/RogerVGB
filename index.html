@@ -21,7 +21,9 @@ html{scrollbar-width:thin;scrollbar-color:#75baff #0755bd}
 .chat-list::-webkit-scrollbar-thumb:hover,.chat-view::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#fff0a8,#ffd44f);border:2px solid transparent;background-clip:padding-box}
 html,body{height:100%;margin:0}
 body{font-family:"Comic Sans MS","Comic Sans",cursive;background:var(--blue);color:var(--ink);overflow:hidden}
-button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #ffd84f;outline-offset:3px}
+button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible{outline:3px solid #ffd84f;outline-offset:3px}
+input:focus,textarea:focus{outline:none;box-shadow:none}
+textarea:focus-visible,input:focus-visible{outline:none;box-shadow:0 0 0 3px #87c2ff;border-radius:8px}
 ::selection{background:#b8dcff;color:#063e91}
 .app{height:100%;min-height:0;display:grid;grid-template-columns:235px minmax(0,1fr);position:relative;isolation:isolate}
 .app:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1.4px,transparent 1.4px);background-size:24px 24px}
@@ -29,7 +31,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,in
 .brand{height:45px;display:flex;align-items:center;gap:11px;padding:0 5px;color:#fff;font-size:23px;font-weight:900;letter-spacing:-.6px;user-select:none;-webkit-user-select:none}
 .logo{height:39px;width:39px;flex:0 0 39px;display:grid;place-items:center;background:#fff;color:var(--blue);border-radius:14px;font-size:23px;font-weight:900;box-shadow:0 4px 0 #0049a8;user-select:none;-webkit-user-select:none}
 .brand span{user-select:none;-webkit-user-select:none}
-.new-chat{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;border:2px solid #fff;border-radius:15px;padding:12px;background:#fff;color:var(--blue-dark);font-weight:900;box-shadow:0 4px 0 #0049a8;transition:transform .15s,box-shadow .15s}
+.new-chat{width:100%;display:flex;align-items:center;justify-content:center;text-align:center;border:2px solid #fff;border-radius:15px;padding:12px;background:#fff;color:var(--blue-dark);font-weight:900;box-shadow:0 4px 0 #0049a8;transition:transform .15s,box-shadow .15s}
 .new-chat:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0049a8}.new-chat:active{transform:translateY(2px);box-shadow:0 1px 0 #0049a8}
 .plus{font-family:Arial,sans-serif;font-size:22px;line-height:16px}
 .section-label{padding:3px 9px 0;color:#d2e7ff;font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
@@ -152,7 +154,7 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
 <div class="app">
 <aside class="sidebar" id="sidebar" aria-label="Chat sidebar">
   <div class="brand"><div class="logo" aria-hidden="true">R!</div><span>Roger</span></div>
-  <button class="new-chat" id="newChat"><span class="plus">＋</span> New chat <span aria-hidden="true">✦</span></button>
+  <button class="new-chat" id="newChat">New chat</button>
   <div class="section-label">Your conversations</div>
   <div class="chat-list" id="chatList" aria-label="Your conversations"></div>
   <div class="side-bottom">
@@ -266,7 +268,23 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
     if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted.');return;}
     chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted.');
   }
-  const cannedReplies=["Ooh, okay! Tell me a little more.","That's interesting. I can work with that!","Wait, I actually have an idea for this.","Okay, let's figure this out together.","I see what you mean. Let's build on that.","Not gonna lie, that could be pretty cool.","Got it! Here's one way to think about it.","Hmm. We have a few directions we could take this."];
+  const cannedReplies=[
+    "yo this is a random canned response, stop asking me for advice 😭",
+    "baby shark do doo do d-do",
+    "AOUHFHPOgo",
+    "i have been legally advised to say: huh",
+    "bro i am three pixels tall and you're asking ME",
+    "loading thought... thought not found",
+    "that sounds like a problem for future us",
+    "my brain just played the windows error sound",
+    "respectfully, what in the geometry dash",
+    "i was gonna say something smart but then i remembered who i am",
+    "beep boop. that is my entire contribution",
+    "the council of random canned responses has reviewed this and said 'lol'",
+    "hold on i'm pretending to think",
+    "i put that in the idea machine and it came back as soup",
+    "incredible. confusing. possibly illegal in 4 dimensions."
+  ];
   let replyBusy=false;
   function typeReply(chatId,msg,fullText){
     msg.typing=false;msg.streaming=true;msg.text='';save();
