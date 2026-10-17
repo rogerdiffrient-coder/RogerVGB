@@ -43,7 +43,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,in
 .chat-item:hover .delete-chat,.chat-item:focus-within .delete-chat,.chat-item.active .delete-chat{opacity:.85}
 .delete-chat:hover{background:#ffdddd;color:#a32727;opacity:1!important}
 .side-bottom{border-top:1px solid #ffffff40;padding-top:11px;display:flex;flex-direction:column;gap:7px}
-.side-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 11px;border:1px solid transparent;border-radius:12px;background:transparent;color:#fff;text-align:left;font-size:14px;font-weight:700}
+.side-link{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:1px solid transparent;border-radius:12px;background:transparent;color:#fff;text-align:left;font-size:14px;font-weight:700}
 .side-link:hover{background:#ffffff17}
 .side-link .symbol{width:19px;text-align:center;font-family:Arial,sans-serif;font-size:17px}
 .main{display:grid;grid-template-rows:60px minmax(0,1fr) auto;min-width:0;min-height:0;padding:0 21px}
@@ -54,21 +54,21 @@ button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,in
 .icon-button:hover{background:#ffffff32;transform:translateY(-1px)}
 .mobile-menu{display:none}
 .chat-view{position:relative;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:22px 0 18px;scrollbar-color:#ffffff7a transparent}
-.welcome{margin:auto;text-align:center;padding:24px 12px 38px;max-width:610px;animation:arrive .35s ease-out}
-.welcome-bubble{width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center;background:#fff;border-radius:24px;color:var(--blue);font-size:40px;box-shadow:0 6px 0 #0057c4;transform:rotate(-4deg);user-select:none;animation:floatIn .55s cubic-bezier(.2,.8,.2,1) both, gentleFloat 4s ease-in-out 1s infinite}
+.welcome{margin:auto;text-align:center;padding:16px 8px 26px;max-width:610px;animation:arrive .35s ease-out}
+.welcome-bubble{width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center;background:#fff;color:var(--blue);border-radius:24px;font-size:40px;font-weight:900;letter-spacing:-2px;box-shadow:0 6px 0 #0057c4;transform:rotate(-4deg);user-select:none;animation:floatIn .55s cubic-bezier(.2,.8,.2,1) both, gentleFloat 4s ease-in-out 1s infinite}
 h1{margin:0;color:#fff;font-size:clamp(34px,5.3vw,54px);line-height:1.12;letter-spacing:-1.2px}
 .welcome p{margin:0}
-.suggestions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.suggestions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:22px}
 .suggestion{background:#fff;border:2px solid #fff;color:var(--blue-dark);border-radius:15px;padding:11px 15px;font-size:13px;font-weight:900;box-shadow:0 4px 0 #0053bc;transition:transform .15s,box-shadow .15s}
 .suggestion:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 7px 0 #0053bc}.suggestion:active{transform:translateY(1px) scale(.985);box-shadow:0 2px 0 #0053bc}
-.messages{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:17px}
+.messages{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px}
 .message-row{display:flex;gap:10px;align-items:flex-end;animation:messageIn .32s cubic-bezier(.2,.8,.2,1) both}
 .message-row.user{justify-content:flex-end}
 .message-avatar{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:11px;background:#fff;color:var(--blue);font-weight:900;font-size:14px;box-shadow:0 2px 0 #0053bc;user-select:none}
-.message{max-width:min(84%,650px);padding:13px 17px;border-radius:20px;background:#fff;color:#0b448f;font-size:var(--font-size);line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 0 #0053bc}
+.message{max-width:min(84%,650px);padding:11px 15px;border-radius:20px;background:#fff;color:#0b448f;font-size:var(--font-size);line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 0 #0053bc}
 .message-row.user .message{border-bottom-right-radius:6px}
 .composer-area{padding:10px 0 13px}
-.composer{display:flex;align-items:flex-end;gap:10px;max-width:820px;margin:auto;background:#fff;padding:9px;border:3px solid #d8eaff;border-radius:23px;box-shadow:0 7px 0 #0053bc;transition:box-shadow .15s}
+.composer{display:flex;align-items:flex-end;gap:8px;max-width:820px;margin:auto;background:#fff;padding:7px;border:3px solid #d8eaff;border-radius:23px;box-shadow:0 7px 0 #0053bc;transition:box-shadow .15s}
 .composer:focus-within{box-shadow:0 7px 0 #0053bc,0 0 0 3px #ffffff55}
 textarea{flex:1;min-width:0;resize:none;max-height:160px;min-height:44px;border:0;outline:0;padding:12px 12px 9px;color:var(--ink);background:transparent;font-size:15px;line-height:1.45}
 textarea::placeholder{color:#82a2ca}
@@ -84,7 +84,7 @@ textarea::placeholder{color:#82a2ca}
 .dialog h2{margin:0;color:var(--blue-dark);font-size:25px;letter-spacing:-.5px}
 .dialog-desc{margin:4px 0 20px;color:#6e8db5;font-size:13px}
 .close{width:34px;height:34px;border:0;border-radius:11px;background:var(--pale);color:var(--blue-dark);font-size:21px}
-.setting{padding:15px 0;border-top:1px solid #e5effc;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.setting{padding:12px 0;border-top:1px solid #e5effc;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .setting-copy{display:flex;flex-direction:column;gap:3px}
 .setting-name{font-weight:900;color:#17477e;font-size:14px}
 .setting-help{font-size:12px;color:#7590b0;line-height:1.4}
@@ -147,7 +147,7 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
   </header>
   <section class="chat-view" id="chatView" aria-live="polite">
     <div class="welcome" id="welcome">
-      <div class="welcome-bubble" aria-hidden="true">✳</div>
+      <div class="welcome-bubble" aria-hidden="true">R!</div>
       <h1>What's on your mind?</h1>
       <div class="suggestions">
         <button class="suggestion">Help me brainstorm</button>
