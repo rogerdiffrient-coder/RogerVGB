@@ -33,7 +33,10 @@ class ByteLevelBPE {
   }
   encode(text){
     const out=[];
-    const pieces=String(text).match(pretokenPattern)||[];
+    // Match the ByteLevel post-processor used during training.
+    const input=String(text);
+    const withPrefixSpace=/^\s/.test(input)?input:' '+input;
+    const pieces=withPrefixSpace.match(pretokenPattern)||[];
     for(const piece of pieces){
       const symbols=[...new TextEncoder().encode(piece)].map(b=>byteMaps.encoder.get(b));
       while(symbols.length>1){
@@ -93,15 +96,18 @@ export class RogerSparkBrowser{
     // Match the prompt format used by prompt-conditioned story training.
     const rawPrompt=String(prompt).trim().slice(0,8000);
     let conditionedPrompt=rawPrompt;
-    // The old 25M model was trained on raw story continuation; v2 learns this prefix format.
+    // This checkpoint was trained on story-task prefixes, not chat turns.
+    // Convert plain input into the prompt shape seen during training.
     if(this.cfg.parameter_count===123509504){
       const aboutMatch=rawPrompt.match(/^(?:please\s+)?write\s+me\s+a\s+story\s+about\s+(.+?)[.!?]?$/i);
       if(aboutMatch){
         const subject=aboutMatch[1].trim().replace(/[.!?]+$/,'');
-        const name=subject.charAt(0).toUpperCase()+subject.slice(1);
-        conditionedPrompt='Write me a story about '+name+'.\nStory:\n';
+        conditionedPrompt='Write me a story about '+subject+'.\nStory:\n';
+      }else if(/^write\s+me\s+a\s+story\b/i.test(rawPrompt)){
+        conditionedPrompt=rawPrompt.replace(/\s+$/,'')+'\nStory:\n';
       }else{
-        conditionedPrompt=rawPrompt+'\nStory:\n';
+        const subject=rawPrompt.replace(/[.!?]+$/,'').trim();
+        conditionedPrompt='Write me a story about '+subject+'.\nStory:\n';
       }
     }
     let ids=this.tokenizer.encode(conditionedPrompt);
