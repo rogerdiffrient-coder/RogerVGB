@@ -35,6 +35,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status);self.send_header("Content-Type","application/json; charset=utf-8")
         self.send_header("Access-Control-Allow-Origin","*");self.send_header("Access-Control-Allow-Headers","Content-Type")
         self.send_header("Access-Control-Allow-Methods","POST, OPTIONS");self.end_headers();self.wfile.write(data)
+    def do_GET(self):
+        if self.path=="/api/health": return self._send(200,{"ok":True,"model":"Roger Spark 0.1","device":device})
+        return self._send(404,{"error":"Not found"})
     def do_OPTIONS(self): self._send(200,{})
     def do_POST(self):
         if self.path!="/api/chat": return self._send(404,{"error":"Not found"})
