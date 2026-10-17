@@ -2,7 +2,7 @@
 import torch
 from torch import nn
 
-# 123.51M parameters with the browser-compatible 192-token context.
+# 123.51M parameters with a compact 128-token context for faster training and inference.
 TARGET_PARAMETERS = 123_509_504
 DEFAULT_WIDTH = 640
 DEFAULT_LAYERS = 28
