@@ -9,11 +9,6 @@ on:
         description: Training steps (production default is 75000)
         required: true
         default: "75000"
-      resume:
-        description: Resume from training/checkpoints/roger_spark_latest.pt if present
-        required: true
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -36,9 +31,7 @@ jobs:
       - name: Train on TinyStories
         shell: bash
         run: |
-          RESUME_FLAG=""
-          if [[ "${{ inputs.resume }}" == "true" ]]; then RESUME_FLAG="--resume"; fi
-          python -u training/train.py --steps "${{ inputs.steps }}" $RESUME_FLAG
+          python -u training/train.py --steps "${{ inputs.steps }}"
       - name: Export ONNX FP16 for WebGPU
         run: python training/export_browser.py
       - name: Save browser deployment files
