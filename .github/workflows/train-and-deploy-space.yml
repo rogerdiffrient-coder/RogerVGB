@@ -48,11 +48,11 @@ jobs:
           echo "REQUESTED_STEPS=$REQUESTED_STEPS" >> "$GITHUB_ENV"
 
       - name: Train through step 5,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '5000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 5000 }}
         run: python -u training/train.py --steps 5000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 5,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '5000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 5000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-5000
@@ -63,11 +63,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 10,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '10000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 10000 }}
         run: python -u training/train.py --steps 10000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 10,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '10000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 10000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-10000
@@ -78,11 +78,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 15,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '15000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 15000 }}
         run: python -u training/train.py --steps 15000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 15,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '15000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 15000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-15000
@@ -93,11 +93,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 20,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '20000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 20000 }}
         run: python -u training/train.py --steps 20000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 20,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '20000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 20000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-20000
@@ -108,11 +108,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 25,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '25000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 25000 }}
         run: python -u training/train.py --steps 25000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 25,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '25000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 25000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-25000
@@ -123,11 +123,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 30,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '30000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 30000 }}
         run: python -u training/train.py --steps 30000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 30,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '30000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 30000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-30000
@@ -138,11 +138,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 35,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '35000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 35000 }}
         run: python -u training/train.py --steps 35000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 35,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '35000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 35000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-35000
@@ -153,11 +153,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 40,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '40000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 40000 }}
         run: python -u training/train.py --steps 40000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 40,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '40000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 40000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-40000
@@ -168,11 +168,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 45,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '45000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 45000 }}
         run: python -u training/train.py --steps 45000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 45,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '45000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 45000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-45000
@@ -183,11 +183,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 50,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '50000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 50000 }}
         run: python -u training/train.py --steps 50000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 50,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '50000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 50000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-50000
@@ -198,11 +198,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 55,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '55000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 55000 }}
         run: python -u training/train.py --steps 55000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 55,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '55000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 55000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-55000
@@ -213,11 +213,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 60,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '60000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 60000 }}
         run: python -u training/train.py --steps 60000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 60,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '60000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 60000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-60000
@@ -228,11 +228,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 65,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '65000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 65000 }}
         run: python -u training/train.py --steps 65000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 65,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '65000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 65000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-65000
@@ -243,11 +243,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 70,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '70000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 70000 }}
         run: python -u training/train.py --steps 70000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 70,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '70000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 70000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-70000
@@ -258,11 +258,11 @@ jobs:
           retention-days: 30
 
       - name: Train through step 75,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '75000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 75000 }}
         run: python -u training/train.py --steps 75000 --batch-size 1 --resume
 
       - name: Publish checkpoint at step 75,000
-        if: ${{ success() && env.REQUESTED_STEPS >= '75000' }}
+        if: ${{ success() && fromJSON(env.REQUESTED_STEPS) >= 75000 }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-checkpoint-step-75000
