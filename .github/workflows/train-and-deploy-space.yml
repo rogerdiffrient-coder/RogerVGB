@@ -50,11 +50,12 @@ jobs:
           cp space/README.md space/Dockerfile space/requirements.txt /tmp/roger-spark-space/
           cp training/roger_spark.py training/server.py training/roger_spark.pt /tmp/roger-spark-space/training/
       - name: Publish trained model and API to Hugging Face Spaces
-        if: ${{ secrets.HF_TOKEN != '' && vars.ROGER_SPARK_SPACE != '' }}
+        if: ${{ vars.ROGER_SPARK_SPACE != '' }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE_ID: ${{ vars.ROGER_SPARK_SPACE }}
         run: |
+          if [ -z "$HF_TOKEN" ]; then echo 'HF_TOKEN is missing; skipping Space upload.'; exit 0; fi
           python - <<'PY'
           import os
           from huggingface_hub import HfApi
@@ -88,5 +89,5 @@ jobs:
             git push
           fi
       - name: Explain missing hosting configuration
-        if: ${{ secrets.HF_TOKEN == '' || vars.ROGER_SPARK_SPACE == '' }}
+        if: ${{ vars.ROGER_SPARK_SPACE == '' }}
         run: echo 'Training succeeded, but deployment was skipped. Add repository secret HF_TOKEN and repository variable ROGER_SPARK_SPACE (username/space-name), then run this workflow again.'
