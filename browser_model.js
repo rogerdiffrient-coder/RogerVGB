@@ -90,7 +90,8 @@ export class RogerSparkBrowser{
     const maxTokens=clamp(Math.floor(Number(opts.maxTokens)||80),1,MAX_OUTPUT);
     const temperature=clamp(Number(opts.temperature)||0.7,0.1,1.2);
     const topP=clamp(Number(opts.topP)||0.9,0.5,1);
-    let ids=this.tokenizer.encode('User: '+String(prompt).slice(0,8000)+'\nRoger:');
+    // The story-only checkpoint is trained without dialogue wrappers.
+    let ids=this.tokenizer.encode(String(prompt).slice(0,8000));
     ids=ids.slice(-MAX_PROMPT);
     const generated=[];
     for(let step=0;step<maxTokens;step++){
@@ -113,7 +114,6 @@ export class RogerSparkBrowser{
       generated.push(chosen);
     }
     let text=this.tokenizer.decode(generated).replace(/\u0000/g,'').trim();
-    const stop=text.indexOf('\nUser:');if(stop>=0)text=text.slice(0,stop).trim();
     return text||'…';
   }
 }
