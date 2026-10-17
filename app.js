@@ -2,7 +2,6 @@
   const $ = id => document.getElementById(id);
   const storeKey = 'roger-chat-ui-v2';
   let chats = [], activeId = null, settings = {textSize:'15px',enterSend:true,reduceMotion:false,temperature:0.7,topP:0.9,maxTokens:80};
-  const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
   let generator=null, modelPromise=null, modelDevice='webgpu';
   let toastTimer;
   const makeId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -53,27 +52,23 @@
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
-      $('modelStatus').textContent='Roger Spark 0.1 · Loading browser model…';
       const response=await fetch('./roger_spark_weights.json',{cache:'no-store'});
       if(!response.ok)throw new Error('Browser weights unavailable: '+response.status);
       const bundle=await response.json();
       const {RogerSparkBrowser}=await import('./browser_model.js');
       generator=new RogerSparkBrowser(bundle);
-      $('modelStatus').textContent='Roger Spark 0.1 · Model loaded in browser';
       return generator;
-    })().catch(error=>{modelPromise=null;$('modelStatus').textContent='Roger Spark 0.1 · Model not loaded';throw error;});
+    })().catch(error=>{modelPromise=null;throw error;});
     return modelPromise;
   }
   async function generateReply(chatId,msg,userText,history){
     try{
       const model=await loadModel();
-      $('modelStatus').textContent='Roger Spark 0.1 · Generating on this device…';
       const reply=await model.reply(userText,{
         temperature:settings.temperature,
         topP:settings.topP,
         maxTokens:Math.min(48,Number(settings.maxTokens)||48)
       });
-      $('modelStatus').textContent='Roger Spark 0.1 · Scratch-trained · Browser inference';
       typeReply(chatId,msg,reply);
     }catch(error){
       console.error('Roger Spark browser model failed:',error);
