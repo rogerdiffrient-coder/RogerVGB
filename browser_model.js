@@ -1,5 +1,5 @@
 // BPE tokenizer + ONNX Runtime Web inference. Context and output are hard-capped.
-const MAX_CONTEXT = 320;
+const MAX_CONTEXT = 192;
 const MAX_OUTPUT = 128;
 const MAX_PROMPT = MAX_CONTEXT - MAX_OUTPUT;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -78,9 +78,9 @@ export class RogerSparkBrowser{
     if(!tokResponse.ok||!cfgResponse.ok)throw new Error('Tokenizer/config not found. Train and export Roger Spark first.');
     this.tokenizer=new ByteLevelBPE(await tokResponse.json());
     this.cfg=await cfgResponse.json();
-    if(this.cfg.parameter_count!==25000000)throw new Error('Model config parameter-count check failed.');
+    if(this.cfg.parameter_count!==123550464)throw new Error('Model config parameter-count check failed: expected Roger Spark 123.55M v2.');
     if(!navigator.gpu)throw new Error('This browser does not expose WebGPU. Open Roger in a WebGPU-capable browser.');
-    this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx',{
+    this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx?v=roger-spark-123m-v2',{
       executionProviders:['webgpu'],graphOptimizationLevel:'all'
     });
     this.ready=true;return this;
@@ -90,8 +90,18 @@ export class RogerSparkBrowser{
     const maxTokens=clamp(Math.floor(Number(opts.maxTokens)||80),1,MAX_OUTPUT);
     const temperature=clamp(Number(opts.temperature)||0.7,0.1,1.2);
     const topP=clamp(Number(opts.topP)||0.9,0.5,1);
-    // The story-only checkpoint is trained without dialogue wrappers.
-    let ids=this.tokenizer.encode(String(prompt).slice(0,8000));
+    // Match the prompt format used by prompt-conditioned story training.
+    const rawPrompt=String(prompt).trim().slice(0,8000);
+    const aboutMatch=rawPrompt.match(/^(?:please\\s+)?write\\s+me\\s+a\\s+story\\s+about\\s+(.+?)[.!?]?$/i);
+    let conditionedPrompt;
+    if(aboutMatch){
+      const subject=aboutMatch[1].trim().replace(/[.!?]+$/,'');
+      const name=subject.charAt(0).toUpperCase()+subject.slice(1);
+      conditionedPrompt=`Write me a story about ${name}.\\nStory:\\n`;
+    }else{
+      conditionedPrompt=`${rawPrompt}\\nStory:\\n`;
+    }
+    let ids=this.tokenizer.encode(conditionedPrompt);
     ids=ids.slice(-MAX_PROMPT);
     const generated=[];
     for(let step=0;step<maxTokens;step++){
