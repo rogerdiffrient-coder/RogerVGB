@@ -1,6 +1,6 @@
 // BPE tokenizer + ONNX Runtime Web inference. Context and output are hard-capped.
-const MAX_CONTEXT = 192;
-const MAX_OUTPUT = 128;
+const MAX_CONTEXT = 128;
+const MAX_OUTPUT = 80;
 const MAX_PROMPT = MAX_CONTEXT - MAX_OUTPUT;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const softmax=xs=>{let m=-Infinity;for(const x of xs)if(x>m)m=x;const ex=new Float32Array(xs.length);let s=0;for(let i=0;i<xs.length;i++){ex[i]=Math.exp(xs[i]-m);s+=ex[i];}if(!s)s=1;for(let i=0;i<ex.length;i++)ex[i]/=s;return ex;};
@@ -78,7 +78,7 @@ export class RogerSparkBrowser{
     if(!tokResponse.ok||!cfgResponse.ok)throw new Error('Tokenizer/config not found. Train and export Roger Spark first.');
     this.tokenizer=new ByteLevelBPE(await tokResponse.json());
     this.cfg=await cfgResponse.json();
-    if(this.cfg.parameter_count!==123550464)throw new Error('Model config parameter-count check failed: expected Roger Spark 123.55M v2.');
+    if(this.cfg.parameter_count!==123509504)throw new Error('Model config parameter-count check failed: expected Roger Spark 123.51M v2.');
     if(!navigator.gpu)throw new Error('This browser does not expose WebGPU. Open Roger in a WebGPU-capable browser.');
     this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx?v=roger-spark-123m-v2',{
       executionProviders:['webgpu'],graphOptimizationLevel:'all'
