@@ -346,3 +346,65 @@ html[data-theme="dark"] .token-warning {
 @media (max-width: 420px) {
   .custom-starters { grid-template-columns: 1fr; }
 }
+
+
+/* Dark/system theme polish for controls and nested dialog surfaces. */
+html[data-theme="dark"] .dialog-head,
+html[data-theme="dark"] .close,
+html[data-theme="dark"] .secondary,
+html[data-theme="dark"] .custom-starter-item button,
+html[data-theme="dark"] .number-setting {
+  background: var(--surface-soft);
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+html[data-theme="dark"] .advanced-settings,
+html[data-theme="dark"] .stat-row,
+html[data-theme="dark"] .setting {
+  border-color: var(--border-color);
+}
+html[data-theme="dark"] .advanced-settings summary,
+html[data-theme="dark"] .stat-row,
+html[data-theme="dark"] .stat-row strong {
+  color: var(--text-main);
+}
+html[data-theme="dark"] .message-tools .message-action {
+  background: var(--surface-soft);
+  color: var(--text-main);
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+html[data-theme="dark"] .composer {
+  background: var(--surface);
+}
+html[data-theme="dark"] .prompt-meta,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted);
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .dialog-head,
+  html[data-theme="system"] .close,
+  html[data-theme="system"] .secondary,
+  html[data-theme="system"] .custom-starter-item button,
+  html[data-theme="system"] .number-setting {
+    background: var(--surface-soft);
+    color: var(--text-main);
+    border-color: var(--border-color);
+  }
+  html[data-theme="system"] .advanced-settings,
+  html[data-theme="system"] .stat-row,
+  html[data-theme="system"] .setting {
+    border-color: var(--border-color);
+  }
+  html[data-theme="system"] .advanced-settings summary,
+  html[data-theme="system"] .stat-row,
+  html[data-theme="system"] .stat-row strong {
+    color: var(--text-main);
+  }
+  html[data-theme="system"] .message-tools .message-action {
+    background: var(--surface-soft);
+    color: var(--text-main);
+    border-color: var(--border-color);
+    box-shadow: none;
+  }
+}
