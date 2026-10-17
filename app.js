@@ -53,45 +53,31 @@
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
-      $('modelStatus').textContent='Roger Spark 0.1 · Connecting to custom model…';
-      // This endpoint serves weights trained by training/train.py from random initialization.
-      // Set window.ROGER_SPARK_API before app.js to point at a deployed backend.
-      const configuredSpace=window.ROGER_SPARK_SPACE||'';
-      const inferredApi=configuredSpace.includes('/')?'https://'+configuredSpace.replace('/','-')+'.hf.space':'';
-      const base=(window.ROGER_SPARK_API||inferredApi||'http://127.0.0.1:8000').replace(/\/$/,'');
-      const response=await fetch(base+'/api/health',{method:'GET'}).catch(()=>null);
-      if(!response||!response.ok){
-        $('modelStatus').textContent='Roger Spark 0.1 · Custom backend offline';
-        throw new Error('Custom Roger Spark backend is not running.');
-      }
-      $('modelStatus').textContent='Roger Spark 0.1 · Custom model connected';
-      return {base};
-    })();
+      $('modelStatus').textContent='Roger Spark 0.1 · Loading browser model…';
+      const response=await fetch('./roger_spark_weights.json',{cache:'no-store'});
+      if(!response.ok)throw new Error('Browser weights unavailable: '+response.status);
+      const bundle=await response.json();
+      const {RogerSparkBrowser}=await import('./browser_model.js');
+      generator=new RogerSparkBrowser(bundle);
+      $('modelStatus').textContent='Roger Spark 0.1 · Model loaded in browser';
+      return generator;
+    })().catch(error=>{modelPromise=null;$('modelStatus').textContent='Roger Spark 0.1 · Model not loaded';throw error;});
     return modelPromise;
   }
   async function generateReply(chatId,msg,userText,history){
     try{
-      const backend=await loadModel();
-      const base=backend.base;
-      const response=await fetch(base+'/api/chat',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          message:userText,
-          history:history.slice(-6).map(item=>({role:item.role,content:safeText(item.text).slice(0,700)})),
-          temperature:Math.min(1.2,Math.max(0.1,Number(settings.temperature)||0.7)),
-          top_p:Math.min(1,Math.max(0.5,Number(settings.topP)||0.9)),
-          max_new_tokens:Math.min(128,Math.max(16,Number(settings.maxTokens)||80))
-        })
+      const model=await loadModel();
+      $('modelStatus').textContent='Roger Spark 0.1 · Generating on this device…';
+      const reply=await model.reply(userText,{
+        temperature:settings.temperature,
+        topP:settings.topP,
+        maxTokens:Math.min(48,Number(settings.maxTokens)||48)
       });
-      if(!response.ok)throw new Error('Custom model API returned '+response.status);
-      const data=await response.json();
-      if(!data.reply)throw new Error('Custom model returned an empty response.');
-      $('modelStatus').textContent='Roger Spark 0.1 · Scratch-trained model · '+(data.device||'local');
-      typeReply(chatId,msg,data.reply.trim());
+      $('modelStatus').textContent='Roger Spark 0.1 · Scratch-trained · Browser inference';
+      typeReply(chatId,msg,reply);
     }catch(error){
-      console.error('Roger Spark custom model failed:',error);
-      typeReply(chatId,msg,'Roger Spark’s hosted model is not connected yet. The Hugging Face Space may still be starting, or the Space ID has not been configured.');
+      console.error('Roger Spark browser model failed:',error);
+      typeReply(chatId,msg,'Roger Spark could not load its model weights. Refresh the page and try again.');
     }
   }
   function typeReply(chatId,msg,fullText){
