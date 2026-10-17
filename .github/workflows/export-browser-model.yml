@@ -1,0 +1,75 @@
+name: Export Roger Spark browser model
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag containing roger_spark_final.pt
+        required: true
+        default: spark-v1-5000-steps
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: training/requirements.txt
+
+      - name: Install export dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r training/requirements.txt
+
+      - name: Download trained checkpoint from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "roger_spark_final.pt" --dir training
+
+      - name: Rebuild the matching prompted-v4 tokenizer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from datasets import load_dataset
+          from tokenizers import ByteLevelBPETokenizer
+
+          target = Path("training/tokenizer_prompted_v4/tokenizer.json")
+          target.parent.mkdir(parents=True, exist_ok=True)
+          dataset = load_dataset("roneneldan/TinyStories", split="train")
+          count = min(100_000, len(dataset))
+          tokenizer = ByteLevelBPETokenizer()
+          tokenizer.train_from_iterator(
+              (str(row["text"])[:12_000] for row in dataset.select(range(count))),
+              vocab_size=6144,
+              min_frequency=2,
+              special_tokens=["<pad>", "<eos>"],
+          )
+          tokenizer._tokenizer.save(str(target))
+          print(f"Created tokenizer from the first {count:,} TinyStories training examples.")
+          PY
+
+      - name: Export and validate ONNX
+        run: python training/export_browser_onnx.py --checkpoint training/roger_spark_final.pt
+
+      - name: Publish model and matching files to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release upload "$RELEASE_TAG" roger_spark.onnx --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$RELEASE_TAG" roger_spark_tokenizer.json roger_spark_config.json --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: Commit browser tokenizer and config
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add roger_spark_tokenizer.json roger_spark_config.json
+          git commit -m 'Publish Roger Spark browser tokenizer and config [skip ci]' || echo "No metadata changes to commit"
+          git push
