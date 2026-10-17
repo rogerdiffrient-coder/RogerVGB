@@ -7,7 +7,7 @@ function norm(x,w,b){let mean=0;for(const v of x)mean+=v;mean/=x.length;let vari
 function gelu(x){return .5*x*(1+Math.tanh(.7978845608*(x+.044715*x*x*x)));}
 export class RogerSparkBrowser{
   constructor(bundle){this.cfg=bundle.config;this.w={};for(const [k,v] of Object.entries(bundle.weights))this.w[k]=Float32Array.from(v);this.ready=true;}
-  encode(s){return [...new TextEncoder().encode(s)].map(b=>b+1).concat(257);}
+  encode(s){return [...new TextEncoder().encode(s)].map(b=>b+1);}
   decode(ids){return new TextDecoder().decode(Uint8Array.from(ids.filter(i=>i>=1&&i<=256).map(i=>i-1)));}
   forward(ids){
     const w=this.w,c=this.cfg,W=c.width,H=c.heads,D=W/H,V=c.vocab_size,L=ids.length;
@@ -38,7 +38,7 @@ export class RogerSparkBrowser{
     for(let step=0;step<limit;step++){
       const context=ids.concat(generated).slice(-maxSeq),logits=this.forward(context);
       const scaled=Array.from(logits, v=>v/temp),probs=softmax(scaled),order=probs.map((p,i)=>({p,i})).sort((a,b)=>b.p-a.p);
-      let total=0,choices=[];for(const item of order){choices.push(item);total+=item.p;if(1-total<=topP)break;}
+      let total=0,choices=[];for(const item of order){choices.push(item);total+=item.p;if(total>=topP)break;}
       const sum=choices.reduce((s,x)=>s+x.p,0);let r=Math.random()*sum,chosen=choices[choices.length-1].i;for(const item of choices){r-=item.p;if(r<=0){chosen=item.i;break;}}
       if(chosen===257)break;generated.push(chosen);
     }
