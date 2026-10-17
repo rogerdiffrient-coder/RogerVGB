@@ -44,17 +44,19 @@ def story_prefix(story):
         animal = ANIMAL_NORMALIZE.get(animal, animal)
         return f"Write me a story about {name} the {animal}.\nStory:\n"
 
-    # A character name alone is safer than inventing an animal identity.
-    named = re.search(r"\b(?:named|called)\s+([A-Z][a-z]{1,15})\b", story)
-    if named:
-        return f"Write me a story about {named.group(1)}.\nStory:\n"
-
     # Otherwise condition on a broad topic that actually appears in the story.
+    # Do this before falling back to a character-only prompt so animal stories
+    # still receive a useful topic label when name/type wording is indirect.
     lower = story.lower()
     for animal in ANIMALS:
         if re.search(r"\b" + re.escape(animal) + r"\b", lower):
             normalized = ANIMAL_NORMALIZE.get(animal, animal)
             return f"Write me a story about a {normalized}.\nStory:\n"
+
+    # A character name alone is safer than inventing an identity.
+    named = re.search(r"\b(?:named|called)\s+([A-Z][a-z]{1,15})\b", story)
+    if named:
+        return f"Write me a story about {named.group(1)}.\nStory:\n"
     return "Write me a story.\nStory:\n"
 
 def encode_stories(dataset, tokenizer, max_seq, eos_id, label):
