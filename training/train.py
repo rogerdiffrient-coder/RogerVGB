@@ -33,7 +33,10 @@ def main():
     parser.add_argument("--tokenizer-out", default="roger_spark_tokenizer.json")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--require-cuda", action="store_true")
-    parser.add_argument("--save-every", type=int, default=5000)
+    parser.add_argument("--device", choices=["auto", "cpu", "mps", "cuda"], default="auto")
+    parser.add_argument("--smoke-every", type=int, default=100)
+    parser.add_argument("--smoke-tokens", type=int, default=24)
+    parser.add_argument("--save-every", type=int, default=500)
     args = parser.parse_args()
 
     random.seed(42)
@@ -41,7 +44,14 @@ def main():
     torch.set_num_threads(min(4, torch.get_num_threads()))
     if args.require_cuda and not torch.cuda.is_available():
         raise SystemExit("CUDA is required for this run; refusing to start a slow CPU run.")
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if args.device == "auto":
+        device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
+    else:
+        device = args.device
+    if device == "mps" and not torch.backends.mps.is_available():
+        raise SystemExit("MPS was requested, but this PyTorch installation does not have working MPS support.")
+    if device == "cuda" and not torch.cuda.is_available():
+        raise SystemExit("CUDA was requested, but CUDA is not available.")
     print(f"Roger Spark v2: {TARGET_PARAMETERS:,} parameters; device={device}; context={args.max_seq}", flush=True)
 
     tokenizer_json = TOKENIZER_DIR / "tokenizer.json"
@@ -124,6 +134,24 @@ def main():
     use_cuda_amp = device == "cuda"
     amp_dtype = torch.bfloat16 if use_cuda_amp and torch.cuda.is_bf16_supported() else torch.float16
     scaler = torch.amp.GradScaler("cuda", enabled=use_cuda_amp and amp_dtype == torch.float16)
+    def run_smoke_test(step_label):
+        model.eval()
+        smoke_prompt = "Write me a story about Rex the dog.\\nStory:\\n"
+        prompt_ids = tokenizer.encode(smoke_prompt).ids[-max(1, args.max_seq - args.smoke_tokens):]
+        generated = []
+        with torch.no_grad():
+            for _ in range(args.smoke_tokens):
+                context = (prompt_ids + generated)[-args.max_seq:]
+                logits = model(torch.tensor([context], dtype=torch.int32, device=device))
+                next_id = int(logits[0, -1].argmax().item())
+                if next_id == eos_id:
+                    break
+                generated.append(next_id)
+        print(f"\\n=== SPARK SMOKE TEST @ {step_label} ===", flush=True)
+        print(smoke_prompt + tokenizer.decode(generated), flush=True)
+        print("=== END SMOKE TEST ===\\n", flush=True)
+        model.train()
+
     model.train()
     for step in range(start_step + 1, args.steps + 1):
         # Each cached row is already a full fixed-length block: no per-step padding
@@ -150,8 +178,10 @@ def main():
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
 
-        if step == 1 or step % 25 == 0:
+        if step == 1 or step % 100 == 0:
             print(f"step {step:,}/{args.steps:,} loss={loss.item():.4f} device={device}", flush=True)
+        if args.smoke_every > 0 and step % args.smoke_every == 0:
+            run_smoke_test(f"step {step:,}")
         # Avoid repeatedly writing a huge model+optimizer checkpoint mid-chunk.
         if step % args.save_every == 0 or step == args.steps:
             checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
