@@ -3,38 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101116">
+<meta name="theme-color" content="#0878f9">
 <title>Roger Spark — Chat</title>
 <style>
-:root{color-scheme:dark;font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101116;color:#f4f1fb;--muted:#a8a2b7;--line:#343044;--panel:#191722;--purple:#b49aff}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#352650 0,transparent 52%),#101116}
-.app{max-width:900px;height:100dvh;min-height:540px;margin:auto;display:flex;flex-direction:column;padding:0 22px}
-header{height:78px;flex-shrink:0;display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff12}
-.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,#c5a8ff,#8560da);color:#1b102b;font-weight:900;font-size:22px}
-.brand{font-weight:800;letter-spacing:-.03em}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.15em;font-weight:700}.pill{margin-left:auto;border:1px solid var(--line);border-radius:99px;padding:6px 10px;font-size:11px;color:var(--muted)}
-main{flex:1;min-height:0;display:flex;flex-direction:column}.intro{text-align:center;margin:auto auto 24px;padding:0 10px}.spark{font-size:12px;color:var(--purple);font-weight:800;letter-spacing:.18em}.intro h1{font-size:clamp(32px,6vw,48px);line-height:1.1;letter-spacing:-.06em;margin:12px 0}.intro h1 span{color:var(--purple)}.intro p{color:var(--muted);margin:0 auto;max-width:440px}.chat{display:none;flex:1;overflow:auto;padding:24px 2px 16px}.message{max-width:780px;margin:0 auto 22px;white-space:pre-wrap;overflow-wrap:anywhere}.who{font-size:11px;color:var(--purple);font-weight:800;letter-spacing:.12em;margin-bottom:5px}.text{line-height:1.7}.composer-wrap{width:100%;max-width:780px;margin:0 auto 14px}.composer{border:1px solid #443b57;background:#1b1925;border-radius:18px;padding:12px;box-shadow:0 14px 45px #0003}.composer textarea{display:block;width:100%;resize:none;min-height:54px;max-height:180px;border:0;outline:0;background:transparent;color:#fff;font:inherit;padding:5px 4px}.composer-bottom{display:flex;align-items:center;gap:10px}.hint{font-size:11px;color:#898398;flex:1}.send{border:0;border-radius:12px;background:var(--purple);color:#1b102b;font-size:19px;font-weight:900;width:42px;height:40px;cursor:pointer}.send:disabled{opacity:.4;cursor:wait}.status{font-size:12px;color:var(--muted);text-align:center;min-height:28px;padding:4px 0 12px}.status.error{color:#ffadb9}.footer{text-align:center;color:#777184;font-size:11px;padding:0 0 14px}.new-chat{background:transparent;border:1px solid var(--line);border-radius:10px;color:#dcd5ed;padding:7px 10px;cursor:pointer}
-@media(max-width:600px){.app{padding:0 14px}.pill{display:none}.intro h1{font-size:35px}.composer-wrap{margin-bottom:8px}.hint{font-size:10px}}
+:root{font-family:"Comic Sans MS","Comic Sans",cursive;color:#fff;background:#0878f9;color-scheme:dark;--blue:#0878f9;--deep:#0756c9;--light:#fff;--pale:#dcecff;--line:#ffffff75}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:var(--blue);background-image:radial-gradient(#ffffff22 1.5px,transparent 1.5px);background-size:22px 22px}
+button,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,textarea:focus-visible{outline:3px dashed white;outline-offset:4px}
+.app{height:100dvh;max-width:1050px;margin:auto;display:flex;flex-direction:column;padding:0 28px}
+header{height:82px;flex-shrink:0;display:flex;align-items:center;gap:13px;border-bottom:2px solid var(--line)}
+.logo{width:46px;height:46px;display:grid;place-items:center;background:white;color:var(--blue);border:3px solid white;border-radius:15px 15px 15px 4px;font-size:29px;font-weight:900;transform:rotate(-3deg);box-shadow:4px 4px 0 #034cb8}
+.brand{font-size:24px;line-height:1;font-weight:900;letter-spacing:-1px;text-shadow:2px 2px 0 #0756c9}
+.brand small{display:block;font-size:10px;letter-spacing:2px;margin-top:6px;text-shadow:none}
+.header-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.status-pill{border:2px solid white;border-radius:99px;padding:7px 12px;font-size:11px;font-weight:bold;background:#ffffff18}
+.new-chat{border:2px solid white;background:white;color:var(--deep);border-radius:12px;padding:9px 13px;font-weight:bold;box-shadow:3px 3px 0 #034cb8}
+.new-chat:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #034cb8}
+main{flex:1;min-height:0;display:flex;flex-direction:column}
+.intro{margin:auto auto 28px;text-align:center;max-width:650px;padding:24px 12px 0}
+.spark-tag{display:inline-block;border:2px solid white;border-radius:999px;padding:6px 13px;font-size:12px;font-weight:bold;letter-spacing:1.5px;background:#ffffff17;transform:rotate(-2deg)}
+.intro h1{font-size:clamp(38px,7vw,68px);line-height:1.03;letter-spacing:-2px;margin:21px 0 13px;text-shadow:4px 4px 0 #0756c9}
+.intro h1 span{color:var(--blue);background:white;padding:0 10px;border-radius:9px;display:inline-block;transform:rotate(1deg);text-shadow:none}
+.intro p{font-size:16px;line-height:1.6;margin:0 auto;max-width:470px}
+.chat{display:none;flex:1;min-height:0;overflow-y:auto;padding:28px 6px 18px;scrollbar-color:#ffffff99 transparent}
+.message{display:flex;gap:11px;align-items:flex-start;margin:0 auto 24px;max-width:780px;animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.message.user{flex-direction:row-reverse}
+.avatar{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;border:2px solid white;background:var(--deep);border-radius:13px;color:white;font-size:19px;font-weight:bold;box-shadow:2px 2px 0 #034cb8}
+.message.user .avatar{background:white;color:var(--blue);border-radius:13px 13px 4px 13px}
+.bubble-wrap{max-width:min(720px,calc(100% - 50px));min-width:0}
+.who{font-size:11px;font-weight:bold;letter-spacing:1.3px;margin:0 0 6px 3px}
+.message.user .who{text-align:right}
+.bubble{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.7;padding:13px 17px;border:2px solid white;background:#ffffff;color:#0749a9;border-radius:4px 17px 17px 17px;box-shadow:4px 4px 0 #034cb8}
+.message.user .bubble{background:#0756c9;color:white;border-radius:17px 4px 17px 17px;box-shadow:4px 4px 0 #ffffff55}
+.composer-wrap{width:100%;max-width:790px;margin:0 auto 12px}
+.composer{background:white;border:3px solid white;border-radius:19px;padding:12px 13px 10px;box-shadow:6px 6px 0 #034cb8}
+.composer textarea{display:block;width:100%;resize:none;min-height:48px;max-height:170px;border:0;outline:0;background:transparent;color:#0749a9;font-size:16px;line-height:1.5;padding:5px}
+.composer textarea::placeholder{color:#5788c8;opacity:1}
+.composer-bottom{display:flex;align-items:center;gap:12px;padding-top:7px;border-top:2px dashed #b7d6ff}
+.hint{font-size:11px;color:#5788c8;flex:1}
+.send{height:42px;min-width:48px;padding:0 13px;border:0;border-radius:12px;background:var(--blue);color:white;font-size:25px;font-weight:bold;box-shadow:3px 3px 0 #034cb8}
+.send:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #034cb8}
+.send:disabled{opacity:.45;cursor:wait;box-shadow:none}
+.status{min-height:30px;text-align:center;font-size:12px;padding:5px 0 10px;text-shadow:1px 1px 0 #0756c9}
+.status.error{font-weight:bold;background:#b71938;border-radius:9px;padding:8px;margin-bottom:7px}
+.footer{text-align:center;font-size:11px;padding:0 0 13px;color:#ffffffd9}
+@media(max-width:600px){.app{padding:0 14px}header{height:72px}.logo{width:40px;height:40px;font-size:25px}.brand{font-size:20px}.brand small{font-size:8px;letter-spacing:1px}.status-pill{display:none}.new-chat{padding:8px 10px;font-size:12px}.intro h1{font-size:43px}.intro p{font-size:14px}.chat{padding:20px 0 12px}.avatar{width:32px;height:32px;flex-basis:32px;font-size:15px}.bubble{font-size:14px;padding:11px 13px}.hint{font-size:10px}.composer-wrap{margin-bottom:8px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="mark">R</div><div class="brand">Roger Spark<small>ROGERVGB · FROM-SCRATCH AI</small></div><button class="new-chat" id="new-chat" style="margin-left:auto">New chat</button><div class="pill">Runs in your browser</div></header>
+<header>
+  <div class="logo" aria-hidden="true">R!</div>
+  <div class="brand">Roger Spark<small>ROGERVGB · EXPERIMENTAL AI</small></div>
+  <div class="header-actions"><div class="status-pill">✦ LOCAL MODEL</div><button class="new-chat" id="new-chat" type="button">＋ New chat</button></div>
+</header>
 <main>
-<section class="intro" id="intro"><div class="spark">✳ ROGER SPARK 0.1</div><h1>A tiny model.<br><span>Its own brain.</span></h1><p>Talk to Roger Spark, a small language model trained from scratch. No Ollama or cloud API.</p></section>
-<section class="chat" id="chat" aria-live="polite"></section>
-<div class="composer-wrap"><form class="composer" id="form"><textarea id="prompt" rows="1" maxlength="3000" placeholder="Message Roger Spark…" aria-label="Message Roger Spark"></textarea><div class="composer-bottom"><span class="hint">Enter to send · Shift + Enter for a new line</span><button class="send" id="send" type="submit" aria-label="Send message" disabled>↑</button></div></form></div>
-<div class="status" id="status">Checking browser support…</div>
-</main><div class="footer">Experimental model · Responses may be weird. That is currently part of the research.</div>
+  <section class="intro" id="intro">
+    <div class="spark-tag">✦ HEY, I'M ROGER SPARK ✦</div>
+    <h1>What's on<br>your <span>mind?</span></h1>
+    <p>A tiny experimental AI with a brain of its own. Ask something, see what happens, and let's figure it out together.</p>
+  </section>
+  <section class="chat" id="chat" aria-live="polite" aria-label="Chat messages"></section>
+  <div class="composer-wrap">
+    <form class="composer" id="form">
+      <textarea id="prompt" rows="1" maxlength="3000" placeholder="Say something..." aria-label="Message Roger Spark"></textarea>
+      <div class="composer-bottom"><span class="hint">ENTER to send · SHIFT + ENTER for a new line</span><button class="send" id="send" type="submit" aria-label="Send message" disabled>↑</button></div>
+    </form>
+  </div>
+  <div class="status" id="status">Waking up the tiny brain…</div>
+</main>
+<div class="footer">A little weird is part of the fun. ✦</div>
 </div>
 <script type="module">
 import {loadRogerSpark} from "./webgpu/engine.js";
 const status=document.querySelector("#status"),send=document.querySelector("#send"),form=document.querySelector("#form"),prompt=document.querySelector("#prompt"),chat=document.querySelector("#chat"),intro=document.querySelector("#intro");
 let model=null,busy=false,history=[];
-function say(who,text){const item=document.createElement("div");item.className="message";const label=document.createElement("div");label.className="who";label.textContent=who;const body=document.createElement("div");body.className="text";body.textContent=text;item.append(label,body);chat.append(item);chat.scrollTop=chat.scrollHeight;return body;}
-(async()=>{try{if(!navigator.gpu)throw new Error("WebGPU is not available in this browser. Try a current version of Chrome or Edge on a supported device.");status.textContent="Loading Roger Spark model files…";model=await loadRogerSpark({base:"./webgpu/model/"});status.textContent="Ready. Roger Spark is running on your device.";send.disabled=false;prompt.focus();}catch(e){status.classList.add("error");status.textContent=e.message;}})();
-form.addEventListener("submit",async e=>{e.preventDefault();const text=prompt.value.trim();if(!text||!model||busy)return;busy=true;send.disabled=true;intro.style.display="none";chat.style.display="block";say("YOU",text);const output=say("ROGER SPARK","Thinking…");prompt.value="";try{output.textContent=await model.generate(history.slice(-4).map(turn=>"[USER] "+turn.user+"\n[ROGER] "+turn.roger).join("\n")+"\n[USER] "+text+"\n[ROGER]",{maxNewTokens:48,temperature:.7,onToken:partial=>{output.textContent=partial||"Thinking…";chat.scrollTop=chat.scrollHeight;}})||"(No text generated.)";}catch(err){output.textContent="Generation error: "+err.message;}history.push({user:text,roger:output.textContent});chat.scrollTop=chat.scrollHeight;busy=false;send.disabled=false;prompt.focus();});
+function say(who,text,isUser=false){const item=document.createElement("div");item.className="message"+(isUser?" user":"");const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent=isUser?"Y":"R!";const wrap=document.createElement("div");wrap.className="bubble-wrap";const label=document.createElement("div");label.className="who";label.textContent=who;const body=document.createElement("div");body.className="bubble";body.textContent=text;wrap.append(label,body);item.append(avatar,wrap);chat.append(item);chat.scrollTop=chat.scrollHeight;return body;}
+(async()=>{try{if(!navigator.gpu)throw new Error("WebGPU isn't available here. Try a current version of Chrome or Edge on a supported device.");status.textContent="Loading Roger Spark's model files…";model=await loadRogerSpark({base:"./webgpu/model/"});status.textContent="READY TO CHAT ✦";send.disabled=false;prompt.focus();}catch(e){status.classList.add("error");status.textContent=e.message;}})();
+form.addEventListener("submit",async e=>{e.preventDefault();const text=prompt.value.trim();if(!text||!model||busy)return;busy=true;send.disabled=true;intro.style.display="none";chat.style.display="block";say("YOU",text,true);const output=say("ROGER SPARK","Hmm… gimme a sec!");prompt.value="";prompt.style.height="auto";try{output.textContent=await model.generate(history.slice(-4).map(turn=>"[USER] "+turn.user+"\n[ROGER] "+turn.roger).join("\n")+"\n[USER] "+text+"\n[ROGER]",{maxNewTokens:48,temperature:.7,onToken:partial=>{output.textContent=partial||"Hmm… gimme a sec!";chat.scrollTop=chat.scrollHeight;}})||"(My brain went quiet. Try that again!)";}catch(err){output.textContent="Oops! Something went wrong: "+err.message;}history.push({user:text,roger:output.textContent});chat.scrollTop=chat.scrollHeight;busy=false;send.disabled=false;prompt.focus();});
 prompt.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();form.requestSubmit();}});
-document.querySelector("#new-chat").addEventListener("click",()=>{chat.replaceChildren();history.length=0;chat.style.display="none";intro.style.display="block";prompt.value="";prompt.focus();});
+prompt.addEventListener("input",()=>{prompt.style.height="auto";prompt.style.height=Math.min(prompt.scrollHeight,170)+"px";});
+document.querySelector("#new-chat").addEventListener("click",()=>{chat.replaceChildren();history.length=0;chat.style.display="none";intro.style.display="block";prompt.value="";prompt.style.height="auto";prompt.focus();});
 </script>
 </body>
 </html>
