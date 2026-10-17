@@ -208,9 +208,7 @@ body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{anim
     if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted. Fresh slate!');return;}
     chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted. Poof.');
   }
-  function sendMessage(text){const t=text.trim();if(!t)return;const c=active();c.messages.push({text:t,created:Date.now()});if(c.title==='New chat'||c.title==='Untitled chat'){c.title=t.length> thirty ? t.slice(0, thirty-1)+'…' : t;}render();$('prompt').value='';fitInput();$('prompt').focus();}
-  const thirty= thirtyValue();
-  function thirtyValue(){return  thirtyFix();}function thirtyFix(){return 34;}
+  function sendMessage(text){const t=text.trim();if(!t)return;const c=active();c.messages.push({text:t,created:Date.now()});if(c.title==='New chat'||c.title==='Untitled chat'){const titleLimit=34;c.title=t.length>titleLimit?t.slice(0,titleLimit-1)+'…':t;}render();$('prompt').value='';fitInput();$('prompt').focus();}
   function fitInput(){$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,160)+'px';$('send').disabled=!$('prompt').value.trim();}
   function applySettings(){
     document.documentElement.style.setProperty('--font-size',settings.textSize);
