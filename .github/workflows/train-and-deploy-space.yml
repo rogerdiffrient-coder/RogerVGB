@@ -295,7 +295,7 @@ jobs:
         run: python training/export_browser.py
 
       - name: Save browser deployment files
-        if: ${{ success() && env.REQUESTED_STEPS == '75000' }}
+        if: ${{ success() }}
         run: |
           git add roger_spark.onnx roger_spark_tokenizer.json roger_spark_config.json
           git config user.name 'github-actions[bot]'
@@ -304,7 +304,7 @@ jobs:
           git push
 
       - name: Upload final checkpoint
-        if: ${{ success() && env.REQUESTED_STEPS == '75000' }}
+        if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
           name: roger-spark-123m-checkpoint
