@@ -3,6 +3,11 @@ name: Roger Spark training and export
 # Manual so normal site edits never launch a costly training run.
 # Uses GitHub-hosted CPU runners; the checkpoint cache lets a later run resume.
 on:
+  # Start this training workflow when its configuration is committed; it will
+  # not retrigger when the model exports are pushed.
+  push:
+    paths:
+      - ".github/workflows/train-and-deploy-space.yml"
   workflow_dispatch:
     inputs:
       steps:
