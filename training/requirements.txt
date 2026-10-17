@@ -1,1 +1,5 @@
 torch>=2.2
+datasets>=3.0
+tokenizers>=0.20
+onnx>=1.16
+onnxconverter-common>=1.14

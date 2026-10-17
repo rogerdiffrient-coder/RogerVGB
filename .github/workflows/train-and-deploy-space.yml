@@ -1,63 +1,57 @@
-name: Train Roger Spark for browser
+name: Roger Spark training and export
 
+# Long training is deliberately manual: pushing source changes must not start
+# another expensive run. Full training needs a CUDA GPU runner.
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-    paths:
-      - 'training/data.jsonl'
-      - 'training/train.py'
-      - 'training/roger_spark.py'
-      - 'training/export_browser.py'
-      - 'browser_model.js'
-      - '.github/workflows/train-and-deploy-space.yml'
+    inputs:
+      steps:
+        description: Training steps (production default is 75000)
+        required: true
+        default: "75000"
+      resume:
+        description: Resume from training/checkpoints/roger_spark_latest.pt if present
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
-concurrency:
-  group: roger-spark-browser-training
-  cancel-in-progress: false
-
 jobs:
-  train-and-export:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+  train-export:
+    # Configure a self-hosted CUDA runner with labels linux, x64, gpu.
+    # GitHub-hosted ubuntu-latest runners do not provide a CUDA GPU.
+    runs-on: [self-hosted, linux, x64, gpu]
+    timeout-minutes: 360
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
           cache: pip
           cache-dependency-path: training/requirements.txt
-      - name: Install training dependencies
+      - name: Install dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r training/requirements.txt
-      - name: Train from random initialization
-        run: python -u training/train.py --steps 10000 --batch-size 8 --max-seq 128 --width 128 --layers 4 --heads 4 --out training/roger_spark.pt
-      - name: Export browser weights
-        run: python training/export_browser.py
-      - name: Commit trained browser model
+      - name: Train on TinyStories
+        shell: bash
         run: |
+          RESUME_FLAG=""
+          if [[ "${{ inputs.resume }}" == "true" ]]; then RESUME_FLAG="--resume"; fi
+          python -u training/train.py --steps "${{ inputs.steps }}" $RESUME_FLAG
+      - name: Export ONNX FP16 for WebGPU
+        run: python training/export_browser.py
+      - name: Save browser deployment files
+        run: |
+          cp training/roger_spark_final.pt /tmp/roger_spark_final.pt
+          git add roger_spark.onnx roger_spark_tokenizer.json roger_spark_config.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add roger_spark_weights.json
-          if git diff --cached --quiet; then
-            echo 'Trained weights did not change.'
-          else
-            git commit -m 'Update scratch-trained Roger Spark browser weights [skip ci]'
-            # The website or another workflow may push to main while training runs.
-            # Rebase onto the latest main and retry if a push races with another commit.
-            for attempt in 1 2 3; do
-              git fetch origin "$GITHUB_REF_NAME"
-              git rebase "origin/$GITHUB_REF_NAME"
-              if git push origin "HEAD:$GITHUB_REF_NAME"; then
-                exit 0
-              fi
-              echo "Push raced with another commit (attempt $attempt); retrying..."
-              sleep 2
-            done
-            echo "Could not push trained weights after 3 attempts."
-            exit 1
-          fi
+          git commit -m 'Export Roger Spark 25M WebGPU model [skip ci]'
+          git push
+      - name: Upload final checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-25m-checkpoint
+          path: /tmp/roger_spark_final.pt
+          retention-days: 14

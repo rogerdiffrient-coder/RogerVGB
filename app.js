@@ -1,6 +1,6 @@
 (() => {
   const $ = id => document.getElementById(id);
-  const storeKey = 'roger-chat-ui-v2';
+  const storeKey = 'roger-chat-ui-v3';
   let chats = [], activeId = null, settings = {textSize:'15px',enterSend:true,reduceMotion:false,temperature:0.7,topP:0.9,maxTokens:80};
   let generator=null, modelPromise=null, modelDevice='webgpu';
   let toastTimer;
@@ -52,11 +52,8 @@
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
-      const response=await fetch('./roger_spark_weights.json',{cache:'no-store'});
-      if(!response.ok)throw new Error('Browser weights unavailable: '+response.status);
-      const bundle=await response.json();
       const {RogerSparkBrowser}=await import('./browser_model.js');
-      generator=new RogerSparkBrowser(bundle);
+      generator=await new RogerSparkBrowser().initialize();
       return generator;
     })().catch(error=>{modelPromise=null;throw error;});
     return modelPromise;
@@ -67,7 +64,7 @@
       const reply=await model.reply(userText,{
         temperature:settings.temperature,
         topP:settings.topP,
-        maxTokens:Math.min(48,Number(settings.maxTokens)||48)
+        maxTokens:Math.min(128,Number(settings.maxTokens)||80)
       });
       typeReply(chatId,msg,reply);
     }catch(error){

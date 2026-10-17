@@ -1,0 +1,11 @@
+{
+  "parameter_count": 25000000,
+  "vocab_size": 6144,
+  "max_seq": 320,
+  "width": 336,
+  "layers": 18,
+  "heads": 8,
+  "max_prompt_tokens": 192,
+  "max_generated_tokens": 128,
+  "format": "onnx-fp16-webgpu"
+}
