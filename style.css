@@ -408,3 +408,37 @@ html[data-theme="dark"] textarea::placeholder {
     box-shadow: none;
   }
 }
+
+
+/* Dialogs should fit their purpose, not all pretend to be phone screens. */
+#settingsModal .dialog {
+  width: min(780px, 100%);
+  max-height: min(820px, 90dvh);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+  align-content: start;
+}
+#settingsModal .dialog-head,
+#settingsModal .dialog-desc,
+#settingsModal .custom-starters,
+#settingsModal .advanced-settings,
+#settingsModal .dialog-actions {
+  grid-column: 1 / -1;
+}
+#settingsModal .dialog-desc { margin-bottom: 14px; }
+#settingsModal .setting { min-width: 0; }
+#settingsModal .setting-copy { min-width: 0; }
+#settingsModal .setting-help { overflow-wrap: anywhere; }
+#aboutModal .dialog {
+  width: min(560px, 100%);
+  max-height: min(520px, 85dvh);
+}
+#aboutModal .dialog-desc { line-height: 1.6; }
+@media (max-width: 620px) {
+  #settingsModal .dialog {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+  #settingsModal .dialog > .setting { grid-column: 1; }
+}
