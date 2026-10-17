@@ -10,7 +10,7 @@
 <body>
 <div class="app">
 <aside class="sidebar" id="sidebar" aria-label="Chat sidebar">
-  <div class="brand"><div class="logo" aria-hidden="true">R!</div><span>Roger</span></div>
+  <div class="brand"><div class="logo" aria-hidden="true">R!</div><span>Roger</span><button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Collapse sidebar" data-tooltip="Collapse sidebar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM9 5v14M14 10l-3 2 3 2"/></svg></button></div>
   <button class="new-chat" id="newChat">New chat</button>
   <label class="chat-search-wrap"><span aria-hidden="true">⌕</span><input id="chatSearch" type="search" placeholder="Search chats…" aria-label="Search conversations" autocomplete="off"></label>
   <div class="section-label">Your conversations</div>
@@ -25,9 +25,21 @@
     <button class="icon-button mobile-menu" id="menuOpen" aria-label="Open chats" title="Chats">☰</button>
     <div class="current-title" id="currentTitle">New chat</div>
     <div class="top-actions">
-      <button class="icon-button" id="copyChat" aria-label="Copy chat" title="Copy chat" data-tooltip="Copy chat"><svg class="clipboard-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="7" width="12" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"></path><path d="M11 11h6M11 15h6"></path></svg></button>
-      <button class="icon-button" id="pinChat" aria-label="Pin chat" title="Pin chat">☆</button><button class="icon-button" id="duplicateChat" title="Duplicate chat" aria-label="Duplicate chat">▣</button><button class="icon-button" id="copyLast" title="Copy latest response" aria-label="Copy latest response">⧉</button><button class="icon-button" id="chatStats" title="Conversation stats" aria-label="Conversation stats">∑</button><button class="icon-button" id="focusMode" title="Focus mode" aria-label="Focus mode">⛶</button><button class="icon-button" id="exportChat" aria-label="Export chat" title="Export chat">⇩</button><button class="icon-button" id="clearChat" aria-label="Clear messages" title="Clear messages">⌫</button>
-      <button class="icon-button" id="renameOpen" aria-label="Rename chat" title="Rename chat">✎</button>
+      <div class="action-group" aria-label="Chat organization">
+        <button class="icon-button" id="pinChat" aria-label="Pin chat" data-tooltip="Pin chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4 8 0-1 6 3 3v2H6v-2l3-3zM12 15v5"/></svg></button>
+        <button class="icon-button" id="renameOpen" aria-label="Rename chat" data-tooltip="Rename chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l11-11-4-4zM13.5 6.5l4 4"/></svg></button>
+        <button class="icon-button" id="duplicateChat" aria-label="Duplicate chat" data-tooltip="Duplicate chat"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button>
+      </div>
+      <div class="action-group" aria-label="Copy and export">
+        <button class="icon-button" id="copyChat" aria-label="Copy conversation" data-tooltip="Copy conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"/></svg></button>
+        <button class="icon-button" id="copyLast" aria-label="Copy latest response" data-tooltip="Copy latest response"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/><rect x="3" y="8" width="13" height="13" rx="2"/></svg></button>
+        <button class="icon-button" id="exportChat" aria-label="Export conversation" data-tooltip="Export conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></button>
+      </div>
+      <div class="action-group" aria-label="Conversation tools">
+        <button class="icon-button" id="chatStats" aria-label="Conversation statistics" data-tooltip="Conversation statistics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17M8 16v-5m5 5V7m5 9v-8"/></svg></button>
+        <button class="icon-button" id="focusMode" aria-label="Toggle focus mode" data-tooltip="Focus mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
+        <button class="icon-button" id="clearChat" aria-label="Clear messages" data-tooltip="Clear conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg></button>
+      </div>
     </div>
   </header>
   <section class="chat-view" id="chatView" aria-live="polite">
@@ -44,8 +56,9 @@
   </section>
   <footer class="composer-area">
     <form class="composer" id="composer">
-      <div class="prompt-wrap"><textarea id="prompt" rows="1" aria-label="Message" placeholder="Describe a story idea, or start the first sentence..." autocomplete="off"></textarea><div class="prompt-meta"><span id="draftStatus">Draft saved per chat</span><span id="promptCount">0 characters</span></div></div><button class="stop" id="stop" type="button" aria-label="Stop generating" hidden>■</button><button class="send" id="send" type="submit" aria-label="Send message" disabled>↑</button>
+      <div class="prompt-wrap"><textarea id="prompt" rows="1" aria-label="Message" placeholder="Describe a story idea, or start the first sentence..." autocomplete="off"></textarea><div class="prompt-meta"><span id="promptCount">0 characters</span></div></div><button class="stop" id="stop" type="button" aria-label="Stop generating" hidden>■</button><button class="send" id="send" type="submit" aria-label="Send message" disabled>↑</button>
     </form>
+    <div class="composer-status"><span id="draftStatus">Draft saved per chat</span></div>
   </footer>
 </main>
 </div>
@@ -56,9 +69,9 @@
     <div class="setting"><div class="setting-copy"><span class="setting-name">Message size</span><span class="setting-help">Choose the text size used in messages.</span></div><select id="textSize"><option value="14px">Small</option><option value="15px">Medium</option><option value="17px">Large</option><option value="19px">Extra large</option></select></div>
     <div class="setting"><div class="setting-copy"><span class="setting-name">Enter sends message</span><span class="setting-help">When off, Enter adds a new line instead.</span></div><button class="switch" id="enterSetting" role="switch" aria-checked="true" aria-label="Enter sends message"></button></div>
     <div class="setting"><div class="setting-copy"><span class="setting-name">Reduced motion</span><span class="setting-help">Disable interface animations.</span></div><button class="switch" id="motionSetting" role="switch" aria-checked="false" aria-label="Reduced motion"></button></div><div class="setting"><div class="setting-copy"><span class="setting-name">Message timestamps</span><span class="setting-help">Show message times.</span></div><button class="switch" id="timestampsSetting" role="switch" aria-checked="false" aria-label="Message timestamps"></button></div><div class="setting"><div class="setting-copy"><span class="setting-name">Prompt starter</span><span class="setting-help">Insert a reusable prompt structure.</span></div><select id="promptStarter" aria-label="Prompt starter"><option value="">Choose a starter…</option><option value="Explain this step by step, with a short example: ">Explain step by step</option><option value="Brainstorm 5 unusual ideas for: ">Brainstorm ideas</option><option value="Review this carefully. Find bugs, explain why they happen, and suggest a fix:\n">Debug code</option><option value="Give me the concise answer first, then the reasoning: ">Concise + reasoning</option><option value="Compare these options by pros, cons, and best use case:\n">Compare options</option></select></div>
-    <div class="setting"><div class="setting-copy"><label class="setting-name" for="temperatureValue">Creativity</label><span class="setting-help">Higher values make answers less predictable.</span></div><div class="setting-controls"><input id="temperatureSetting" type="range" min="0.1" max="1.2" step="0.1" value="0.7" aria-label="Creativity slider"><input id="temperatureValue" class="number-setting" type="number" min="0.1" max="1.2" step="0.1" value="0.7" aria-label="Creativity numeric value"></div></div>
+    <details class="advanced-settings"><summary>Advanced settings <span>Model behavior and response length</span></summary>    <div class="setting"><div class="setting-copy"><label class="setting-name" for="temperatureValue">Creativity</label><span class="setting-help">Higher values make answers less predictable.</span></div><div class="setting-controls"><input id="temperatureSetting" type="range" min="0.1" max="1.2" step="0.1" value="0.7" aria-label="Creativity slider"><input id="temperatureValue" class="number-setting" type="number" min="0.1" max="1.2" step="0.1" value="0.7" aria-label="Creativity numeric value"></div></div>
     <div class="setting"><div class="setting-copy"><label class="setting-name" for="topPValue">Top-p</label><span class="setting-help">Controls how many next-token choices are considered.</span></div><div class="setting-controls"><input id="topPSetting" type="range" min="0.5" max="1" step="0.05" value="0.9" aria-label="Top-p slider"><input id="topPValue" class="number-setting" type="number" min="0.5" max="1" step="0.05" value="0.9" aria-label="Top-p numeric value"></div></div>
-    <div class="setting"><div class="setting-copy"><label class="setting-name" for="maxTokensSetting">Maximum answer</label><span class="setting-help">Maximum number of tokens Roger can generate (1–80).</span></div><div class="setting-controls"><input id="maxTokensSetting" class="number-setting" type="number" min="1" max="80" step="1" value="80" aria-label="Maximum answer tokens"></div></div>
+    <div class="setting"><div class="setting-copy"><label class="setting-name" for="maxTokensSetting">Maximum answer</label><span class="setting-help">Maximum number of tokens Roger can generate (1–80).</span></div><div class="setting-controls"><input id="maxTokensSetting" class="number-setting" type="number" min="1" max="80" step="1" value="80" aria-label="Maximum answer tokens"></div></div></details>
     <div class="dialog-actions"><button class="secondary" data-close>Close</button><button class="secondary" id="trainingTest">Run sun test</button><button class="primary" id="settingsDone">Save settings</button></div>
   </div>
 </div>
