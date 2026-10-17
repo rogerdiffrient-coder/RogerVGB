@@ -154,3 +154,16 @@ input[type="range"]{width:115px;accent-color:var(--blue);cursor:pointer}
   .number-setting{width:65px;padding:8px 3px}
   #maxTokensSetting{width:76px}
 }
+
+
+/* Conversation search + crisp clipboard action */
+.chat-search-wrap{display:flex;align-items:center;gap:8px;min-height:39px;padding:0 10px;border:1px solid #ffffff5c;border-radius:12px;background:#004fba55;color:#dceeff}
+.chat-search-wrap>span{font-family:Arial,sans-serif;font-size:23px;line-height:1;transform:rotate(-20deg)}
+.chat-search-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:13px}
+.chat-search-wrap input::placeholder{color:#c6e1ff}
+.chat-search-wrap:focus-within{outline:3px solid #ffd84f;outline-offset:1px}
+.chat-search-wrap input:focus-visible{box-shadow:none}
+.chat-search-wrap input::-webkit-search-cancel-button{cursor:pointer;filter:brightness(0) invert(1)}
+.chat-search-empty{padding:12px 9px;color:#d2e7ff;font-size:13px;font-style:italic}
+.clipboard-icon{width:20px;height:20px;display:block}
+@media(max-width:760px){.chat-search-wrap{min-height:42px}}
