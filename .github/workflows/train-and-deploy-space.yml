@@ -35,7 +35,7 @@ jobs:
       - name: Install training dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r training/requirements.txt
       - name: Train from random initialization
-        run: python training/train.py --steps 1500 --batch-size 8 --max-seq 128 --width 64 --layers 2 --heads 4 --out training/roger_spark.pt
+        run: python training/train.py --steps 5000 --batch-size 8 --max-seq 192 --width 64 --layers 2 --heads 4 --out training/roger_spark.pt
       - name: Export browser weights
         run: python training/export_browser.py
       - name: Commit trained browser model
