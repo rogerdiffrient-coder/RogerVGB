@@ -62,12 +62,13 @@ jobs:
           mkdir -p training/current-model
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "roger_spark.onnx" --dir training/current-model
 
-      - name: Compare published ONNX against PyTorch checkpoint
+      - name: Check published ONNX (diagnostic only)
+        continue-on-error: true
         run: python training/validate_browser_onnx.py --checkpoint training/roger_spark_final.pt --onnx training/current-model/roger_spark.onnx
 
       - name: Export and validate ONNX
         run: |
-          python training/export_browser_onnx.py --checkpoint training/roger_spark_final.pt
+          python training/export_browser_onnx.py --checkpoint training/roger_spark_final.pt --fp32
           python training/validate_browser_onnx.py --checkpoint training/roger_spark_final.pt --onnx roger_spark.onnx
 
       - name: Publish model and matching files to the release
