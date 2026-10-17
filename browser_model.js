@@ -80,7 +80,7 @@ export class RogerSparkBrowser{
     this.cfg=await cfgResponse.json();
     if(![25000000,123509504].includes(this.cfg.parameter_count))throw new Error('Model config parameter-count check failed: unsupported Roger Spark build.');
     if(!navigator.gpu)throw new Error('This browser does not expose WebGPU. Open Roger in a WebGPU-capable browser.');
-    this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx?v=roger-spark-123m-v2',{
+    this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx?v=roger-spark-123m-v3',{
       executionProviders:['webgpu'],graphOptimizationLevel:'all'
     });
     this.ready=true;return this;
