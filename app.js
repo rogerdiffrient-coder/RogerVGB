@@ -7,7 +7,7 @@
   const makeId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
   const freshChat = () => ({id:makeId(),title:'New chat',messages:[],created:Date.now()});
   function save(){try{localStorage.setItem(storeKey,JSON.stringify({chats,activeId,settings}));}catch(e){}}
-  function load(){try{const d=JSON.parse(localStorage.getItem(storeKey)||'null');if(d&&Array.isArray(d.chats)){chats=d.chats;activeId=d.activeId;settings={...settings,...d.settings};}}catch(e){}if(!chats.length){const c=freshChat();chats=[c];activeId=c.id;}if(!chats.some(c=>c.id===activeId))activeId=chats[0].id;}
+  function load(){try{const d=JSON.parse(localStorage.getItem(storeKey)||'null');if(d&&Array.isArray(d.chats)){chats=d.chats;activeId=d.activeId;settings={...settings,...d.settings};settings.temperature=Number(Math.max(0.1,Math.min(1.2,Number(settings.temperature)||0.7)).toFixed(1));settings.topP=Number(Math.max(0.5,Math.min(1,Number(settings.topP)||0.9)).toFixed(2));settings.maxTokens=Math.round(Math.max(1,Math.min(80,Number(settings.maxTokens)||80)));}}catch(e){}if(!chats.length){const c=freshChat();chats=[c];activeId=c.id;}if(!chats.some(c=>c.id===activeId))activeId=chats[0].id;}
   function active(){return chats.find(c=>c.id===activeId)||chats[0];}
   function showToast(text){$('toast').textContent=text;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1900);}
   function safeText(text){return String(text??'');}
