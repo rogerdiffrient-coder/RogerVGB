@@ -1,7 +1,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const storeKey = 'roger-chat-ui-v3';
-  let chats = [], activeId = null, settings = {textSize:'15px',enterSend:true,reduceMotion:false,showTimestamps:false,temperature:0.7,topP:0.9,maxTokens:80};
+  let chats = [], activeId = null, settings = {textSize:'15px',enterSend:true,reduceMotion:false,showTimestamps:false,temperature:0.7,topP:0.9,maxTokens:80,theme:'system'};
   let generator=null, modelPromise=null, modelDevice='webgpu';
   let toastTimer;
   const makeId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -9,7 +9,15 @@
   function save(){try{localStorage.setItem(storeKey,JSON.stringify({chats,activeId,settings}));}catch(e){}}
   function load(){try{const d=JSON.parse(localStorage.getItem(storeKey)||'null');if(d&&Array.isArray(d.chats)){chats=d.chats;activeId=d.activeId;settings={...settings,...d.settings};settings.temperature=Number(Math.max(0.1,Math.min(1.2,Number(settings.temperature)||0.7)).toFixed(1));settings.topP=Number(Math.max(0.5,Math.min(1,Number(settings.topP)||0.9)).toFixed(2));settings.maxTokens=Math.round(Math.max(1,Math.min(80,Number(settings.maxTokens)||80)));}}catch(e){}if(!chats.length){const c=freshChat();chats=[c];activeId=c.id;}if(!chats.some(c=>c.id===activeId))activeId=chats[0].id;chats.forEach(c=>{if(typeof c.draft!=='string')c.draft='';if(typeof c.pinned!=='boolean')c.pinned=false;});}
   function active(){return chats.find(c=>c.id===activeId)||chats[0];}
-  function showToast(text){$('toast').textContent=text;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1900);}
+  function showToast(text){$('toast').textContent=text;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2200);}
+  const customStarterKey='roger-custom-starters-v1';
+  function getCustomStarters(){try{const value=JSON.parse(localStorage.getItem(customStarterKey)||'[]');return Array.isArray(value)?value.filter(x=>typeof x==='string'&&x.trim()).slice(0,30):[];}catch(error){return [];}}
+  function saveCustomStarters(items){try{localStorage.setItem(customStarterKey,JSON.stringify(items));return true;}catch(error){showToast('Could not save starters in this browser.');return false;}}
+  function refreshStarterDropdown(){const select=$('promptStarter');[...select.options].filter(option=>option.dataset.custom==='true').forEach(option=>option.remove());getCustomStarters().forEach((starter,index)=>{const option=document.createElement('option');option.value='custom:'+index;option.textContent=starter;option.dataset.custom='true';select.append(option);});}
+  function renderCustomStarterList(){const list=$('customStarterList');list.replaceChildren();getCustomStarters().forEach((starter,index)=>{const row=document.createElement('div');row.className='custom-starter-item';const text=document.createElement('span');text.className='starter-text';text.textContent=starter;const remove=document.createElement('button');remove.type='button';remove.className='delete-starter';remove.textContent='Delete';remove.setAttribute('aria-label','Delete starter '+(index+1));remove.addEventListener('click',()=>{const items=getCustomStarters();items.splice(index,1);if(saveCustomStarters(items)){renderCustomStarterList();refreshStarterDropdown();showToast('Starter deleted.');}});row.append(text,remove);list.append(row);});}
+  function insertPromptStarter(starter){if(!starter)return;$('prompt').value+=starter;fitInput();$('prompt').focus();}
+  function updateTokenWarning(){const prompt=$('prompt').value.trim();const maxTokens=Number(settings.maxTokens)||80;const estimatedInputTokens=Math.ceil(prompt.length/4);const warnings=[];if(maxTokens<=32)warnings.push('Roger can generate only '+maxTokens+' tokens, so longer replies may stop early.');else if(maxTokens<=48)warnings.push('The '+maxTokens+'-token response limit may cut longer stories short.');if(estimatedInputTokens>160)warnings.push('Your prompt is roughly '+estimatedInputTokens+' tokens long (an estimate, not the model tokenizer).');const warning=$('tokenWarning');warning.hidden=warnings.length===0;$('tokenWarningText').textContent=warnings.join(' ');}
+  function exportActiveChat(format){const chat=active();const messages=chat.messages.filter(message=>!message.typing&&!message.streaming&&String(message.text??'').trim());if(!messages.length){showToast('There are no messages to export.');return;}const title=chat.title||'Untitled conversation';const exportedAt=new Date().toLocaleString();const content=format==='md'?['# '+title,'','Exported: '+exportedAt,'',...messages.flatMap(message=>['### '+(message.role==='assistant'?'Roger':'You'),' ',String(message.text).trim(),''])].join('\n'):[title,'Exported: '+exportedAt,'',...messages.flatMap(message=>[(message.role==='assistant'?'Roger':'You')+':',String(message.text).trim(),''])].join('\n');const blob=new Blob([content],{type:format==='md'?'text/markdown;charset=utf-8':'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');const filename=title.replace(/[^\w-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50)||'roger-chat';link.href=url;link.download=filename+'.'+format;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('Conversation exported as .'+format);}
   function safeText(text){return String(text??'');}
   function renderList(){
     const list=$('chatList');const existingIds=new Set([...list.querySelectorAll('[data-chat-id]')].map(el=>el.dataset.chatId));list.replaceChildren();
@@ -119,10 +127,13 @@
   function applySettings(){
     document.documentElement.style.setProperty('--font-size',settings.textSize);
     document.body.classList.toggle('reduce-motion',!!settings.reduceMotion);
+    document.documentElement.dataset.theme=['light','dark','system'].includes(settings.theme)?settings.theme:'system';
+    $('themeSetting').value=document.documentElement.dataset.theme;
     $('textSize').value=settings.textSize;$('enterSetting').setAttribute('aria-checked',String(!!settings.enterSend));$('motionSetting').setAttribute('aria-checked',String(!!settings.reduceMotion));$('timestampsSetting').setAttribute('aria-checked',String(!!settings.showTimestamps));
     $('temperatureSetting').value=settings.temperature;$('temperatureValue').value=settings.temperature;
     $('topPSetting').value=settings.topP;$('topPValue').value=settings.topP;
     $('maxTokensSetting').value=String(settings.maxTokens);
+    updateTokenWarning();
   }
   function openModal(id){$(id).classList.add('open');const focus=$(id).querySelector('button,input,select');if(focus)focus.focus();}
   function closeModals(){$$('.overlay').forEach(el=>el.classList.remove('open'));}
@@ -153,13 +164,18 @@
   $('newChat').addEventListener('click',createChat);
   $('pinChat').addEventListener('click',()=>{const x=active();x.pinned=!x.pinned;$('pinChat').classList.toggle('is-pinned',x.pinned);renderList();save();showToast(x.pinned?'Chat pinned.':'Chat unpinned.');});
   $('duplicateChat').addEventListener('click',duplicateChat);$('copyLast').addEventListener('click',copyLastResponse);$('chatStats').addEventListener('click',showStats);
-  $('exportChat').addEventListener('click',()=>{const x=active(),p={title:x.title,created:new Date(x.created).toISOString(),messages:x.messages.filter(m=>!m.typing&&!m.streaming).map(m=>({role:m.role,text:m.text,created:m.created?new Date(m.created).toISOString():null}))};const fmt=(window.prompt('Export as txt or json?','txt')||'').trim().toLowerCase();if(!fmt)return;if(!['txt','json'].includes(fmt)){showToast('Choose txt or json.');return;}const body=fmt==='json'?JSON.stringify(p,null,2):p.messages.map(m=>'['+(m.created||'time unknown')+'] '+(m.role==='assistant'?'Roger Spark':'You')+':\n'+m.text).join('\n\n');const blob=new Blob([body],{type:fmt==='json'?'application/json':'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=((x.title||'roger-chat').replace(/[^a-z0-9-_]+/gi,'-').slice(0,50)||'roger-chat')+'.'+fmt;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('Conversation exported.');});
+  $('exportChat').addEventListener('click',()=>openModal('exportModal'));
+  $('exportConfirm').addEventListener('click',()=>{exportActiveChat($('exportFormat').value);closeModals();});
   $('clearChat').addEventListener('click',()=>openModal('clearModal'));$('clearConfirm').addEventListener('click',()=>{const x=active();if(replyBusy&&activeRun){activeRun.cancelled=true;replyBusy=false;activeRun=null;$('stop').hidden=true;}x.messages=[];render();closeModals();showToast('Messages cleared; chat kept.');});
   $('chatSearch').addEventListener('input',renderList);
   $('composer').addEventListener('submit',e=>{e.preventDefault();sendMessage($('prompt').value);});
   $('prompt').addEventListener('input',fitInput);
   $('timestampsSetting').addEventListener('click',()=>{settings.showTimestamps=!settings.showTimestamps;applySettings();renderMessages();save();});
-  $('promptStarter').addEventListener('change',e=>{if(e.target.value){$('prompt').value+=e.target.value;e.target.value='';fitInput();$('prompt').focus();}});
+  $('promptStarter').addEventListener('change',e=>{const value=e.target.value;if(!value)return;let starter=value;if(value.startsWith('custom:'))starter=getCustomStarters()[Number(value.slice(7))]||'';insertPromptStarter(starter);e.target.value='';});
+  $('saveStarter').addEventListener('click',()=>{const input=$('customStarterInput');const starter=input.value.trim();const items=getCustomStarters();if(!starter){showToast('Enter a prompt starter first.');input.focus();return;}if(items.length>=30){showToast('You can save up to 30 starters.');return;}if(items.some(item=>item.toLowerCase()===starter.toLowerCase())){showToast('That starter is already saved.');return;}if(saveCustomStarters([...items,starter])){input.value='';renderCustomStarterList();refreshStarterDropdown();showToast('Custom starter saved.');}});
+  $('themeSetting').addEventListener('change',e=>{settings.theme=e.target.value;applySettings();save();});
+  $('prompt').addEventListener('input',updateTokenWarning);
+  $('maxTokensSetting').addEventListener('input',()=>{const value=$('maxTokensSetting').value;if(value.trim()!=='')settings.maxTokens=Math.round(Math.max(1,Math.min(80,Number(value)||1)));updateTokenWarning();});
   $('stop').addEventListener('click',()=>{if(!replyBusy)return;if(activeRun){activeRun.cancelled=true;const m=activeRun.reply;if(m){m.typing=false;m.streaming=false;m.text=m.text||'[Generation stopped]';}activeRun=null;}replyBusy=false;$('stop').hidden=true;$('send').disabled=!$('prompt').value.trim();save();renderMessages();showToast('Stopped display; model inference may continue in the background.');});
   $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&settings.enterSend){e.preventDefault();$('composer').requestSubmit();}});
   $$('.suggestion').forEach(b=>b.addEventListener('click',()=>{$('prompt').value=b.textContent;fitInput();$('prompt').focus();}));
@@ -192,6 +208,7 @@
     settings.maxTokens=Math.round(Math.max(1,Math.min(80,Number(field.value)||settings.maxTokens)));
     field.value=String(settings.maxTokens);
     save();
+    updateTokenWarning();
   }
   $('temperatureSetting').addEventListener('input',e=>updateTemperature(e.target.value,'slider'));
   $('temperatureValue').addEventListener('change',e=>updateTemperature(e.target.value,'number'));
@@ -211,6 +228,6 @@
   $('menuOpen').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
   $('chatView').addEventListener('scroll',()=>{const v=$('chatView');v.dataset.stickToBottom=v.scrollHeight-v.scrollTop-v.clientHeight<80?'true':'false';updateJumpButton();});
   $('jumpLatest').addEventListener('click',()=>{$('chatView').dataset.stickToBottom='true';$('chatView').scrollTo({top:$('chatView').scrollHeight,behavior:settings.reduceMotion?'auto':'smooth'});updateJumpButton();});
-  load();render();fitInput();$('pinChat').classList.toggle('is-pinned',active().pinned);
+  load();render();fitInput();refreshStarterDropdown();renderCustomStarterList();updateTokenWarning();$('pinChat').classList.toggle('is-pinned',active().pinned);
   loadModel().catch(()=>{});
 })();
