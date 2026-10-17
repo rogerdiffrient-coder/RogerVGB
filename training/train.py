@@ -136,7 +136,7 @@ def main():
     scaler = torch.amp.GradScaler("cuda", enabled=use_cuda_amp and amp_dtype == torch.float16)
     def run_smoke_test(step_label):
         model.eval()
-        smoke_prompt = "Write me a story about Rex the dog.\\nStory:\\n"
+        smoke_prompt = "Write me a story about Rex the dog.\nStory:\n"
         prompt_ids = tokenizer.encode(smoke_prompt).ids[-max(1, args.max_seq - args.smoke_tokens):]
         generated = []
         with torch.no_grad():
@@ -147,9 +147,9 @@ def main():
                 if next_id == eos_id:
                     break
                 generated.append(next_id)
-        print(f"\\n=== SPARK SMOKE TEST @ {step_label} ===", flush=True)
+        print(f"\n=== SPARK SMOKE TEST @ {step_label} ===", flush=True)
         print(smoke_prompt + tokenizer.decode(generated), flush=True)
-        print("=== END SMOKE TEST ===\\n", flush=True)
+        print("=== END SMOKE TEST ===\n", flush=True)
         model.train()
 
     model.train()
@@ -193,7 +193,7 @@ def main():
 
     # Final longer smoke test.
     model.eval()
-    smoke_prompt = "Write me a story about Rex the dog.\\nStory:\\n"
+    smoke_prompt = "Write me a story about Rex the dog.\nStory:\n"
     smoke_ids = tokenizer.encode(smoke_prompt).ids[-(args.max_seq - 40):]
     generated = []
     with torch.no_grad():
@@ -204,9 +204,9 @@ def main():
             if next_id == eos_id:
                 break
             generated.append(next_id)
-    print("\\n=== FINAL REX THE DOG SMOKE TEST ===", flush=True)
+    print("\n=== FINAL REX THE DOG SMOKE TEST ===", flush=True)
     print(smoke_prompt + tokenizer.decode(generated), flush=True)
-    print("=== END FINAL SMOKE TEST ===\\n", flush=True)
+    print("=== END FINAL SMOKE TEST ===\n", flush=True)
 
     final_path = Path("training/roger_spark_final.pt")
     final_path.parent.mkdir(parents=True, exist_ok=True)
