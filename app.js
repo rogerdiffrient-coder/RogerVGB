@@ -106,6 +106,26 @@
   function closeModals(){$$('.overlay').forEach(el=>el.classList.remove('open'));}
   function $$(sel){return [...document.querySelectorAll(sel)];}
   function closeSidebar(){$('sidebar').classList.remove('open');}
+  $('copyChat').addEventListener('click',async()=>{
+    const c=active();
+    const transcript=c.messages
+      .filter(m=>!m.typing && !m.streaming && String(m.text??'').trim())
+      .map(m=>(m.role==='assistant'?'RogerVGB':'User')+': '+String(m.text).trim())
+      .join('\\n');
+    if(!transcript){showToast('No messages to copy yet.');return;}
+    try{
+      await navigator.clipboard.writeText(transcript);
+      showToast('Chat copied!');
+    }catch(error){
+      const temp=document.createElement('textarea');
+      temp.value=transcript;temp.setAttribute('readonly','');
+      temp.style.position='fixed';temp.style.opacity='0';document.body.append(temp);
+      temp.select();
+      const copied=document.execCommand('copy');
+      temp.remove();
+      showToast(copied?'Chat copied!':'Could not copy chat.');
+    }
+  });
   $('newChat').addEventListener('click',createChat);
   $('composer').addEventListener('submit',e=>{e.preventDefault();sendMessage($('prompt').value);});
   $('prompt').addEventListener('input',fitInput);
