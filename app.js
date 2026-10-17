@@ -56,7 +56,9 @@
       $('modelStatus').textContent='Roger Spark 0.1 · Connecting to custom model…';
       // This endpoint serves weights trained by training/train.py from random initialization.
       // Set window.ROGER_SPARK_API before app.js to point at a deployed backend.
-      const base=(window.ROGER_SPARK_API||'http://127.0.0.1:8000').replace(/\\/$/,'');
+      const configuredSpace=window.ROGER_SPARK_SPACE||'';
+      const inferredApi=configuredSpace.includes('/')?'https://'+configuredSpace.replace('/','-')+'.hf.space':'';
+      const base=(window.ROGER_SPARK_API||inferredApi||'http://127.0.0.1:8000').replace(/\/$/,'');
       const response=await fetch(base+'/api/health',{method:'GET'}).catch(()=>null);
       if(!response||!response.ok){
         $('modelStatus').textContent='Roger Spark 0.1 · Custom backend offline';
@@ -89,7 +91,7 @@
       typeReply(chatId,msg,data.reply.trim());
     }catch(error){
       console.error('Roger Spark custom model failed:',error);
-      typeReply(chatId,msg,'Roger Spark’s custom model is offline. Start the scratch-trained model backend using the instructions in training/README.md.');
+      typeReply(chatId,msg,'Roger Spark’s hosted model is not connected yet. The Hugging Face Space may still be starting, or the Space ID has not been configured.');
     }
   }
   function typeReply(chatId,msg,fullText){
