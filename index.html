@@ -105,6 +105,24 @@ body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{anim
 @media(max-width:760px){.app{grid-template-columns:minmax(0,1fr)}.sidebar{position:fixed;z-index:15;top:0;bottom:0;left:0;width:275px;transform:translateX(-102%);transition:transform .2s;box-shadow:8px 0 30px #003c8b40}.sidebar.open{transform:translateX(0)}.main{padding:0 17px;grid-template-rows:62px minmax(0,1fr) auto}.mobile-menu{display:grid}.topbar{gap:8px}.current-title{font-size:14px}.chat-view{padding-top:17px}.welcome{padding-bottom:24px}.welcome-bubble{width:67px;height:67px;font-size:37px;margin-bottom:18px}.suggestions{gap:8px;margin-top:23px}.suggestion{padding:10px 12px;font-size:12px}.composer-area{padding-bottom:12px}.composer-hint{font-size:10px}.message{max-width:90%}}
 @media(max-width:390px){.main{padding:0 11px}.top-actions{gap:5px}.icon-button{width:36px;height:36px}.welcome h1{font-size:34px}.suggestions{flex-direction:column;align-items:stretch;max-width:240px;margin-left:auto;margin-right:auto}.suggestion{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Custom scrollbar system: no browser-default scrollbar styling anywhere. */
+:root{scrollbar-color:#a9d4ff #0755bd;scrollbar-width:thin}
+*{scrollbar-color:#a9d4ff transparent;scrollbar-width:thin}
+html,body,.app,.sidebar,.main,.chat-list,.chat-view,.dialog,textarea,select{scrollbar-color:#a9d4ff transparent;scrollbar-width:thin}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:rgba(3,65,151,.34);border:2px solid transparent;border-radius:999px;background-clip:padding-box}
+::-webkit-scrollbar-thumb{min-height:28px;background:linear-gradient(135deg,#ffffff 0%,#a9d4ff 58%,#6fb3ff 100%);border:2px solid transparent;border-radius:999px;background-clip:padding-box;box-shadow:inset 0 0 0 1px #ffffff55}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#fff7c8,#ffd84f);background-clip:padding-box;box-shadow:inset 0 0 0 1px #ffffff90}
+::-webkit-scrollbar-thumb:active{background:#ffd84f;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+.sidebar::-webkit-scrollbar-track,.chat-list::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb,.chat-list::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ffffffd9,#79baff);background-clip:padding-box}
+.dialog::-webkit-scrollbar-track{background:#edf6ff;border-radius:999px}
+.dialog::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#77baff,#0878f9);background-clip:padding-box}
+textarea::-webkit-scrollbar{width:7px}
+textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#0878f9);background-clip:padding-box}
+
 </style>
 </head>
 <body>
