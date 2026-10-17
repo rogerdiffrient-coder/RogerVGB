@@ -111,7 +111,7 @@ def main():
         heads=DEFAULT_HEADS, max_seq=args.max_seq, ffn_dims=list(DEFAULT_FFN_DIMS),
     ).to(device)
     assert model.count_parameters() == TARGET_PARAMETERS
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.1, fused=(device == "cuda"))
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.1, fused=(device == "cuda"), foreach=(device == "cpu"))
     start_step = 0
     checkpoint_path = Path(args.checkpoint)
     if args.resume and checkpoint_path.exists():
