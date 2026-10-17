@@ -191,9 +191,9 @@ def main():
             }, checkpoint_path)
             print(f"Checkpoint saved at step {step:,}: {checkpoint_path}", flush=True)
 
-    # Smoke test requested by Roger: make sure a Rex story can be generated end-to-end.
+    # Final longer smoke test.
     model.eval()
-    smoke_prompt = "Write me a story about Rex.\nStory:\n"
+    smoke_prompt = "Write me a story about Rex the dog.\\nStory:\\n"
     smoke_ids = tokenizer.encode(smoke_prompt).ids[-(args.max_seq - 40):]
     generated = []
     with torch.no_grad():
@@ -204,9 +204,9 @@ def main():
             if next_id == eos_id:
                 break
             generated.append(next_id)
-    print("\n=== REX STORY SMOKE TEST ===", flush=True)
+    print("\\n=== FINAL REX THE DOG SMOKE TEST ===", flush=True)
     print(smoke_prompt + tokenizer.decode(generated), flush=True)
-    print("=== END REX STORY SMOKE TEST ===\n", flush=True)
+    print("=== END FINAL SMOKE TEST ===\\n", flush=True)
 
     final_path = Path("training/roger_spark_final.pt")
     final_path.parent.mkdir(parents=True, exist_ok=True)
