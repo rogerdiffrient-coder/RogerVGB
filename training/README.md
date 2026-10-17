@@ -36,3 +36,18 @@ Because this is a tiny randomly initialized model, the generated answer is **not
 - The tokenizer maps UTF-8 bytes to IDs; this keeps tokenization custom and simple, but is less efficient than a trained subword tokenizer.
 - This API binds to localhost only. GitHub Pages cannot run Python by itself; to use this backend from a public website, deploy it separately and configure CORS/origin restrictions.
 - WebGPU in a browser still runs computation on the user's device. This Python server uses PyTorch's MPS/CUDA/CPU backend, not browser WebGPU.
+
+
+## Hosted website deployment (no visitor setup)
+
+The repository includes `.github/workflows/train-and-deploy-space.yml` and a Docker Space bundle in `space/`. The workflow trains this custom model from random initialization, then publishes the checkpoint and API to Hugging Face Spaces. The public site reads its endpoint from `api-config.js`; the workflow writes that public URL automatically after deployment. Visitors do not install Python or download a model manually.
+
+One-time owner setup is required because this repository cannot create credentials for your Hugging Face account:
+
+1. Create a Hugging Face account and make a **write** access token at https://huggingface.co/settings/tokens.
+2. In GitHub, open this repository's **Settings → Secrets and variables → Actions**. Add repository secret `HF_TOKEN` with that token.
+3. Under **Variables**, add repository variable `ROGER_SPARK_SPACE` with a Space ID such as `your-huggingface-username/roger-spark` (the workflow creates the Docker Space if needed).
+4. Open **Actions → Train and deploy Roger Spark → Run workflow**. The first CPU training run can take a while; wait for the job and Space build to finish.
+5. Ensure GitHub Pages is enabled for the branch/folder that serves this website. The workflow commits `api-config.js`, which lets the site connect automatically.
+
+The Space endpoint and model are public; never put `HF_TOKEN` in `api-config.js` or any committed file. Hugging Face's free Spaces may sleep or have compute limits. This is a tiny experimental model, not a pretrained general-purpose chatbot, so its answer quality will be limited.
