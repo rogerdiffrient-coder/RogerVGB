@@ -63,7 +63,12 @@ def encode_stories(dataset, tokenizer, max_seq, eos_id, label):
     """Keep each story's windows separate; never concatenate unrelated stories."""
     rows = []
     block_len = max_seq + 1
-    for story in dataset["text"]:
+    stories = dataset["text"]
+    total = len(stories)
+    print(f"Encoding {total:,} {label} stories into training windows...", flush=True)
+    for story_index, story in enumerate(stories, start=1):
+        if story_index == 1 or story_index % 10_000 == 0 or story_index == total:
+            print(f"  {label}: {story_index:,}/{total:,} stories; {len(rows):,} windows so far", flush=True)
         story = str(story)[:STORY_CHAR_LIMIT].strip()
         if not story:
             continue
