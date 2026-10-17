@@ -64,6 +64,17 @@ h1{margin:0;color:#fff;font-size:clamp(34px,5.3vw,54px);line-height:1.12;letter-
 .messages{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:13px}
 .message-row{display:flex;gap:10px;align-items:flex-end;animation:messageIn .32s cubic-bezier(.2,.8,.2,1) both}
 .message-row.user{justify-content:flex-end}
+.message-row.assistant{justify-content:flex-start}
+.message-row.chat-enter{animation:chatEnter .32s cubic-bezier(.2,.8,.2,1) both}
+.message-row.user .message{animation:sentBubble .24s cubic-bezier(.2,.8,.2,1) both}
+.message-row.assistant .message{animation:receivedBubble .3s cubic-bezier(.2,.8,.2,1) both}
+.chat-item{animation:chatItemIn .28s cubic-bezier(.2,.8,.2,1) both}
+.chat-item.removing{animation:chatItemOut .2s ease-in both;pointer-events:none}
+.typing-dots{display:flex;align-items:center;gap:5px;min-width:42px;padding:4px 1px}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:#4e8bd5;animation:dotPulse .9s ease-in-out infinite}
+.typing-dots span:nth-child(2){animation-delay:.14s}.typing-dots span:nth-child(3){animation-delay:.28s}
+.message-row.assistant .message{min-width:38px}
+.typing-caret{display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-.12em;background:var(--blue);animation:caretBlink .7s steps(2,start) infinite}
 .message-avatar{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:11px;background:#fff;color:var(--blue);font-weight:900;font-size:14px;box-shadow:0 2px 0 #0053bc;user-select:none}
 .message{max-width:min(84%,650px);padding:11px 15px;border-radius:20px;background:#fff;color:#0b448f;font-size:var(--font-size);line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 0 #0053bc}
 .message-row.user .message{border-bottom-right-radius:6px}
@@ -101,7 +112,18 @@ select{max-width:150px;border:2px solid #d6e8ff;border-radius:11px;padding:9px 1
 .toast{position:fixed;z-index:30;bottom:22px;left:50%;transform:translate(-50%,15px);padding:11px 16px;background:#fff;color:#17477e;border:2px solid #d7eaff;border-radius:14px;box-shadow:0 4px 0 #0053bc;font-size:13px;font-weight:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-@keyframes arrive{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes dialogIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes messageIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes floatIn{from{opacity:0;transform:translateY(12px) rotate(-9deg) scale(.85)}to{opacity:1;transform:translateY(0) rotate(-4deg) scale(1)}}\n@keyframes gentleFloat{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes arrive{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dialogIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes messageIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes chatEnter{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes chatItemIn{from{opacity:0;transform:translateX(-9px) scale(.98)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes chatItemOut{to{opacity:0;transform:translateX(-12px) scale(.96);max-height:0;margin:0;padding-top:0;padding-bottom:0}}
+@keyframes sentBubble{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes receivedBubble{from{opacity:0;transform:translateY(7px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dotPulse{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+@keyframes caretBlink{to{visibility:hidden}}
+@keyframes floatIn{from{opacity:0;transform:translateY(12px) rotate(-9deg) scale(.85)}to{opacity:1;transform:translateY(0) rotate(-4deg) scale(1)}}
+@keyframes gentleFloat{0%,100%{translate:0 0}50%{translate:0 -4px}}
 @media(max-width:760px){.app{grid-template-columns:minmax(0,1fr)}.sidebar{position:fixed;z-index:15;top:0;bottom:0;left:0;width:275px;transform:translateX(-102%);transition:transform .2s;box-shadow:8px 0 30px #003c8b40}.sidebar.open{transform:translateX(0)}.main{padding:0 17px;grid-template-rows:62px minmax(0,1fr) auto}.mobile-menu{display:grid}.topbar{gap:8px}.current-title{font-size:14px}.chat-view{padding-top:17px}.welcome{padding-bottom:24px}.welcome-bubble{width:67px;height:67px;font-size:37px;margin-bottom:18px}.suggestions{gap:8px;margin-top:23px}.suggestion{padding:10px 12px;font-size:12px}.composer-area{padding-bottom:12px}.composer-hint{font-size:10px}.message{max-width:90%}}
 @media(max-width:390px){.main{padding:0 11px}.top-actions{gap:5px}.icon-button{width:36px;height:36px}.welcome h1{font-size:34px}.suggestions{flex-direction:column;align-items:stretch;max-width:240px;margin-left:auto;margin-right:auto}.suggestion{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
@@ -208,7 +230,7 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
   function renderList(){
     const list=$('chatList');list.replaceChildren();
     chats.slice().sort((a,b)=>b.created-a.created).forEach(c=>{
-      const row=document.createElement('div');row.className='chat-item'+(c.id===activeId?' active':'');row.setAttribute('data-chat-id',c.id);
+      const row=document.createElement('div');row.className='chat-item'+(c.id===activeId?' active':'');row.setAttribute('data-chat-id',c.id);row.style.animationDelay=Math.min(chats.indexOf(c)*25,150)+'ms';
       const open=document.createElement('button');open.type='button';open.className='chat-item';open.style.cssText='display:flex;flex:1;min-width:0;padding:0;border:0;min-height:30px;background:transparent;color:inherit;text-align:left';open.setAttribute('aria-label','Open '+c.title);
       const icon=document.createElement('span');icon.className='chat-icon';icon.textContent='▱';
       const title=document.createElement('span');title.className='chat-title';title.textContent=c.title||'Untitled chat';
@@ -221,21 +243,50 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
     const c=active();$('currentTitle').textContent=c.title||'Untitled chat';$('messages').replaceChildren();
     const hasMessages=c.messages.length>0;$('welcome').hidden=hasMessages;
     c.messages.forEach(m=>{
-      const row=document.createElement('div');row.className='message-row user';
-      const bubble=document.createElement('div');bubble.className='message';bubble.textContent=safeText(m.text);
+      const row=document.createElement('div');row.className='message-row '+(m.role==='assistant'?'assistant':'user');row.dataset.messageId=m.id||'';
+      if(m.role==='assistant'){const avatar=document.createElement('div');avatar.className='message-avatar';avatar.textContent='R!';row.append(avatar);}
+      const bubble=document.createElement('div');bubble.className='message';
+      if(m.typing){const dots=document.createElement('div');dots.className='typing-dots';dots.setAttribute('aria-label','Roger is typing');for(let i=0;i<3;i++)dots.append(document.createElement('span'));bubble.append(dots);}
+      else{bubble.textContent=safeText(m.text);if(m.streaming){const caret=document.createElement('span');caret.className='typing-caret';bubble.append(caret);}}
       row.append(bubble);$('messages').append(row);
     });
     requestAnimationFrame(()=>$('chatView').scrollTop=$('chatView').scrollHeight);
     $('renameOpen').disabled=false;
   }
   function render(){renderList();renderMessages();applySettings();save();}
-  function createChat(){const c=freshChat();chats.unshift(c);activeId=c.id;render();$('prompt').value='';fitInput();$('prompt').focus();closeSidebar();}
+  function createChat(){const c=freshChat();chats.unshift(c);activeId=c.id;render();$('chatView').classList.remove('chat-enter');void $('chatView').offsetWidth;$('chatView').classList.add('chat-enter');$('prompt').value='';fitInput();$('prompt').focus();closeSidebar();}
   function deleteChat(id){
-    const c=chats.find(x=>x.id===id);if(!c)return;
+    if(!chats.some(x=>x.id===id))return;
+    const row=$('chatList').querySelector('[data-chat-id="'+id+'"]');
+    if(row&&!settings.reduceMotion){row.classList.add('removing');setTimeout(()=>finishDelete(id),190);}else finishDelete(id);
+  }
+  function finishDelete(id){
+    if(!chats.some(x=>x.id===id))return;
     if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted.');return;}
     chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted.');
   }
-  function sendMessage(text){const t=text.trim();if(!t)return;const c=active();c.messages.push({text:t,created:Date.now()});if(c.title==='New chat'||c.title==='Untitled chat'){const titleLimit=34;c.title=t.length>titleLimit?t.slice(0,titleLimit-1)+'…':t;}render();$('prompt').value='';fitInput();$('prompt').focus();}
+  const cannedReplies=["Ooh, okay! Tell me a little more.","That's interesting. I can work with that!","Wait, I actually have an idea for this.","Okay, let's figure this out together.","I see what you mean. Let's build on that.","Not gonna lie, that could be pretty cool.","Got it! Here's one way to think about it.","Hmm. We have a few directions we could take this."];
+  let replyBusy=false;
+  function typeReply(chatId,msg,fullText){
+    msg.typing=false;msg.streaming=true;msg.text='';save();
+    let i=0;
+    function tick(){
+      if(i<fullText.length){
+        msg.text+=fullText[i++];const c=chats.find(x=>x.id===chatId);
+        if(c&&activeId===chatId){const row=$('messages').querySelector('[data-message-id="'+msg.id+'"]');const bubble=row?.querySelector('.message');if(bubble){bubble.textContent=msg.text;const caret=document.createElement('span');caret.className='typing-caret';bubble.append(caret);$('chatView').scrollTop=$('chatView').scrollHeight;}}
+        setTimeout(tick,22+Math.random()*22);
+      }else{msg.streaming=false;replyBusy=false;save();if(activeId===chatId)renderMessages();$('send').disabled=!$('prompt').value.trim();}
+    }tick();
+  }
+  function sendMessage(text){
+    const t=text.trim();if(!t||replyBusy)return;const c=active();
+    c.messages.push({id:makeId(),role:'user',text:t,created:Date.now()});
+    if(c.title==='New chat'||c.title==='Untitled chat'){const titleLimit=34;c.title=t.length>titleLimit?t.slice(0,titleLimit-1)+'…':t;}
+    const targetId=c.id;replyBusy=true;render();$('prompt').value='';fitInput();$('send').disabled=true;$('prompt').focus();
+    const reply={id:makeId(),role:'assistant',text:'',typing:true,created:Date.now()};c.messages.push(reply);save();if(activeId===targetId)renderMessages();
+    const response=cannedReplies[Math.floor(Math.random()*cannedReplies.length)];
+    setTimeout(()=>typeReply(targetId,reply,response),650+Math.random()*450);
+  }
   function fitInput(){$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,160)+'px';$('send').disabled=!$('prompt').value.trim();}
   function applySettings(){
     document.documentElement.style.setProperty('--font-size',settings.textSize);
