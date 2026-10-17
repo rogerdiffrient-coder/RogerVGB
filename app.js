@@ -110,7 +110,9 @@
     document.documentElement.style.setProperty('--font-size',settings.textSize);
     document.body.classList.toggle('reduce-motion',!!settings.reduceMotion);
     $('textSize').value=settings.textSize;$('enterSetting').setAttribute('aria-checked',String(!!settings.enterSend));$('motionSetting').setAttribute('aria-checked',String(!!settings.reduceMotion));
-    $('temperatureSetting').value=settings.temperature;$('topPSetting').value=settings.topP;$('maxTokensSetting').value=String(settings.maxTokens);
+    $('temperatureSetting').value=settings.temperature;$('temperatureValue').value=settings.temperature;
+    $('topPSetting').value=settings.topP;$('topPValue').value=settings.topP;
+    $('maxTokensSetting').value=String(settings.maxTokens);
   }
   function openModal(id){$(id).classList.add('open');const focus=$(id).querySelector('button,input,select');if(focus)focus.focus();}
   function closeModals(){$$('.overlay').forEach(el=>el.classList.remove('open'));}
@@ -149,9 +151,34 @@
   $('textSize').addEventListener('change',e=>{settings.textSize=e.target.value;applySettings();save();});
   $('enterSetting').addEventListener('click',()=>{settings.enterSend=!settings.enterSend;applySettings();save();});
   $('motionSetting').addEventListener('click',()=>{settings.reduceMotion=!settings.reduceMotion;applySettings();save();});
-  $('temperatureSetting').addEventListener('input',e=>{settings.temperature=Number(e.target.value);save();});
-  $('topPSetting').addEventListener('input',e=>{settings.topP=Number(e.target.value);save();});
-  $('maxTokensSetting').addEventListener('change',e=>{settings.maxTokens=Number(e.target.value);save();});
+  const clampSetting=(value,min,max,step)=>Math.round(Math.max(min,Math.min(max,Number(value)))/step)*step;
+  function updateTemperature(value,source){
+    const n=clampSetting(value,0.1,1.2,0.1);
+    settings.temperature=Number(n.toFixed(2));
+    $('temperatureSetting').value=settings.temperature;
+    $('temperatureValue').value=settings.temperature;
+    save();
+  }
+  function updateTopP(value){
+    const n=clampSetting(value,0.5,1,0.05);
+    settings.topP=Number(n.toFixed(2));
+    $('topPSetting').value=settings.topP;
+    $('topPValue').value=settings.topP;
+    save();
+  }
+  function commitMaxTokens(){
+    const field=$('maxTokensSetting');
+    if(field.value.trim()===''){field.value=String(settings.maxTokens);return;}
+    settings.maxTokens=Math.round(Math.max(1,Math.min(80,Number(field.value)||settings.maxTokens)));
+    field.value=String(settings.maxTokens);
+    save();
+  }
+  $('temperatureSetting').addEventListener('input',e=>updateTemperature(e.target.value,'slider'));
+  $('temperatureValue').addEventListener('change',e=>updateTemperature(e.target.value,'number'));
+  $('topPSetting').addEventListener('input',e=>updateTopP(e.target.value));
+  $('topPValue').addEventListener('change',e=>updateTopP(e.target.value));
+  $('maxTokensSetting').addEventListener('change',commitMaxTokens);
+  $('maxTokensSetting').addEventListener('blur',commitMaxTokens);
   $('trainingTest').addEventListener('click',()=>{closeModals();if(replyBusy){showToast('Wait for the current reply to finish.');return;}sendMessage('Is the sun hot?');});
   $('settingsDone').addEventListener('click',()=>{save();closeModals();showToast('Settings saved.');});
   $$('[data-close]').forEach(b=>b.addEventListener('click',closeModals));
