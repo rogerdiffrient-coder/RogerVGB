@@ -24,11 +24,14 @@ def main():
     parser.add_argument("--checkpoint", default="training/checkpoints/roger_spark_latest.pt")
     parser.add_argument("--tokenizer-out", default="roger_spark_tokenizer.json")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--require-cuda", action="store_true")
     args = parser.parse_args()
 
     random.seed(42)
     torch.manual_seed(42)
     torch.set_num_threads(min(4, torch.get_num_threads()))
+    if args.require_cuda and not torch.cuda.is_available():
+        raise SystemExit("This full 75,000-step run requires a CUDA GPU; refusing to start a slow CPU run.")
     device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
     print(f"Loading {args.data} train split; device={device}", flush=True)
     dataset = load_dataset(args.data, split="train")
