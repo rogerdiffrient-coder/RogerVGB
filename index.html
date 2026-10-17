@@ -143,7 +143,6 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
     <div class="current-title" id="currentTitle">New chat</div>
     <div class="top-actions">
       <button class="icon-button" id="renameOpen" aria-label="Rename chat" title="Rename chat">✎</button>
-      <button class="icon-button" id="settingsTop" aria-label="Settings" title="Settings">⚙</button>
     </div>
   </header>
   <section class="chat-view" id="chatView" aria-live="polite">
@@ -163,7 +162,6 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
       <textarea id="prompt" rows="1" aria-label="Message" placeholder="Write something..." autocomplete="off"></textarea>
       <button class="send" id="send" type="submit" aria-label="Send message" disabled>↑</button>
     </form>
-    <div class="composer-hint" id="composerHint">Enter to send · Shift + Enter for a new line</div>
   </footer>
 </main>
 </div>
@@ -243,7 +241,6 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
     document.documentElement.style.setProperty('--font-size',settings.textSize);
     document.body.classList.toggle('reduce-motion',!!settings.reduceMotion);
     $('textSize').value=settings.textSize;$('enterSetting').setAttribute('aria-checked',String(!!settings.enterSend));$('motionSetting').setAttribute('aria-checked',String(!!settings.reduceMotion));
-    $('composerHint').textContent=settings.enterSend?'Enter to send · Shift + Enter for a new line':'Enter for a new line · Use the arrow to send';
   }
   function openModal(id){$(id).classList.add('open');const focus=$(id).querySelector('button,input,select');if(focus)focus.focus();}
   function closeModals(){$$('.overlay').forEach(el=>el.classList.remove('open'));}
