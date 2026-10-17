@@ -43,8 +43,10 @@ jobs:
 
       - name: Train on TinyStories (CPU if no accelerator is available)
         shell: bash
+        env:
+          TRAINING_STEPS: ${{ inputs.steps || '75000' }}
         run: |
-          python -u training/train.py --steps "${{ inputs.steps }}" --batch-size 1 --resume
+          python -u training/train.py --steps "$TRAINING_STEPS" --batch-size 1 --resume
 
       - name: Export ONNX FP16 for WebGPU
         if: success()
