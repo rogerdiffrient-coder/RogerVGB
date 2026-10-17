@@ -442,3 +442,58 @@ html[data-theme="dark"] textarea::placeholder {
   }
   #settingsModal .dialog > .setting { grid-column: 1; }
 }
+
+
+/* Settings is a full-screen workspace, not a centered popup. */
+#settingsModal {
+  padding: 0;
+  align-items: stretch;
+  justify-content: stretch;
+}
+#settingsModal .dialog {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: 100dvh;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: clamp(20px, 4vw, 42px) clamp(18px, 6vw, 80px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(20px, 4vw, 56px);
+  align-content: start;
+}
+#settingsModal .dialog-head {
+  position: sticky;
+  top: calc(-1 * clamp(20px, 4vw, 42px));
+  padding: 10px 0 14px;
+  margin-bottom: 6px;
+  z-index: 3;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-color);
+}
+#settingsModal .dialog h2 { font-size: clamp(28px, 3vw, 38px); }
+#settingsModal .dialog-desc { margin-bottom: 20px; }
+#settingsModal .setting { padding: 17px 0; }
+#settingsModal .setting-name { font-size: 15px; }
+#settingsModal .setting-help { font-size: 13px; }
+#settingsModal .custom-starters { padding: 14px 0 20px; }
+#settingsModal .advanced-settings { margin-top: 18px; }
+#settingsModal .dialog-actions {
+  position: sticky;
+  bottom: calc(-1 * clamp(20px, 4vw, 42px));
+  z-index: 3;
+  padding: 16px 0 10px;
+  background: var(--surface);
+  border-top: 1px solid var(--border-color);
+  margin-top: 14px;
+}
+@media (max-width: 620px) {
+  #settingsModal .dialog {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px 16px;
+  }
+  #settingsModal .dialog-head { top: -18px; }
+  #settingsModal .dialog-actions { bottom: -18px; flex-wrap: wrap; }
+}
