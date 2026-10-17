@@ -34,7 +34,7 @@ export class RogerSparkBrowser{
   }
   async reply(prompt,opts={}){
     const maxSeq=this.cfg.max_seq,limit=clamp(Number(opts.maxTokens)||48,1,64),temp=clamp(Number(opts.temperature)||.7,.1,1.2),topP=clamp(Number(opts.topP)||.9,.5,1);
-    const ids=this.encode('User: '+prompt+'\nRoger:').slice(0,maxSeq-1),generated=[];
+    const ids=this.encode('User: '+prompt+'\nRoger:').slice(-(maxSeq-1)),generated=[];
     for(let step=0;step<limit;step++){
       const context=ids.concat(generated).slice(-maxSeq),logits=this.forward(context);
       const scaled=Array.from(logits, v=>v/temp),probs=softmax(scaled),order=probs.map((p,i)=>({p,i})).sort((a,b)=>b.p-a.p);
