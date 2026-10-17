@@ -33,26 +33,17 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "roger_spark_final.pt" --dir training
 
-      - name: Rebuild the matching prompted-v4 tokenizer
+      - name: Verify the original tokenizer is present
         run: |
+          test -s roger_spark_tokenizer.json
           python - <<'PY'
-          from pathlib import Path
-          from datasets import load_dataset
-          from tokenizers import ByteLevelBPETokenizer
-
-          target = Path("training/tokenizer_prompted_v4/tokenizer.json")
-          target.parent.mkdir(parents=True, exist_ok=True)
-          dataset = load_dataset("roneneldan/TinyStories", split="train")
-          count = min(100_000, len(dataset))
-          tokenizer = ByteLevelBPETokenizer()
-          tokenizer.train_from_iterator(
-              (str(row["text"])[:12_000] for row in dataset.select(range(count))),
-              vocab_size=6144,
-              min_frequency=2,
-              special_tokens=["<pad>", "<eos>"],
-          )
-          tokenizer._tokenizer.save(str(target))
-          print(f"Created tokenizer from the first {count:,} TinyStories training examples.")
+          import json
+          with open("roger_spark_tokenizer.json", encoding="utf-8") as f:
+              tokenizer = json.load(f)
+          vocab = tokenizer.get("model", {}).get("vocab", {})
+          if len(vocab) != 6144:
+              raise SystemExit(f"Expected 6144 tokenizer entries, found {len(vocab)}")
+          print(f"Using committed tokenizer with {len(vocab)} vocabulary entries.")
           PY
 
       - name: Export and validate ONNX
