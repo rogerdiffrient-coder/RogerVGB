@@ -1,12 +1,13 @@
 """Local API for the scratch-trained Roger Spark model. Run train.py first."""
 import json
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import torch
 from roger_spark import RogerSpark, ByteTokenizer, sample_next
 
 HERE=Path(__file__).resolve().parent
-WEIGHTS=HERE/"roger_spark.pt"
+WEIGHTS=Path(os.environ.get("ROGER_SPARK_WEIGHTS", str(HERE/"roger_spark.pt")))
 device="mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
 if not WEIGHTS.exists():
     raise SystemExit("No trained weights found. Run: python train.py")
@@ -54,5 +55,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc: self._send(500,{"error":str(exc)})
     def log_message(self,*args): pass
 
-print(f"Roger Spark 0.1 custom model API on http://127.0.0.1:8000 ({device})")
-HTTPServer(("127.0.0.1",8000),Handler).serve_forever()
+host=os.environ.get("HOST","0.0.0.0")
+port=int(os.environ.get("PORT","8000"))
+print(f"Roger Spark 0.1 custom model API on {host}:{port} ({device})")
+HTTPServer((host,port),Handler).serve_forever()
