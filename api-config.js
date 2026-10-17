@@ -1,5 +1,4 @@
 // Public endpoint configuration for Roger Spark.
-// GitHub Actions can populate this from the ROGER_SPARK_SPACE repository variable.
-// Space IDs are public; never put an access token in this file.
-window.ROGER_SPARK_SPACE = '';
-window.ROGER_SPARK_API = '';
+// Default Space name for the connected Hugging Face account; deploy workflow will confirm/configure it.
+window.ROGER_SPARK_SPACE = 'How2FixBug/roger-spark';
+window.ROGER_SPARK_API = 'https://How2FixBug-roger-spark.hf.space';
