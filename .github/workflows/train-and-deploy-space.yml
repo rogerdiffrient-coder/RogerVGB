@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       steps:
-        description: Total target training steps (must be a multiple of 5000; default 75000)
+        description: Total target training steps (multiples of 5000; start with 5000 for the smoke test)
         required: true
-        default: "75000"
+        default: "5000"
 
 permissions:
   contents: write
@@ -291,7 +291,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Export ONNX FP16 for WebGPU
-        if: ${{ success() && env.REQUESTED_STEPS == '75000' }}
+        if: ${{ success() }}
         run: python training/export_browser.py
 
       - name: Save browser deployment files
