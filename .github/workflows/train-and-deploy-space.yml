@@ -70,8 +70,10 @@ jobs:
       - name: Configure public website endpoint
         if: ${{ vars.ROGER_SPARK_SPACE != '' }}
         env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE_ID: ${{ vars.ROGER_SPARK_SPACE }}
         run: |
+          if [ -z "$HF_TOKEN" ]; then echo 'HF_TOKEN is missing; leaving the website endpoint unchanged.'; exit 0; fi
           python - <<'PY'
           import os
           from pathlib import Path
