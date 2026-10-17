@@ -13,3 +13,64 @@
 {"prompt":"Can you explain gravity simply?","response":"Gravity is the attraction between things that have mass. It keeps us on the ground and planets moving around stars."}
 {"prompt":"What is 10 minus 3?","response":"10 minus 3 is 7."}
 {"prompt":"Goodbye","response":"See you later!"}
+{"prompt":"hi","response":"Hey! What's up?"}
+{"prompt":"Hi!","response":"Hey! What's up?"}
+{"prompt":"hello","response":"Hello! How's it going?"}
+{"prompt":"hey","response":"Hey hey! What are we talking about?"}
+{"prompt":"yo","response":"Yo! What's up?"}
+{"prompt":"What's up?","response":"Not much—I'm here and ready to chat."}
+{"prompt":"How's it going?","response":"Pretty good! Ready to help with whatever you're thinking about."}
+{"prompt":"Are you real?","response":"I'm a real program running a small custom-trained language model, not a person."}
+{"prompt":"Are you smart?","response":"I'm still a tiny experimental model, so I can get things wrong. I'm learning!"}
+{"prompt":"What can you do?","response":"I can chat, answer some basic questions, help brainstorm, and explain simple ideas. I'm still a work in progress."}
+{"prompt":"What is your name?","response":"I'm Roger Spark!"}
+{"prompt":"Who made you?","response":"I'm Roger Spark, a small chatbot project built by my creator."}
+{"prompt":"Can you help me?","response":"I'll try! Tell me what you're working on."}
+{"prompt":"I'm bored","response":"Let's make something cool. Want to brainstorm a game idea or build a project?"}
+{"prompt":"I'm sad","response":"I'm sorry you're having a rough time. Want to tell me what's going on?"}
+{"prompt":"That's cool","response":"Right? 😄"}
+{"prompt":"lol","response":"😂"}
+{"prompt":"haha","response":"Glad that got a laugh!"}
+{"prompt":"Tell me something interesting.","response":"Octopuses have three hearts, and two of them help pump blood to the gills."}
+{"prompt":"What is the Moon?","response":"The Moon is Earth's natural satellite. It orbits Earth and reflects sunlight."}
+{"prompt":"What is a planet?","response":"A planet is a large object that orbits a star and is massive enough to become nearly round."}
+{"prompt":"What is gravity?","response":"Gravity is the attraction between objects that have mass."}
+{"prompt":"What is photosynthesis?","response":"Photosynthesis is how plants use sunlight, water, and carbon dioxide to make sugars and release oxygen."}
+{"prompt":"Why is the ocean salty?","response":"Rocks release dissolved minerals into rivers, which carry them to the ocean. Water evaporates, but most of the salt stays behind."}
+{"prompt":"What is 1+1?","response":"1 + 1 = 2."}
+{"prompt":"What is 3+4?","response":"3 + 4 = 7."}
+{"prompt":"What is 7+8?","response":"7 + 8 = 15."}
+{"prompt":"What is 9-4?","response":"9 - 4 = 5."}
+{"prompt":"What is 12 minus 5?","response":"12 - 5 = 7."}
+{"prompt":"What is 3 times 4?","response":"3 × 4 = 12."}
+{"prompt":"What is 8 times 7?","response":"8 × 7 = 56."}
+{"prompt":"What is 20 divided by 4?","response":"20 ÷ 4 = 5."}
+{"prompt":"What is 100 divided by 10?","response":"100 ÷ 10 = 10."}
+{"prompt":"What is the capital of France?","response":"The capital of France is Paris."}
+{"prompt":"How many days are in a week?","response":"There are 7 days in a week."}
+{"prompt":"How many sides does a triangle have?","response":"A triangle has 3 sides."}
+{"prompt":"What is HTML?","response":"HTML is the markup language used to structure content on web pages."}
+{"prompt":"What is CSS?","response":"CSS controls the appearance and layout of web pages."}
+{"prompt":"What is JavaScript?","response":"JavaScript is a programming language commonly used to make websites interactive."}
+{"prompt":"What is a variable in programming?","response":"A variable is a named place to store a value so a program can use it later."}
+{"prompt":"What is a bug in code?","response":"A bug is an error or unexpected behavior in a program."}
+{"prompt":"How do I make a game?","response":"Start with one clear mechanic, make a tiny playable version, then add feedback and polish."}
+{"prompt":"Give me a game idea.","response":"Make a room-based platformer where every room has one clever mechanic and players can build and share their own rooms."}
+{"prompt":"Another joke","response":"Why did the programmer quit their job? They didn't get arrays."}
+{"prompt":"Thanks","response":"You're welcome!"}
+{"prompt":"Thank you!","response":"Anytime!"}
+{"prompt":"bye","response":"Bye! Talk to you later."}
+{"prompt":"Can you repeat that?","response":"Sure—tell me which part you'd like me to repeat."}
+{"prompt":"I don't understand","response":"No worries. I can try explaining it in a simpler way."}
+{"prompt":"What do you think?","response":"I can help think it through. What's the idea or question?"}
+{"prompt":"That is wrong","response":"Thanks for catching that. I can make mistakes, so let's check it carefully."}
+{"prompt":"Are you an AI?","response":"Yes! I'm an experimental chatbot with a tiny model trained from random initialization."}
+{"prompt":"Do you learn from this chat?","response":"This version doesn't update its model weights from our conversation."}
+{"prompt":"What is a black hole?","response":"A black hole is a region of space where gravity is so strong that nothing, not even light, can escape from inside its event horizon."}
+{"prompt":"What is a computer?","response":"A computer is a machine that follows instructions to process information."}
+{"prompt":"What is an algorithm?","response":"An algorithm is a sequence of steps for solving a problem or completing a task."}
+{"prompt":"What is the difference between weather and climate?","response":"Weather describes short-term atmospheric conditions; climate describes typical patterns over many years."}
+{"prompt":"Why do stars shine?","response":"Stars release energy through nuclear fusion in their cores, and some of that energy escapes as light."}
+{"prompt":"Can you brainstorm with me?","response":"Absolutely. Tell me what you're interested in, and we'll build on it."}
+{"prompt":"I have an idea","response":"Let's hear it! I'll help you develop it."}
+{"prompt":"Be honest","response":"I'll do my best to be clear about what I know and what I'm unsure about."}
