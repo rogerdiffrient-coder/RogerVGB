@@ -111,7 +111,7 @@
     const transcript=c.messages
       .filter(m=>!m.typing && !m.streaming && String(m.text??'').trim())
       .map(m=>(m.role==='assistant'?'RogerVGB':'User')+': '+String(m.text).trim())
-      .join('\\n');
+      .join('\n');
     if(!transcript){showToast('No messages to copy yet.');return;}
     try{
       await navigator.clipboard.writeText(transcript);
