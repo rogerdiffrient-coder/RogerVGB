@@ -231,22 +231,21 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
   function showToast(text){$('toast').textContent=text;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1900);}
   function safeText(text){return String(text??'');}
   function renderList(){
-    const list=$('chatList');list.replaceChildren();
+    const list=$('chatList');const existingIds=new Set([...list.querySelectorAll('[data-chat-id]')].map(el=>el.dataset.chatId));list.replaceChildren();
     chats.slice().sort((a,b)=>b.created-a.created).forEach(c=>{
-      const row=document.createElement('div');row.className='chat-item'+(c.id===activeId?' active':'');row.setAttribute('data-chat-id',c.id);row.style.animationDelay=Math.min(chats.indexOf(c)*25,150)+'ms';
+      const row=document.createElement('div');row.className='chat-item'+(c.id===activeId?' active':'');row.setAttribute('data-chat-id',c.id);row.style.animationDelay=Math.min(chats.indexOf(c)*25,150)+'ms';if(existingIds.has(c.id))row.style.animation='none';
       const open=document.createElement('button');open.type='button';open.className='chat-item';open.style.cssText='display:flex;flex:1;min-width:0;padding:0;border:0;min-height:30px;background:transparent;color:inherit;text-align:left';open.setAttribute('aria-label','Open '+c.title);
-      const icon=document.createElement('span');icon.className='chat-icon';icon.textContent='▱';
       const title=document.createElement('span');title.className='chat-title';title.textContent=c.title||'Untitled chat';
-      open.append(icon,title);open.addEventListener('click',()=>{activeId=c.id;render();closeSidebar();});
+      open.append(title);open.addEventListener('click',()=>{activeId=c.id;render();closeSidebar();});
       const del=document.createElement('button');del.type='button';del.className='delete-chat';del.textContent='×';del.title='Delete chat';del.setAttribute('aria-label','Delete '+(c.title||'chat'));del.addEventListener('click',e=>{e.stopPropagation();deleteChat(c.id);});
       row.append(open,del);list.append(row);
     });
   }
   function renderMessages(){
-    const c=active();$('currentTitle').textContent=c.title||'Untitled chat';$('messages').replaceChildren();
+    const c=active();const existingMessageIds=new Set([...$('messages').querySelectorAll('[data-message-id]')].map(el=>el.dataset.messageId));$('currentTitle').textContent=c.title||'Untitled chat';$('messages').replaceChildren();
     const hasMessages=c.messages.length>0;$('welcome').hidden=hasMessages;
     c.messages.forEach(m=>{
-      const row=document.createElement('div');row.className='message-row '+(m.role==='assistant'?'assistant':'user');row.dataset.messageId=m.id||'';
+      const row=document.createElement('div');row.className='message-row '+(m.role==='assistant'?'assistant':'user');row.dataset.messageId=m.id||'';if(m.id&&existingMessageIds.has(m.id))row.style.animation='none';
       if(m.role==='assistant'){const avatar=document.createElement('div');avatar.className='message-avatar';avatar.textContent='R!';row.append(avatar);}
       const bubble=document.createElement('div');bubble.className='message';
       if(m.typing){const dots=document.createElement('div');dots.className='typing-dots';dots.setAttribute('aria-label','Roger is typing');for(let i=0;i<3;i++)dots.append(document.createElement('span'));bubble.append(dots);}
@@ -257,7 +256,7 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
     $('renameOpen').disabled=false;
   }
   function render(){renderList();renderMessages();applySettings();save();}
-  function createChat(){const c=freshChat();chats.unshift(c);activeId=c.id;render();$('chatView').classList.remove('chat-enter');void $('chatView').offsetWidth;$('chatView').classList.add('chat-enter');$('prompt').value='';fitInput();$('prompt').focus();closeSidebar();}
+  function createChat(){const c=freshChat();chats.unshift(c);activeId=c.id;render();$('chatView').classList.remove('chat-enter');void $('chatView').offsetWidth;$('chatView').classList.add('chat-enter');setTimeout(()=>$('chatView').classList.remove('chat-enter'),400);$('prompt').value='';fitInput();$('prompt').focus();closeSidebar();}
   function deleteChat(id){
     if(!chats.some(x=>x.id===id))return;
     const row=$('chatList').querySelector('[data-chat-id="'+id+'"]');
