@@ -23,14 +23,14 @@ html,body{height:100%;margin:0}
 body{font-family:"Comic Sans MS","Comic Sans",cursive;background:var(--blue);color:var(--ink);overflow:hidden}
 button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #ffd84f;outline-offset:3px}
 ::selection{background:#b8dcff;color:#063e91}
-.app{height:100%;min-height:0;display:grid;grid-template-columns:255px minmax(0,1fr);position:relative;isolation:isolate}
+.app{height:100%;min-height:0;display:grid;grid-template-columns:235px minmax(0,1fr);position:relative;isolation:isolate}
 .app:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1.4px,transparent 1.4px);background-size:24px 24px}
-.sidebar{min-width:0;display:flex;flex-direction:column;gap:16px;padding:19px 13px 13px 16px;background:#0067e8;border-right:1px solid #ffffff35;color:#fff}
+.sidebar{min-width:0;display:flex;flex-direction:column;gap:12px;padding:15px 11px 11px 13px;background:#0067e8;border-right:1px solid #ffffff35;color:#fff}
 .brand{height:45px;display:flex;align-items:center;gap:11px;padding:0 5px;color:#fff;font-size:23px;font-weight:900;letter-spacing:-.6px;user-select:none;-webkit-user-select:none}
 .logo{height:39px;width:39px;flex:0 0 39px;display:grid;place-items:center;background:#fff;color:var(--blue);border-radius:14px;font-size:23px;font-weight:900;box-shadow:0 4px 0 #0049a8;user-select:none;-webkit-user-select:none}
 .brand span{user-select:none;-webkit-user-select:none}
 .new-chat{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;border:2px solid #fff;border-radius:15px;padding:12px;background:#fff;color:var(--blue-dark);font-weight:900;box-shadow:0 4px 0 #0049a8;transition:transform .15s,box-shadow .15s}
-.new-chat:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0049a8}
+.new-chat:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0049a8}.new-chat:active{transform:translateY(2px);box-shadow:0 1px 0 #0049a8}
 .plus{font-family:Arial,sans-serif;font-size:22px;line-height:16px}
 .section-label{padding:3px 9px 0;color:#d2e7ff;font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
 .chat-list{display:flex;flex-direction:column;gap:5px;overflow-y:auto;min-height:0;flex:1;padding-right:2px;scrollbar-color:#ffffff55 transparent}
@@ -46,40 +46,40 @@ button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,in
 .side-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 11px;border:1px solid transparent;border-radius:12px;background:transparent;color:#fff;text-align:left;font-size:14px;font-weight:700}
 .side-link:hover{background:#ffffff17}
 .side-link .symbol{width:19px;text-align:center;font-family:Arial,sans-serif;font-size:17px}
-.main{display:grid;grid-template-rows:68px minmax(0,1fr) auto;min-width:0;min-height:0;padding:0 28px}
+.main{display:grid;grid-template-rows:60px minmax(0,1fr) auto;min-width:0;min-height:0;padding:0 21px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #ffffff45;min-width:0}
 .current-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-weight:900;font-size:16px}
 .top-actions{display:flex;align-items:center;gap:8px}
 .icon-button{width:40px;height:40px;display:grid;place-items:center;border:1px solid #ffffff6b;border-radius:13px;background:#ffffff18;color:#fff;font-size:19px;transition:background .15s,transform .15s}
 .icon-button:hover{background:#ffffff32;transform:translateY(-1px)}
 .mobile-menu{display:none}
-.chat-view{position:relative;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:30px 0 25px;scrollbar-color:#ffffff7a transparent}
+.chat-view{position:relative;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:22px 0 18px;scrollbar-color:#ffffff7a transparent}
 .welcome{margin:auto;text-align:center;padding:24px 12px 38px;max-width:610px;animation:arrive .35s ease-out}
-.welcome-bubble{width:78px;height:78px;margin:0 auto 22px;display:grid;place-items:center;background:#fff;border-radius:27px;color:var(--blue);font-size:43px;box-shadow:0 7px 0 #0057c4;transform:rotate(-4deg);user-select:none}
+.welcome-bubble{width:72px;height:72px;margin:0 auto 18px;display:grid;place-items:center;background:#fff;border-radius:24px;color:var(--blue);font-size:40px;box-shadow:0 6px 0 #0057c4;transform:rotate(-4deg);user-select:none;animation:floatIn .55s cubic-bezier(.2,.8,.2,1) both, gentleFloat 4s ease-in-out 1s infinite}
 h1{margin:0;color:#fff;font-size:clamp(34px,5.3vw,54px);line-height:1.12;letter-spacing:-1.2px}
 .welcome p{margin:0}
 .suggestions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
 .suggestion{background:#fff;border:2px solid #fff;color:var(--blue-dark);border-radius:15px;padding:11px 15px;font-size:13px;font-weight:900;box-shadow:0 4px 0 #0053bc;transition:transform .15s,box-shadow .15s}
-.suggestion:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0053bc}
+.suggestion:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 7px 0 #0053bc}.suggestion:active{transform:translateY(1px) scale(.985);box-shadow:0 2px 0 #0053bc}
 .messages{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:17px}
-.message-row{display:flex;gap:10px;align-items:flex-end;animation:arrive .2s ease-out}
+.message-row{display:flex;gap:10px;align-items:flex-end;animation:messageIn .32s cubic-bezier(.2,.8,.2,1) both}
 .message-row.user{justify-content:flex-end}
 .message-avatar{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:11px;background:#fff;color:var(--blue);font-weight:900;font-size:14px;box-shadow:0 2px 0 #0053bc;user-select:none}
 .message{max-width:min(84%,650px);padding:13px 17px;border-radius:20px;background:#fff;color:#0b448f;font-size:var(--font-size);line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 0 #0053bc}
 .message-row.user .message{border-bottom-right-radius:6px}
-.composer-area{padding:14px 0 18px}
+.composer-area{padding:10px 0 13px}
 .composer{display:flex;align-items:flex-end;gap:10px;max-width:820px;margin:auto;background:#fff;padding:9px;border:3px solid #d8eaff;border-radius:23px;box-shadow:0 7px 0 #0053bc;transition:box-shadow .15s}
 .composer:focus-within{box-shadow:0 7px 0 #0053bc,0 0 0 3px #ffffff55}
 textarea{flex:1;min-width:0;resize:none;max-height:160px;min-height:44px;border:0;outline:0;padding:12px 12px 9px;color:var(--ink);background:transparent;font-size:15px;line-height:1.45}
 textarea::placeholder{color:#82a2ca}
 .send{width:46px;height:46px;flex:0 0 46px;border:0;border-radius:15px;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:Arial,sans-serif;font-size:26px;font-weight:bold;box-shadow:0 3px 0 #0053bc;transition:transform .15s,background .15s}
 .send:hover:not(:disabled){background:var(--blue-dark);transform:translateY(-1px)}
-.send:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+.send:active:not(:disabled){transform:translateY(2px) scale(.96);box-shadow:none}
 .send:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
-.composer-hint{text-align:center;color:#e2f0ff;font-size:11px;padding:11px 4px 0;user-select:none}
+.composer-hint{display:none}
 .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:18px;background:#06346bb8;backdrop-filter:blur(5px)}
 .overlay.open{display:flex}
-.dialog{width:min(440px,100%);max-height:min(720px,90dvh);overflow:auto;background:#fff;border:3px solid #d7eaff;border-radius:25px;padding:22px;box-shadow:0 9px 0 #004da9;animation:arrive .18s ease-out}
+.dialog{width:min(440px,100%);max-height:min(720px,90dvh);overflow:auto;background:#fff;border:3px solid #d7eaff;border-radius:25px;padding:19px;box-shadow:0 9px 0 #004da9;animation:dialogIn .24s cubic-bezier(.2,.8,.2,1) both}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px}
 .dialog h2{margin:0;color:var(--blue-dark);font-size:25px;letter-spacing:-.5px}
 .dialog-desc{margin:4px 0 20px;color:#6e8db5;font-size:13px}
@@ -101,7 +101,7 @@ select{max-width:150px;border:2px solid #d6e8ff;border-radius:11px;padding:9px 1
 .toast{position:fixed;z-index:30;bottom:22px;left:50%;transform:translate(-50%,15px);padding:11px 16px;background:#fff;color:#17477e;border:2px solid #d7eaff;border-radius:14px;box-shadow:0 4px 0 #0053bc;font-size:13px;font-weight:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-@keyframes arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes arrive{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes dialogIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes messageIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}\n@keyframes floatIn{from{opacity:0;transform:translateY(12px) rotate(-9deg) scale(.85)}to{opacity:1;transform:translateY(0) rotate(-4deg) scale(1)}}\n@keyframes gentleFloat{0%,100%{translate:0 0}50%{translate:0 -4px}}
 @media(max-width:760px){.app{grid-template-columns:minmax(0,1fr)}.sidebar{position:fixed;z-index:15;top:0;bottom:0;left:0;width:275px;transform:translateX(-102%);transition:transform .2s;box-shadow:8px 0 30px #003c8b40}.sidebar.open{transform:translateX(0)}.main{padding:0 17px;grid-template-rows:62px minmax(0,1fr) auto}.mobile-menu{display:grid}.topbar{gap:8px}.current-title{font-size:14px}.chat-view{padding-top:17px}.welcome{padding-bottom:24px}.welcome-bubble{width:67px;height:67px;font-size:37px;margin-bottom:18px}.suggestions{gap:8px;margin-top:23px}.suggestion{padding:10px 12px;font-size:12px}.composer-area{padding-bottom:12px}.composer-hint{font-size:10px}.message{max-width:90%}}
 @media(max-width:390px){.main{padding:0 11px}.top-actions{gap:5px}.icon-button{width:36px;height:36px}.welcome h1{font-size:34px}.suggestions{flex-direction:column;align-items:stretch;max-width:240px;margin-left:auto;margin-right:auto}.suggestion{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
@@ -170,27 +170,27 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
 <div class="overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <div class="dialog">
     <div class="dialog-head"><h2 id="settingsTitle">Settings ⚙</h2><button class="close" data-close aria-label="Close settings">×</button></div>
-    <p class="dialog-desc">Tweak your little corner of the internet.</p>
-    <div class="setting"><div class="setting-copy"><span class="setting-name">Message size</span><span class="setting-help">Comically tiny to pleasantly readable.</span></div><select id="textSize"><option value="14px">Small</option><option value="15px">Just right</option><option value="17px">Biggish</option><option value="19px">MEGA TEXT</option></select></div>
-    <div class="setting"><div class="setting-copy"><span class="setting-name">Enter sends message</span><span class="setting-help">Turn off to make Enter add a new line.</span></div><button class="switch" id="enterSetting" role="switch" aria-checked="true" aria-label="Enter sends message"></button></div>
-    <div class="setting"><div class="setting-copy"><span class="setting-name">Reduced motion</span><span class="setting-help">Fewer bouncy bits. More chill.</span></div><button class="switch" id="motionSetting" role="switch" aria-checked="false" aria-label="Reduced motion"></button></div>
-    <div class="dialog-actions"><button class="secondary" data-close>Close</button><button class="primary" id="settingsDone">Looks good!</button></div>
+    <p class="dialog-desc">Preferences for the chat interface.</p>
+    <div class="setting"><div class="setting-copy"><span class="setting-name">Message size</span><span class="setting-help">Choose the text size used in messages.</span></div><select id="textSize"><option value="14px">Small</option><option value="15px">Medium</option><option value="17px">Large</option><option value="19px">Extra large</option></select></div>
+    <div class="setting"><div class="setting-copy"><span class="setting-name">Enter sends message</span><span class="setting-help">When off, Enter adds a new line instead.</span></div><button class="switch" id="enterSetting" role="switch" aria-checked="true" aria-label="Enter sends message"></button></div>
+    <div class="setting"><div class="setting-copy"><span class="setting-name">Reduced motion</span><span class="setting-help">Disable interface animations.</span></div><button class="switch" id="motionSetting" role="switch" aria-checked="false" aria-label="Reduced motion"></button></div>
+    <div class="dialog-actions"><button class="secondary" data-close>Close</button><button class="primary" id="settingsDone">Save settings</button></div>
   </div>
 </div>
 <div class="overlay" id="renameModal" role="dialog" aria-modal="true" aria-labelledby="renameTitle">
   <div class="dialog">
     <div class="dialog-head"><h2 id="renameTitle">Rename this chat</h2><button class="close" data-close aria-label="Close">×</button></div>
-    <p class="dialog-desc">Give this conversation a name worthy of its lore.</p>
-    <input id="renameInput" maxlength="70" placeholder="An extremely important conversation" style="width:100%;border:2px solid #d6e8ff;border-radius:12px;padding:12px;color:#164a8d;background:#f8fbff">
+    <p class="dialog-desc">Choose a name for this conversation.</p>
+    <input id="renameInput" maxlength="70" placeholder="Conversation name" style="width:100%;border:2px solid #d6e8ff;border-radius:12px;padding:12px;color:#164a8d;background:#f8fbff">
     <div class="dialog-actions"><button class="secondary" data-close>Cancel</button><button class="primary" id="renameSave">Save name</button></div>
   </div>
 </div>
 <div class="overlay" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
   <div class="dialog">
     <div class="dialog-head"><h2 id="aboutTitle">About Roger ✳</h2><button class="close" data-close aria-label="Close">×</button></div>
-    <p style="color:#17477e;line-height:1.65;margin:13px 0 8px">Blue? Yes. Comic Sans? Obviously. A suspicious amount of personality? Working on it.</p>
-    <p class="dialog-desc" style="margin-bottom:0">This is the interface stage. The AI comes later. For now, your chats and settings work right here in your browser.</p>
-    <div class="dialog-actions"><button class="primary" data-close>Excellent. Carry on.</button></div>
+    <p style="color:#17477e;line-height:1.65;margin:13px 0 8px">Roger is a chat interface in progress.</p>
+    <p class="dialog-desc" style="margin-bottom:0">Your conversations and preferences are saved in this browser. AI responses are not connected yet.</p>
+    <div class="dialog-actions"><button class="primary" data-close>Close</button></div>
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -234,8 +234,8 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
   function createChat(){const c=freshChat();chats.unshift(c);activeId=c.id;render();$('prompt').value='';fitInput();$('prompt').focus();closeSidebar();}
   function deleteChat(id){
     const c=chats.find(x=>x.id===id);if(!c)return;
-    if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted. Fresh slate!');return;}
-    chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted. Poof.');
+    if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted.');return;}
+    chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted.');
   }
   function sendMessage(text){const t=text.trim();if(!t)return;const c=active();c.messages.push({text:t,created:Date.now()});if(c.title==='New chat'||c.title==='Untitled chat'){const titleLimit=34;c.title=t.length>titleLimit?t.slice(0,titleLimit-1)+'…':t;}render();$('prompt').value='';fitInput();$('prompt').focus();}
   function fitInput(){$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,160)+'px';$('send').disabled=!$('prompt').value.trim();}
@@ -254,15 +254,15 @@ textarea::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9ccfff,#087
   $('prompt').addEventListener('input',fitInput);
   $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&settings.enterSend){e.preventDefault();$('composer').requestSubmit();}});
   $$('.suggestion').forEach(b=>b.addEventListener('click',()=>{$('prompt').value=b.textContent;fitInput();$('prompt').focus();}));
-  $('settingsOpen').addEventListener('click',()=>openModal('settingsModal'));$('settingsTop').addEventListener('click',()=>openModal('settingsModal'));
+  $('settingsOpen').addEventListener('click',()=>openModal('settingsModal'));
   $('aboutOpen').addEventListener('click',()=>openModal('aboutModal'));
   $('renameOpen').addEventListener('click',()=>{ $('renameInput').value=active().title;openModal('renameModal');});
-  $('renameSave').addEventListener('click',()=>{const t=$('renameInput').value.trim();if(!t){$('renameInput').focus();return;}active().title=t;render();closeModals();showToast('Name updated. Very official.');});
+  $('renameSave').addEventListener('click',()=>{const t=$('renameInput').value.trim();if(!t){$('renameInput').focus();return;}active().title=t;render();closeModals();showToast('Chat renamed.');});
   $('renameInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('renameSave').click();});
   $('textSize').addEventListener('change',e=>{settings.textSize=e.target.value;applySettings();save();});
   $('enterSetting').addEventListener('click',()=>{settings.enterSend=!settings.enterSend;applySettings();save();});
   $('motionSetting').addEventListener('click',()=>{settings.reduceMotion=!settings.reduceMotion;applySettings();save();});
-  $('settingsDone').addEventListener('click',()=>{save();closeModals();showToast('Settings saved. Maximum vibes.');});
+  $('settingsDone').addEventListener('click',()=>{save();closeModals();showToast('Settings saved.');});
   $$('[data-close]').forEach(b=>b.addEventListener('click',closeModals));
   $$('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModals();}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModals();closeSidebar();}});
