@@ -48,19 +48,32 @@
     if(chats.length===1){chats=[freshChat()];activeId=chats[0].id;render();showToast('Chat deleted.');return;}
     chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted.');
   }
-  let replyBusy=false;
+  let replyBusy=false,legacyNoticeShown=false;
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
-      const {RogerSparkBrowser}=await import('./browser_model.js');
-      generator=await new RogerSparkBrowser().initialize();
-      return generator;
+      try{
+        const {RogerSparkBrowser}=await import('./browser_model.js');
+        generator=await new RogerSparkBrowser().initialize();
+        generator.legacyMode=false;
+        return generator;
+      }catch(webgpuError){
+        // Keep the site usable while the new GPU checkpoint has not been exported.
+        const response=await fetch('./roger_spark_weights.json',{cache:'no-store'});
+        if(!response.ok)throw webgpuError;
+        const bundle=await response.json();
+        const {RogerSparkBrowser:LegacyRogerSparkBrowser}=await import('./browser_model_legacy.js');
+        generator=new LegacyRogerSparkBrowser(bundle);
+        generator.legacyMode=true;
+        return generator;
+      }
     })().catch(error=>{modelPromise=null;throw error;});
     return modelPromise;
   }
   async function generateReply(chatId,msg,userText,history){
     try{
       const model=await loadModel();
+      if(model.legacyMode&&!legacyNoticeShown){showToast('Using the previous model until the 25M WebGPU model is exported.');legacyNoticeShown=true;}
       const reply=await model.reply(userText,{
         temperature:settings.temperature,
         topP:settings.topP,
