@@ -1,7 +1,6 @@
 """Roger Spark: a tiny decoder-only Transformer trained from random initialization.
 This is intentionally a small educational model, not a pretrained model.
 """
-import math
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -18,15 +17,17 @@ class ByteTokenizer:
         return data.decode("utf-8", errors="ignore")
 
 class CausalBlock(nn.Module):
-    def __init__(self, width, heads, dropout):
+    def __init__(self, width, heads, dropout, max_seq):
         super().__init__()
         self.norm1 = nn.LayerNorm(width)
         self.attn = nn.MultiheadAttention(width, heads, dropout=dropout, batch_first=True)
         self.norm2 = nn.LayerNorm(width)
         self.ff = nn.Sequential(nn.Linear(width, 4 * width), nn.GELU(), nn.Linear(4 * width, width), nn.Dropout(dropout))
+        # Cache the causal mask instead of rebuilding it on every training step.
+        self.register_buffer("causal_mask", torch.triu(torch.ones(max_seq, max_seq, dtype=torch.bool), diagonal=1), persistent=False)
     def forward(self, x):
         length = x.shape[1]
-        mask = torch.triu(torch.ones(length, length, device=x.device, dtype=torch.bool), diagonal=1)
+        mask = self.causal_mask[:length, :length]
         y = self.norm1(x)
         x = x + self.attn(y, y, y, attn_mask=mask, need_weights=False)[0]
         return x + self.ff(self.norm2(x))
@@ -37,7 +38,7 @@ class RogerSpark(nn.Module):
         self.config = dict(vocab_size=vocab_size, width=width, layers=layers, heads=heads, max_seq=max_seq, dropout=dropout)
         self.token = nn.Embedding(vocab_size, width)
         self.position = nn.Embedding(max_seq, width)
-        self.blocks = nn.ModuleList([CausalBlock(width, heads, dropout) for _ in range(layers)])
+        self.blocks = nn.ModuleList([CausalBlock(width, heads, dropout, max_seq) for _ in range(layers)])
         self.norm = nn.LayerNorm(width)
         self.lm_head = nn.Linear(width, vocab_size, bias=False)
         self.lm_head.weight = self.token.weight
