@@ -29,9 +29,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: training/checkpoints
-          key: roger-spark-checkpoint-tokenizer-v2-${{ github.run_id }}
+          key: roger-spark-checkpoint-stories-v1-${{ github.run_id }}
           restore-keys: |
-            roger-spark-checkpoint-tokenizer-v2-
+            roger-spark-checkpoint-stories-v1-
 
       - name: Install dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r training/requirements.txt
