@@ -167,3 +167,16 @@ input[type="range"]{width:115px;accent-color:var(--blue);cursor:pointer}
 .chat-search-empty{padding:12px 9px;color:#d2e7ff;font-size:13px;font-style:italic}
 .clipboard-icon{width:20px;height:20px;display:block}
 @media(max-width:760px){.chat-search-wrap{min-height:42px}}
+
+
+/* Roger QoL+ */
+.prompt-wrap{display:flex;flex:1;min-width:0;flex-direction:column}.prompt-wrap textarea{width:100%;flex:none}
+.prompt-meta{display:flex;justify-content:space-between;gap:12px;padding:0 12px 5px;color:#82a2ca;font:10px Arial,sans-serif}
+.message-tools{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap}
+.message-action{border:1px solid #cfe4ff;border-radius:8px;padding:3px 7px;background:#f2f8ff;color:#2861a0;font:700 10px Arial,sans-serif}
+.message-action:hover{background:#dceeff}.message-time{font:10px Arial,sans-serif;color:#7b9bc0;margin-left:4px}
+.stop{height:42px;flex:0 0 42px;border:0;border-radius:13px;background:#ffe8e8;color:#b31f2d;font:900 15px Arial,sans-serif}.stop[hidden]{display:none}
+.jump-latest{position:sticky;bottom:10px;align-self:center;z-index:3;margin-top:auto;margin-bottom:8px;display:none;border:1px solid #ffffffb0;border-radius:999px;padding:9px 14px;background:#fff;color:#075bd1;font-weight:900;box-shadow:0 4px 0 #0053bc}.jump-latest.visible{display:block}
+.stats-content{display:flex;flex-direction:column;margin-top:8px}.stat-row{display:flex;justify-content:space-between;gap:14px;padding:11px 2px;border-bottom:1px solid #e5effc;color:#426c9f;font-size:13px}.stat-row strong{color:#075bd1;font-variant-numeric:tabular-nums}
+body.focus-mode .sidebar{display:none}body.focus-mode .app{grid-template-columns:minmax(0,1fr)}body.focus-mode .topbar{opacity:.18;transition:opacity .2s}body.focus-mode .topbar:hover,body.focus-mode .topbar:focus-within{opacity:1}body.focus-mode .main{padding-left:clamp(12px,5vw,70px);padding-right:clamp(12px,5vw,70px)}
+@media(max-width:760px){.prompt-meta{font-size:9px}.message-tools{gap:4px}.message-action{padding:4px 6px}.jump-latest{bottom:5px}body.focus-mode .main{padding-left:12px;padding-right:12px}}
