@@ -51,3 +51,22 @@ One-time owner setup is required because this repository cannot create credentia
 5. Ensure GitHub Pages is enabled for the branch/folder that serves this website. The workflow commits `api-config.js`, which lets the site connect automatically.
 
 The Space endpoint and model are public; never put `HF_TOKEN` in `api-config.js` or any committed file. Hugging Face's free Spaces may sleep or have compute limits. This is a tiny experimental model, not a pretrained general-purpose chatbot, so its answer quality will be limited.
+
+
+## Prompt-conditioning training v4
+
+The v4 trainer fixes three important training issues:
+
+- Each story is tokenized into its own windows, so unrelated stories are never concatenated into the same training stream.
+- Prompts are derived from evidence in the story, including explicit name/animal phrases such as `Rex the dog`, rather than only extracting a character name.
+- A held-out validation split is evaluated every 500 steps by default. Logs include a rolling training loss and validation loss, plus generation checks for a dog, cat, and named character.
+
+The v4 caches are deliberately separate from v3. The first v4 run rebuilds the tokenizer/cache. Old v3 checkpoints cannot be resumed with v4 because the training examples changed; start a fresh run without `--resume`. Subsequent workflow chunks resume the v4 checkpoint automatically.
+
+For a short smoke run on a Mac:
+
+```bash
+python -u training/train.py --steps 5000 --device mps --lr 0.0001 --save-every 500 --eval-every 500 --smoke-every 500
+```
+
+The short run is for checking that the pipeline works, not a claim that a 123M-parameter model will be capable after 5,000 steps. Compare the printed validation losses and all generation checks before deciding whether to train longer or change the learning rate.
