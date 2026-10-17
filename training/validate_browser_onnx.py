@@ -29,7 +29,7 @@ def main():
 
     tokenizer = Tokenizer.from_file(str(ROOT / "roger_spark_tokenizer.json"))
     ids = tokenizer.encode(PROMPT).ids[-int(cfg["max_seq"]):]
-    input_ids = torch.tensor([ids], dtype=torch.int32)
+    input_ids = torch.tensor([ids], dtype=torch.int64)
 
     with torch.no_grad():
         torch_logits = model(input_ids)[0, -1].float().numpy()
