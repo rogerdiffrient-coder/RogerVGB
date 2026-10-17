@@ -1,17 +1,12 @@
 name: Roger Spark training and export
 
-# Manual so normal site edits never launch a costly training run.
-# Uses GitHub-hosted CPU runners; the checkpoint cache lets a later run resume.
+# Manual runs only: editing this workflow must not interrupt or duplicate an
+# already-running tokenization/training job. Each 5k chunk publishes a checkpoint.
 on:
-  # Start this training workflow when its configuration is committed; it will
-  # not retrigger when the model exports are pushed.
-  push:
-    paths:
-      - ".github/workflows/train-and-deploy-space.yml"
   workflow_dispatch:
     inputs:
       steps:
-        description: Total target training steps (production target is 75000)
+        description: Total target training steps (must be a multiple of 5000; default 75000)
         required: true
         default: "75000"
 
@@ -30,7 +25,7 @@ jobs:
           cache: pip
           cache-dependency-path: training/requirements.txt
 
-      - name: Restore training checkpoint
+      - name: Restore training checkpoint cache
         uses: actions/cache@v4
         with:
           path: training/checkpoints
@@ -41,13 +36,211 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r training/requirements.txt
 
-      - name: Train on TinyStories (CPU if no accelerator is available)
+      - name: Set requested training target
         shell: bash
         env:
-          TRAINING_STEPS: ${{ inputs.steps || '75000' }}
+          REQUESTED_STEPS: ${{ inputs.steps || '75000' }}
         run: |
-          python -u training/train.py --steps "$TRAINING_STEPS" --batch-size 1 --resume
+          if ! [[ "$REQUESTED_STEPS" =~ ^[0-9]+$ ]] || (( REQUESTED_STEPS < 5000 || REQUESTED_STEPS > 75000 || REQUESTED_STEPS % 5000 != 0 )); then
+            echo "steps must be a multiple of 5000 from 5000 through 75000"
+            exit 1
+          fi
+          echo "REQUESTED_STEPS=$REQUESTED_STEPS" >> "$GITHUB_ENV"
 
+      - name: Train through step 5,000
+        run: python -u training/train.py --steps 5000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 5,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-5000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 10,000
+        run: python -u training/train.py --steps 10000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 10,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-10000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 15,000
+        run: python -u training/train.py --steps 15000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 15,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-15000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 20,000
+        run: python -u training/train.py --steps 20000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 20,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-20000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 25,000
+        run: python -u training/train.py --steps 25000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 25,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-25000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 30,000
+        run: python -u training/train.py --steps 30000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 30,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-30000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 35,000
+        run: python -u training/train.py --steps 35000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 35,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-35000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 40,000
+        run: python -u training/train.py --steps 40000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 40,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-40000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 45,000
+        run: python -u training/train.py --steps 45000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 45,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-45000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 50,000
+        run: python -u training/train.py --steps 50000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 50,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-50000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 55,000
+        run: python -u training/train.py --steps 55000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 55,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-55000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 60,000
+        run: python -u training/train.py --steps 60000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 60,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-60000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 65,000
+        run: python -u training/train.py --steps 65000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 65,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-65000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 70,000
+        run: python -u training/train.py --steps 70000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 70,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-70000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Train through step 75,000
+        run: python -u training/train.py --steps 75000 --batch-size 1 --resume
+
+      - name: Publish checkpoint at step 75,000
+        uses: actions/upload-artifact@v4
+        with:
+          name: roger-spark-checkpoint-step-75000
+          path: |
+            training/checkpoints/roger_spark_latest.pt
+            roger_spark_tokenizer.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Export ONNX FP16 for WebGPU
         if: success()
         run: python training/export_browser.py
@@ -60,17 +253,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Export Roger Spark 25M WebGPU model [skip ci]' || echo "No export changes to commit"
           git push
-
-      - name: Upload latest checkpoint even if training stops early
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: roger-spark-checkpoint
-          path: |
-            training/checkpoints/roger_spark_latest.pt
-            roger_spark_tokenizer.json
-          if-no-files-found: ignore
-          retention-days: 30
 
       - name: Upload final checkpoint
         if: success()
