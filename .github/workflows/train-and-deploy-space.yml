@@ -47,5 +47,17 @@ jobs:
             echo 'Trained weights did not change.'
           else
             git commit -m 'Update scratch-trained Roger Spark browser weights [skip ci]'
-            git push
+            # The website or another workflow may push to main while training runs.
+            # Rebase onto the latest main and retry if a push races with another commit.
+            for attempt in 1 2 3; do
+              git fetch origin "$GITHUB_REF_NAME"
+              git rebase "origin/$GITHUB_REF_NAME"
+              if git push origin "HEAD:$GITHUB_REF_NAME"; then
+                exit 0
+              fi
+              echo "Push raced with another commit (attempt $attempt); retrying..."
+              sleep 2
+            done
+            echo "Could not push trained weights after 3 attempts."
+            exit 1
           fi
