@@ -78,7 +78,7 @@ export class RogerSparkBrowser{
     if(!tokResponse.ok||!cfgResponse.ok)throw new Error('Tokenizer/config not found. Train and export Roger Spark first.');
     this.tokenizer=new ByteLevelBPE(await tokResponse.json());
     this.cfg=await cfgResponse.json();
-    if(this.cfg.parameter_count!==123509504)throw new Error('Model config parameter-count check failed: expected Roger Spark 123.51M v2.');
+    if(![25000000,123509504].includes(this.cfg.parameter_count))throw new Error('Model config parameter-count check failed: unsupported Roger Spark build.');
     if(!navigator.gpu)throw new Error('This browser does not expose WebGPU. Open Roger in a WebGPU-capable browser.');
     this.session=await this.runtime.InferenceSession.create('./roger_spark.onnx?v=roger-spark-123m-v2',{
       executionProviders:['webgpu'],graphOptimizationLevel:'all'
@@ -92,14 +92,17 @@ export class RogerSparkBrowser{
     const topP=clamp(Number(opts.topP)||0.9,0.5,1);
     // Match the prompt format used by prompt-conditioned story training.
     const rawPrompt=String(prompt).trim().slice(0,8000);
-    const aboutMatch=rawPrompt.match(/^(?:please\s+)?write\s+me\s+a\s+story\s+about\s+(.+?)[.!?]?$/i);
-    let conditionedPrompt;
-    if(aboutMatch){
-      const subject=aboutMatch[1].trim().replace(/[.!?]+$/,'');
-      const name=subject.charAt(0).toUpperCase()+subject.slice(1);
-      conditionedPrompt=`Write me a story about ${name}.\nStory:\n`;
-    }else{
-      conditionedPrompt=`${rawPrompt}\nStory:\n`;
+    let conditionedPrompt=rawPrompt;
+    // The old 25M model was trained on raw story continuation; v2 learns this prefix format.
+    if(this.cfg.parameter_count===123509504){
+      const aboutMatch=rawPrompt.match(/^(?:please\s+)?write\s+me\s+a\s+story\s+about\s+(.+?)[.!?]?$/i);
+      if(aboutMatch){
+        const subject=aboutMatch[1].trim().replace(/[.!?]+$/,'');
+        const name=subject.charAt(0).toUpperCase()+subject.slice(1);
+        conditionedPrompt='Write me a story about '+name+'.\nStory:\n';
+      }else{
+        conditionedPrompt=rawPrompt+'\nStory:\n';
+      }
     }
     let ids=this.tokenizer.encode(conditionedPrompt);
     ids=ids.slice(-MAX_PROMPT);
