@@ -1,16 +1,15 @@
-"""Roger Spark: exact-parameter decoder-only Transformer for TinyStories."""
+"""Roger Spark: prompt-conditioned decoder-only Transformer."""
 import torch
 from torch import nn
 
-TARGET_PARAMETERS = 25_000_000
-DEFAULT_WIDTH = 336
-DEFAULT_LAYERS = 18
-DEFAULT_HEADS = 8
-DEFAULT_MAX_SEQ = 320
+# 123.55M parameters with the browser-compatible 192-token context.
+TARGET_PARAMETERS = 123_550_464
+DEFAULT_WIDTH = 640
+DEFAULT_LAYERS = 28
+DEFAULT_HEADS = 10
+DEFAULT_MAX_SEQ = 192
 DEFAULT_VOCAB_SIZE = 6144
-# 17 layers use 1209 FFN units and one uses 1207; this makes the total
-# trainable parameter count exactly 25,000,000 without unused padding weights.
-DEFAULT_FFN_DIMS = [1207] + [1209] * 17
+DEFAULT_FFN_DIMS = [2048] * DEFAULT_LAYERS
 
 class CausalBlock(nn.Module):
     def __init__(self, width, heads, ff_dim, max_seq, dropout=0.0):
@@ -19,10 +18,8 @@ class CausalBlock(nn.Module):
         self.attn = nn.MultiheadAttention(width, heads, dropout=dropout, batch_first=True)
         self.norm2 = nn.LayerNorm(width)
         self.ff = nn.Sequential(
-            nn.Linear(width, ff_dim),
-            nn.GELU(),
-            nn.Linear(ff_dim, width),
-            nn.Dropout(dropout),
+            nn.Linear(width, ff_dim), nn.GELU(),
+            nn.Linear(ff_dim, width), nn.Dropout(dropout),
         )
         self.register_buffer(
             "causal_mask",
@@ -33,36 +30,29 @@ class CausalBlock(nn.Module):
     def forward(self, x):
         length = x.shape[1]
         y = self.norm1(x)
+        # need_weights=False lets PyTorch use its optimized scaled-dot-product attention path.
         x = x + self.attn(y, y, y, attn_mask=self.causal_mask[:length, :length], need_weights=False)[0]
         return x + self.ff(self.norm2(x))
 
 class RogerSpark(nn.Module):
-    def __init__(
-        self,
-        vocab_size=DEFAULT_VOCAB_SIZE,
-        width=DEFAULT_WIDTH,
-        layers=DEFAULT_LAYERS,
-        heads=DEFAULT_HEADS,
-        max_seq=DEFAULT_MAX_SEQ,
-        ffn_dims=None,
-        dropout=0.0,
-    ):
+    def __init__(self, vocab_size=DEFAULT_VOCAB_SIZE, width=DEFAULT_WIDTH,
+                 layers=DEFAULT_LAYERS, heads=DEFAULT_HEADS, max_seq=DEFAULT_MAX_SEQ,
+                 ffn_dims=None, dropout=0.0):
         super().__init__()
-        ffn_dims = list(ffn_dims or DEFAULT_FFN_DIMS)
+        ffn_dims = list(ffn_dims or [2048] * layers)
         if len(ffn_dims) != layers:
             raise ValueError(f"Expected {layers} FFN sizes, got {len(ffn_dims)}")
         if width % heads:
             raise ValueError("width must be divisible by heads")
         self.config = dict(
             vocab_size=vocab_size, width=width, layers=layers, heads=heads,
-            max_seq=max_seq, ffn_dims=ffn_dims, dropout=dropout,
-            pad_id=0, eos_id=1, parameter_target=TARGET_PARAMETERS,
+            max_seq=max_seq, ffn_dims=ffn_dims, dropout=dropout, pad_id=0, eos_id=1,
+            parameter_target=TARGET_PARAMETERS,
         )
         self.token = nn.Embedding(vocab_size, width)
         self.position = nn.Embedding(max_seq, width)
         self.blocks = nn.ModuleList([
-            CausalBlock(width, heads, ff_dim, max_seq, dropout)
-            for ff_dim in ffn_dims
+            CausalBlock(width, heads, ff_dim, max_seq, dropout) for ff_dim in ffn_dims
         ])
         self.norm = nn.LayerNorm(width)
         self.lm_head = nn.Linear(width, vocab_size, bias=False)
@@ -70,7 +60,7 @@ class RogerSpark(nn.Module):
         self.apply(self._init)
         actual = self.count_parameters()
         if actual != TARGET_PARAMETERS:
-            raise ValueError(f"Architecture has {actual:,} parameters; expected exactly {TARGET_PARAMETERS:,}")
+            raise ValueError(f"Architecture has {actual:,} parameters; expected {TARGET_PARAMETERS:,}")
 
     @staticmethod
     def _init(module):
