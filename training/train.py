@@ -12,8 +12,8 @@ from roger_spark import (
 
 STORY_CHAR_LIMIT = 12_000
 TOKENIZER_TRAIN_STORIES = 100_000
-TOKENIZER_DIR = Path("training/tokenizer_prompted_v2")
-TOKENIZED_CACHE = Path("training/tokenized_tinystories_prompted_v2")
+TOKENIZER_DIR = Path("training/tokenizer_prompted_v3")
+TOKENIZED_CACHE = Path("training/tokenized_tinystories_prompted_v3")
 
 def story_prefix(story):
     # TinyStories often explicitly introduces a character as "named Rex".
