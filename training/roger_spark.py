@@ -2,12 +2,12 @@
 import torch
 from torch import nn
 
-# 123.55M parameters with the browser-compatible 192-token context.
-TARGET_PARAMETERS = 123_550_464
+# 123.51M parameters with the browser-compatible 192-token context.
+TARGET_PARAMETERS = 123_509_504
 DEFAULT_WIDTH = 640
 DEFAULT_LAYERS = 28
 DEFAULT_HEADS = 10
-DEFAULT_MAX_SEQ = 192
+DEFAULT_MAX_SEQ = 128
 DEFAULT_VOCAB_SIZE = 6144
 DEFAULT_FFN_DIMS = [2048] * DEFAULT_LAYERS
 
