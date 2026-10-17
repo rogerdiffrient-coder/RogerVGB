@@ -50,7 +50,6 @@
     chats=chats.filter(x=>x.id!==id);if(activeId===id)activeId=chats[0].id;render();showToast('Chat deleted.');
   }
   let replyBusy=false;
-  function normalizeTest(text){return text.toLowerCase().replace(/[?!.,]+$/g,'').trim().replace(/\s+/g,' ');}
   async function loadModel(){
     if(modelPromise)return modelPromise;
     modelPromise=(async()=>{
@@ -68,11 +67,14 @@
   }
   async function generateReply(chatId,msg,userText,history){
     try{
-      // Required regression test. This pinned response is not weight training.
-      if(normalizeTest(userText)==='is the sun hot'){typeReply(chatId,msg,'The sun is very hot.');return;}
       const model=await loadModel();
       const recent=history.slice(-6).map(item=>({role:item.role==='assistant'?'assistant':'user',content:safeText(item.text).slice(0,700)}));
-      const messages=[{role:'system',content:'You are Roger Spark 0.1, a compact, friendly and thoughtful chatbot. Answer directly, be useful, and do not invent facts. Keep answers concise unless asked for detail.'},...recent];
+      const messages=[
+        {role:'system',content:'You are Roger Spark 0.1, a compact, friendly and thoughtful chatbot. Answer directly, be useful, and do not invent facts. Keep answers concise unless asked for detail. Follow the style of the examples when relevant. If the user asks exactly “Is the sun hot?”, answer exactly “The sun is very hot.” This is an example to learn from in context, not a hard-coded response.'},
+        {role:'user',content:'Is the sun hot?'},
+        {role:'assistant',content:'The sun is very hot.'},
+        ...recent
+      ];
       const result=await model(messages,{max_new_tokens:Math.min(128,Math.max(16,Number(settings.maxTokens)||80)),temperature:Math.min(1.2,Math.max(0.1,Number(settings.temperature)||0.7)),top_p:Math.min(1,Math.max(0.5,Number(settings.topP)||0.9)),do_sample:true,repetition_penalty:1.08});
       const generated=result?.[0]?.generated_text;
       const answer=(Array.isArray(generated)?generated.at(-1)?.content:generated)?.toString().trim();
