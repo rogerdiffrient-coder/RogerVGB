@@ -92,14 +92,14 @@ export class RogerSparkBrowser{
     const topP=clamp(Number(opts.topP)||0.9,0.5,1);
     // Match the prompt format used by prompt-conditioned story training.
     const rawPrompt=String(prompt).trim().slice(0,8000);
-    const aboutMatch=rawPrompt.match(/^(?:please\\s+)?write\\s+me\\s+a\\s+story\\s+about\\s+(.+?)[.!?]?$/i);
+    const aboutMatch=rawPrompt.match(/^(?:please\s+)?write\s+me\s+a\s+story\s+about\s+(.+?)[.!?]?$/i);
     let conditionedPrompt;
     if(aboutMatch){
       const subject=aboutMatch[1].trim().replace(/[.!?]+$/,'');
       const name=subject.charAt(0).toUpperCase()+subject.slice(1);
-      conditionedPrompt=`Write me a story about ${name}.\\nStory:\\n`;
+      conditionedPrompt=`Write me a story about ${name}.\nStory:\n`;
     }else{
-      conditionedPrompt=`${rawPrompt}\\nStory:\\n`;
+      conditionedPrompt=`${rawPrompt}\nStory:\n`;
     }
     let ids=this.tokenizer.encode(conditionedPrompt);
     ids=ids.slice(-MAX_PROMPT);
