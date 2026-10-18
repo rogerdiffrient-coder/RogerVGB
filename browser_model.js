@@ -115,7 +115,11 @@ export class RogerSparkBrowser{
     const generated=[];
     for(let step=0;step<maxTokens;step++){
       const context=ids.concat(generated).slice(-MAX_CONTEXT);
-      const tensor=new this.runtime.Tensor('int32',Int32Array.from(context),[1,context.length]);
+      // Fixed 128-token ONNX graph avoids traced dynamic attention reshapes.
+      // Right-padding cannot affect earlier positions because attention is causal.
+      const paddedContext=new Int32Array(MAX_CONTEXT);
+      paddedContext.set(context);
+      const tensor=new this.runtime.Tensor('int32',paddedContext,[1,MAX_CONTEXT]);
       const result=await this.session.run({input_ids:tensor});
       const logits=result.logits.data;
       const vocab=this.cfg.vocab_size;
