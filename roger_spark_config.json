@@ -7,6 +7,6 @@
   "heads": 10,
   "max_prompt_tokens": 48,
   "max_generated_tokens": 80,
-  "format": "onnx-fp16-webgpu",
+  "format": "onnx-fp32-webgpu",
   "training_step": 5000
 }
