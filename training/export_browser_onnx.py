@@ -53,7 +53,8 @@ def main():
     model.load_state_dict(state, strict=True)
     model.eval()
 
-    # Export a fixed 128-token graph. The browser right-pads shorter contexts and\n    # reads logits at the last real token; causal attention makes later padding inert.\n    dummy = torch.zeros((1, int(config["max_seq"])), dtype=torch.int32)
+    # Export a fixed-length graph; browser inference right-pads to max_seq.
+    dummy = torch.zeros((1, int(config["max_seq"])), dtype=torch.int32)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     torch.onnx.export(
         model,
@@ -61,7 +62,6 @@ def main():
         str(output_path),
         input_names=["input_ids"],
         output_names=["logits"],
-        dynamic_axes={"input_ids": {1: "sequence"}, "logits": {1: "sequence"}},
         opset_version=17,
         do_constant_folding=True,
         dynamo=False,
