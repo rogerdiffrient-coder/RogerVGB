@@ -33,10 +33,9 @@ class ByteLevelBPE {
   }
   encode(text){
     const out=[];
-    // Match the ByteLevel post-processor used during training.
+    // Match the training tokenizer's ByteLevel pre-tokenizer (add_prefix_space=false).
     const input=String(text);
-    const withPrefixSpace=/^\s/.test(input)?input:' '+input;
-    const pieces=withPrefixSpace.match(pretokenPattern)||[];
+    const pieces=input.match(pretokenPattern)||[];
     for(const piece of pieces){
       const symbols=[...new TextEncoder().encode(piece)].map(b=>byteMaps.encoder.get(b));
       while(symbols.length>1){
