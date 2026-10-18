@@ -6,6 +6,7 @@ on:
       - "roger_spark_tokenizer.json"
       - ".github/workflows/export-browser-model.yml"
       - "training/validate_browser_onnx.py"
+      - "training/export_browser_onnx.py"
   workflow_dispatch:
     inputs:
       release_tag:
