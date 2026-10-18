@@ -38,7 +38,7 @@ def main():
         str(ROOT / args.onnx), providers=["CPUExecutionProvider"]
     )
     input_name = session.get_inputs()[0].name
-    onnx_logits = session.run(None, {input_name: input_ids.numpy()})[0][0, -1].astype("float32")
+    onnx_logits = session.run(None, {input_name: input_ids.numpy()})[0][0, real_length - 1].astype("float32")
 
     difference = abs(torch_logits - onnx_logits)
     top_torch = torch_logits.argsort()[-10:][::-1].tolist()
