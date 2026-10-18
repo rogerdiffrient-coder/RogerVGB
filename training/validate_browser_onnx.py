@@ -19,20 +19,28 @@ def main():
 
     checkpoint = torch.load(ROOT / args.checkpoint, map_location="cpu", weights_only=False)
     cfg = checkpoint["config"]
+    max_seq = int(cfg["max_seq"])
     model = RogerSpark(
         vocab_size=int(cfg["vocab_size"]), width=int(cfg["width"]),
         layers=int(cfg["layers"]), heads=int(cfg["heads"]),
-        max_seq=int(cfg["max_seq"]), ffn_dims=list(cfg["ffn_dims"]), dropout=0.0,
+        max_seq=max_seq, ffn_dims=list(cfg["ffn_dims"]), dropout=0.0,
     )
     model.load_state_dict(checkpoint["model"], strict=True)
     model.eval()
 
     tokenizer = Tokenizer.from_file(str(ROOT / "roger_spark_tokenizer.json"))
-    ids = tokenizer.encode(PROMPT).ids[-int(cfg["max_seq"]):]
-    input_ids = torch.tensor([ids], dtype=torch.int64)
+    ids = tokenizer.encode(PROMPT).ids[-max_seq:]
+    real_length = len(ids)
+    if real_length == 0:
+        raise SystemExit("Prompt produced no tokens.")
+
+    # The exported graph has a fixed max_seq input. Right padding preserves
+    # real-token positions; compare logits at the final real token.
+    padded_ids = ids + [0] * (max_seq - real_length)
+    input_ids = torch.tensor([padded_ids], dtype=torch.int32)
 
     with torch.no_grad():
-        torch_logits = model(input_ids)[0, -1].float().numpy()
+        torch_logits = model(input_ids)[0, real_length - 1].float().numpy()
 
     session = ort.InferenceSession(
         str(ROOT / args.onnx), providers=["CPUExecutionProvider"]
@@ -44,7 +52,7 @@ def main():
     top_torch = torch_logits.argsort()[-10:][::-1].tolist()
     top_onnx = onnx_logits.argsort()[-10:][::-1].tolist()
     print(f"Checkpoint step: {checkpoint.get('step')}")
-    print(f"Prompt token count: {len(ids)}")
+    print(f"Prompt token count: {real_length}")
     print(f"Max absolute logit difference: {difference.max():.6f}")
     print(f"Mean absolute logit difference: {difference.mean():.6f}")
     print(f"PyTorch top-10 token IDs: {top_torch}")
